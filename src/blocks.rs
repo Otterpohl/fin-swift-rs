@@ -49,7 +49,7 @@ impl<'a> Block3<'a> {
         Block3 {
             id: id,
             name: "User".to_string(),
-            description: "Allows users to provide their own referenceaaaasssssssssssss".to_string(),
+            description: "Allows users to provide their own reference".to_string(),
             data: data,
         }
     }
@@ -69,7 +69,7 @@ impl<'a> Block4<'a> {
         Block4 {
             id: id,
             name: "Text".to_string(),
-            description: "Contains the text of the message.".to_string(),
+            description: "Contains the text of the message".to_string(),
             data: data,
             tags: "".to_string(), //vec![],
         }

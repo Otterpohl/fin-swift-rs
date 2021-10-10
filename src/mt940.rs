@@ -65,7 +65,7 @@ impl<'a> Mt940<'a> {
                     self.block5 = Some(blocks::Block5::new(block_id, block_data));
                 }
                 _ => {
-                    panic!("We really should have reached this, too bad!");
+                    panic!("We really shouldn't have reached this, too bad!");
                 }
             }
         }
