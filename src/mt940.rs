@@ -36,17 +36,7 @@ impl<'a> Mt940<'a> {
 
         for (i, (start, end)) in blocks.enumerate() {
             let block_id = 1 + i as i8;
-            let prefix = format!("{{{}:", block_id.to_string());
-            let suffix = match block_id {
-                4 => "-}",
-                _ => "}",
-            };
-
-            let block_data = self.data[*start..=*end]
-                .strip_prefix(&prefix)
-                .unwrap()
-                .strip_suffix(suffix)
-                .unwrap();
+            let block_data = self.strip_block(block_id, start, end);
 
             match block_id {
                 1 => {
@@ -69,6 +59,19 @@ impl<'a> Mt940<'a> {
                 }
             }
         }
+    }
+
+    fn strip_block(&self, block_id: i8, start: &usize, end: &usize) -> &'a str {
+        let prefix = format!("{{{}:", block_id.to_string());
+        let suffix = match block_id {
+            4 => "-}",
+            _ => "}",
+        };
+        self.data[*start..=*end]
+            .strip_prefix(&prefix)
+            .unwrap()
+            .strip_suffix(suffix)
+            .unwrap()
     }
 }
 
