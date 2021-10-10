@@ -30,40 +30,39 @@ impl<'a> Mt940<'a> {
     }
 
     fn parse_blocks(&mut self) {
-        // try doing this in regex :) this was my attempt Regex::new(r"(?m)(\{\d.+?})").unwrap();
         let block_start_index: Vec<usize> = self.data.match_indices("{").map(|(i, _)| i).collect();
         let block_end_index: Vec<usize> = self.data.match_indices("}").map(|(i, _)| i).collect();
         let blocks = block_start_index.iter().zip(block_end_index.iter());
 
         for (i, (start, end)) in blocks.enumerate() {
-            let id = 1 + i as i8;
-            let prefix = format!("{{{}:", id.to_string());
-            let suffix = match id {
+            let block_id = 1 + i as i8;
+            let prefix = format!("{{{}:", block_id.to_string());
+            let suffix = match block_id {
                 4 => "-}",
                 _ => "}",
             };
 
-            let data = self.data[*start..=*end]
+            let block_data = self.data[*start..=*end]
                 .strip_prefix(&prefix)
                 .unwrap()
                 .strip_suffix(suffix)
                 .unwrap();
 
-            match id {
+            match block_id {
                 1 => {
-                    self.block1 = Some(blocks::Block1::new(id, data));
+                    self.block1 = Some(blocks::Block1::new(block_id, block_data));
                 }
                 2 => {
-                    self.block2 = Some(blocks::Block2::new(id, data));
+                    self.block2 = Some(blocks::Block2::new(block_id, block_data));
                 }
                 3 => {
-                    self.block3 = Some(blocks::Block3::new(id, data));
+                    self.block3 = Some(blocks::Block3::new(block_id, block_data));
                 }
                 4 => {
-                    self.block4 = Some(blocks::Block4::new(id, data));
+                    self.block4 = Some(blocks::Block4::new(block_id, block_data));
                 }
                 5 => {
-                    self.block5 = Some(blocks::Block5::new(id, data));
+                    self.block5 = Some(blocks::Block5::new(block_id, block_data));
                 }
                 _ => {
                     panic!("We really should have reached this, too bad!");
