@@ -74,31 +74,3 @@ impl<'a> Mt940<'a> {
             .unwrap()
     }
 }
-
-fn is_tag(data: &str) {
-    let tag_regex = Regex::new(r"(?m)(:(\d\d|\d\d[A-Z]):.+)").unwrap();
-    for tag in tag_regex.captures_iter(data) {
-        println!("tag = {:?}", tag);
-    }
-}
-
-#[derive(Debug)]
-pub struct Tag {
-    tag20: Option<String>,
-    tag25: Option<String>,
-    tag28c: Option<String>,
-    tag60f: Option<String>,
-    tag62f: Option<String>,
-}
-
-impl Tag {
-    pub fn new(id: i8, data: String) -> Self {
-        Tag {
-            tag20: None, // new Tag20
-            tag25: None,
-            tag28c: None,
-            tag60f: None,
-            tag62f: None,
-        }
-    }
-}

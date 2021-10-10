@@ -61,7 +61,7 @@ pub struct Block4<'a> {
     name: String,
     description: String,
     data: &'a str,
-    tags: String, //Vec<Tag>,
+    tags: Vec<Tags>,
 }
 
 impl<'a> Block4<'a> {
