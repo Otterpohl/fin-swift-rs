@@ -2,6 +2,7 @@ use std::fs;
 
 mod blocks;
 mod mt940;
+mod tags;
 
 fn main() {
     let filename = "./tests/basic_test.txt";
@@ -10,4 +11,6 @@ fn main() {
     let mut swift = mt940::Mt940::new(content);
 
     swift.parse();
+
+    println!("swift = {:#?}", swift);
 }

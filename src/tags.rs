@@ -1,131 +1,94 @@
-#[derive(Debug)]
-pub struct Tag20 {
-    name: String,
-    description: String,
-    key: String,
-    value: String,
+#[derive(Debug, Clone, Copy)]
+pub struct Tag20<'a> {
+    pub name: &'a str,
+    pub description: &'a str,
+    pub key: &'a str,
+    pub value: &'a str,
 }
 
-impl Tag20 {
-    pub fn new(value: String) -> Self {
+impl<'a> Tag20<'a> {
+    pub fn new(value: &'a str) -> Self {
         Tag20 {
-            name: "Transaction Reference Number".to_string(),
-            description: "Used by the Sender to unambiguously identify the message".to_string(),
-            key: "20".to_string(),
+            name: "Transaction Reference Number",
+            description: "Used by the Sender to unambiguously identify the message",
+            key: "20",
             value: value,
         }
     }
 }
 
-#[derive(Debug)]
-pub struct Tag25 {
-    name: String,
-    description: String,
-    key: String,
-    value: String,
+#[derive(Debug, Clone, Copy)]
+pub struct Tag25<'a> {
+    pub name: &'a str,
+    pub description: &'a str,
+    pub key: &'a str,
+    pub value: &'a str,
 }
 
-impl Tag25 {
-    pub fn new(value: String) -> Self {
+impl<'a> Tag25<'a> {
+    pub fn new(value: &'a str) -> Self {
         Tag25 {
-            name: "Account Identification".to_string(),
-            description: "Identifies the account for which the statement is sent".to_string(),
-            key: "25".to_string(),
+            name: "Account Identification",
+            description: "Identifies the account for which the statement is sent",
+            key: "25",
             value: value,
         }
     }
 }
 
-#[derive(Debug)]
-pub struct Tag28C {
-    name: String,
-    description: String,
-    key: String,
-    value: String,
+#[derive(Debug, Clone, Copy)]
+pub struct Tag28C<'a> {
+    pub name: &'a str,
+    pub description: &'a str,
+    pub key: &'a str,
+    pub value: &'a str,
 }
 
-impl Tag28C {
-    pub fn new(value: String) -> Self {
+impl<'a> Tag28C<'a> {
+    pub fn new(value: &'a str) -> Self {
         Tag28C {
-            name: "Statement Number / Sequence Number".to_string(),
-            description: "Sequential number of the statement, optionally followed by the sequence number of the message".to_string(),
-            key: "28C".to_string(),
+            name: "Statement Number / Sequence Number",
+            description: "Sequential number of the statement, optionally followed by the sequence number of the message",
+            key: "28C",
             value: value,
         }
     }
 }
 
-#[derive(Debug)]
-pub struct Tag60F {
-    name: String,
-    description: String,
-    key: String,
-    value: String,
+#[derive(Debug, Clone, Copy)]
+pub struct Tag60F<'a> {
+    pub name: &'a str,
+    pub description: &'a str,
+    pub key: &'a str,
+    pub value: &'a str,
 }
 
-impl Tag60F {
-    pub fn new(value: String) -> Self {
+impl<'a> Tag60F<'a> {
+    pub fn new(value: &'a str) -> Self {
         Tag60F {
-            name: "Opening Balance".to_string(),
-            description: "Whether it is a debit or credit balance, the date, the currency and the amount of the balance".to_string(),
-            key: "60F".to_string(),
+            name: "Opening Balance",
+            description: "Whether it is a debit or credit balance, the date, the currency and the amount of the balance",
+            key: "60F",
             value: value,
         }
     }
 }
 
-#[derive(Debug)]
-pub struct Tag62F {
-    name: String,
-    description: String,
-    key: String,
-    value: String,
+#[derive(Debug, Clone, Copy)]
+pub struct Tag62F<'a> {
+    pub name: &'a str,
+    pub description: &'a str,
+    pub key: &'a str,
+    pub value: &'a str,
 }
 
-impl Tag62F {
-    pub fn new(value: String) -> Self {
+impl<'a> Tag62F<'a> {
+    pub fn new(value: &'a str) -> Self {
         Tag62F {
-            name: "Closing Balance (Booked Funds)".to_string(),
-            description: "Whether it is a debit or credit balance, the date, the currency and the amount of the balance".to_string(),
-            key: "62F".to_string(),
+            name: "Closing Balance (Booked Funds)",
+            description: "Whether it is a debit or credit balance, the date, the currency and the amount of the balance",
+            key: "62F",
             value: value,
         }
     }
 }
-
-fn is_tag(data: &str) {
-    let tag_regex = Regex::new(r"(?m)(:(\d\d|\d\d[A-Z]):.+)").unwrap();
-    for tag in tag_regex.captures_iter(data) {
-        println!("tag = {:?}", tag);
-    }
-}
-
-#[derive(Debug)]
-pub struct Tags {
-    tag20: Option<Tag20>,
-    tag25: Option<String>,
-    tag28c: Option<String>,
-    tag60f: Option<String>,
-    tag62f: Option<String>,
-}
-
-impl Tags {
-    pub fn new(id: i8, data: String) -> Self {
-        Tag {
-            tag20: None, // new Tag20
-            tag25: None,
-            tag28c: None,
-            tag60f: None,
-            tag62f: None,
-        }
-    }
-}
-
-//fn parse_tags(&mut self) {
-//    let tag_start_index: Vec<usize> = self
-//        .data
-//        .match_indices(|i, d| is_tag(d))
-//        .map(|(i, _)| i)
-//        .collect();
-//    println!("tag_start_index = {:?}", tag_start_index);
-//}
