@@ -1,14 +1,14 @@
 #[derive(Debug)]
-pub struct Block1<'a> {
+pub struct BlockBasic<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
     data: &'a str,
 }
 
-impl<'a> Block1<'a> {
+impl<'a> BlockBasic<'a> {
     pub fn new(id: i8, data: &'a str) -> Self {
-        Block1 {
+        BlockBasic {
             id: id,
             name: "Basic",
             description: "Fundamental reference for any particular message",
@@ -18,16 +18,16 @@ impl<'a> Block1<'a> {
 }
 
 #[derive(Debug)]
-pub struct Block2<'a> {
+pub struct BlockApplication<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
     data: &'a str,
 }
 
-impl<'a> Block2<'a> {
+impl<'a> BlockApplication<'a> {
     pub fn new(id: i8, data: &'a str) -> Self {
-        Block2 {
+        BlockApplication {
             id: id,
             name: "Application",
             description: "Information about the message itself",
@@ -37,16 +37,16 @@ impl<'a> Block2<'a> {
 }
 
 #[derive(Debug)]
-pub struct Block3<'a> {
+pub struct BlockUser<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
     data: &'a str,
 }
 
-impl<'a> Block3<'a> {
+impl<'a> BlockUser<'a> {
     pub fn new(id: i8, data: &'a str) -> Self {
-        Block3 {
+        BlockUser {
             id: id,
             name: "User",
             description: "Allows users to provide their own reference",
@@ -56,7 +56,7 @@ impl<'a> Block3<'a> {
 }
 
 #[derive(Debug)]
-pub struct Block4<'a> {
+pub struct BlockText<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
@@ -64,9 +64,9 @@ pub struct Block4<'a> {
     //tags: Vec<Tags>,
 }
 
-impl<'a> Block4<'a> {
+impl<'a> BlockText<'a> {
     pub fn new(id: i8, data: &'a str) -> Self {
-        Block4 {
+        BlockText {
             id: id,
             name: "Text",
             description: "Contains the text of the message",
@@ -77,18 +77,18 @@ impl<'a> Block4<'a> {
 }
 
 #[derive(Debug)]
-pub struct Block5<'a> {
+pub struct BlockTrailer<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
     data: &'a str,
 }
 
-impl<'a> Block5<'a> {
+impl<'a> BlockTrailer<'a> {
     pub fn new(id: i8, data: &'a str) -> Self {
-        Block5 {
+        BlockTrailer {
             id: id,
-            name: "Trailers",
+            name: "Trailer",
             description: "Indicates special circumstances that relate to message handling or contains security information",
             data: data,
         }

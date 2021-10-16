@@ -3,11 +3,11 @@ use crate::blocks;
 #[derive(Debug)]
 pub struct Mt940<'a> {
     pub data: &'a str,
-    pub block1: Option<blocks::Block1<'a>>,
-    pub block2: Option<blocks::Block2<'a>>,
-    pub block3: Option<blocks::Block3<'a>>,
-    pub block4: Option<blocks::Block4<'a>>,
-    pub block5: Option<blocks::Block5<'a>>,
+    pub block1: Option<blocks::BlockBasic<'a>>,
+    pub block2: Option<blocks::BlockApplication<'a>>,
+    pub block3: Option<blocks::BlockUser<'a>>,
+    pub block4: Option<blocks::BlockText<'a>>,
+    pub block5: Option<blocks::BlockTrailer<'a>>,
 }
 
 impl<'a> Mt940<'a> {
@@ -38,19 +38,19 @@ impl<'a> Mt940<'a> {
 
             match block_id {
                 1 => {
-                    self.block1 = Some(blocks::Block1::new(block_id, block_data));
+                    self.block1 = Some(blocks::BlockBasic::new(block_id, block_data));
                 }
                 2 => {
-                    self.block2 = Some(blocks::Block2::new(block_id, block_data));
+                    self.block2 = Some(blocks::BlockApplication::new(block_id, block_data));
                 }
                 3 => {
-                    self.block3 = Some(blocks::Block3::new(block_id, block_data));
+                    self.block3 = Some(blocks::BlockUser::new(block_id, block_data));
                 }
                 4 => {
-                    self.block4 = Some(blocks::Block4::new(block_id, block_data));
+                    self.block4 = Some(blocks::BlockText::new(block_id, block_data));
                 }
                 5 => {
-                    self.block5 = Some(blocks::Block5::new(block_id, block_data));
+                    self.block5 = Some(blocks::BlockTrailer::new(block_id, block_data));
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");
