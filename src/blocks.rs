@@ -58,7 +58,7 @@ impl<'a> User<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct Text<'a> {
     id: i8,
     name: &'a str,

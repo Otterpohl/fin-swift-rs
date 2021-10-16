@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct Tag20<'a> {
     pub name: &'a str,
     pub description: &'a str,
@@ -17,7 +17,7 @@ impl<'a> Tag20<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct Tag25<'a> {
     pub name: &'a str,
     pub description: &'a str,
@@ -36,7 +36,7 @@ impl<'a> Tag25<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct Tag28C<'a> {
     pub name: &'a str,
     pub description: &'a str,
@@ -55,7 +55,7 @@ impl<'a> Tag28C<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct Tag60F<'a> {
     pub name: &'a str,
     pub description: &'a str,
@@ -74,7 +74,7 @@ impl<'a> Tag60F<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct Tag62F<'a> {
     pub name: &'a str,
     pub description: &'a str,

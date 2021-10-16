@@ -1,5 +1,4 @@
 use crate::blocks;
-use crate::tags;
 
 #[derive(Debug)]
 pub struct Mt940<'a> {
