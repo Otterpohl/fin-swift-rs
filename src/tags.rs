@@ -120,3 +120,12 @@ impl Tags {
         }
     }
 }
+
+//fn parse_tags(&mut self) {
+//    let tag_start_index: Vec<usize> = self
+//        .data
+//        .match_indices(|i, d| is_tag(d))
+//        .map(|(i, _)| i)
+//        .collect();
+//    println!("tag_start_index = {:?}", tag_start_index);
+//}

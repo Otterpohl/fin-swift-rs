@@ -61,7 +61,7 @@ pub struct Block4<'a> {
     name: String,
     description: String,
     data: &'a str,
-    tags: Vec<Tags>,
+    //tags: Vec<Tags>,
 }
 
 impl<'a> Block4<'a> {
@@ -71,7 +71,7 @@ impl<'a> Block4<'a> {
             name: "Text".to_string(),
             description: "Contains the text of the message".to_string(),
             data: data,
-            tags: "".to_string(), //vec![],
+            //tags: vec![],
         }
     }
 }
@@ -94,12 +94,3 @@ impl<'a> Block5<'a> {
         }
     }
 }
-
-//fn parse_tags(&mut self) {
-//    let tag_start_index: Vec<usize> = self
-//        .data
-//        .match_indices(|i, d| is_tag(d))
-//        .map(|(i, _)| i)
-//        .collect();
-//    println!("tag_start_index = {:?}", tag_start_index);
-//}
