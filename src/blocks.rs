@@ -6,16 +6,16 @@ pub struct Basic<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
-    data: &'a str,
+    pub data: &'a str,
 }
 
 impl<'a> Basic<'a> {
-    pub fn new(data: &'a str) -> Self {
+    pub fn new() -> Self {
         Basic {
             id: 1,
             name: "Basic",
             description: "Fundamental reference for any particular message",
-            data: data,
+            data: "",
         }
     }
 }
@@ -25,16 +25,16 @@ pub struct Application<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
-    data: &'a str,
+    pub data: &'a str,
 }
 
 impl<'a> Application<'a> {
-    pub fn new(data: &'a str) -> Self {
+    pub fn new() -> Self {
         Application {
             id: 2,
             name: "Application",
             description: "Information about the message itself",
-            data: data,
+            data: "",
         }
     }
 }
@@ -44,16 +44,16 @@ pub struct User<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
-    data: &'a str,
+    pub data: &'a str,
 }
 
 impl<'a> User<'a> {
-    pub fn new(data: &'a str) -> Self {
+    pub fn new() -> Self {
         User {
             id: 3,
             name: "User",
             description: "Allows users to provide their own reference",
-            data: data,
+            data: "",
         }
     }
 }
@@ -63,7 +63,7 @@ pub struct Text<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
-    data: &'a str,
+    pub data: &'a str,
     pub tag20: Option<tags::Tag20<'a>>,
     pub tag25: Option<tags::Tag25<'a>>,
     pub tag28c: Option<tags::Tag28C<'a>>,
@@ -72,12 +72,12 @@ pub struct Text<'a> {
 }
 
 impl<'a> Text<'a> {
-    pub fn new(data: &'a str) -> Self {
+    pub fn new() -> Self {
         Text {
             id: 4,
             name: "Text",
             description: "Contains the text of the message",
-            data: data,
+            data: "",
             tag20: None,
             tag25: None,
             tag28c: None,
@@ -123,16 +123,16 @@ pub struct Trailer<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
-    data: &'a str,
+    pub data: &'a str,
 }
 
 impl<'a> Trailer<'a> {
-    pub fn new(data: &'a str) -> Self {
+    pub fn new() -> Self {
         Trailer {
             id: 5,
             name: "Trailer",
             description: "Indicates special circumstances that relate to message handling or contains security information",
-            data: data,
+            data: "",
         }
     }
 }

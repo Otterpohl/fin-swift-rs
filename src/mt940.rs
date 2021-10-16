@@ -3,22 +3,22 @@ use crate::blocks;
 #[derive(Debug)]
 pub struct Mt940<'a> {
     pub raw_data: &'a str,
-    pub block_basic: Option<blocks::Basic<'a>>,
-    pub block_application: Option<blocks::Application<'a>>,
-    pub block_user: Option<blocks::User<'a>>,
-    pub block_text: Option<blocks::Text<'a>>,
-    pub block_trailer: Option<blocks::Trailer<'a>>,
+    pub block_basic: blocks::Basic<'a>,
+    pub block_application: blocks::Application<'a>,
+    pub block_user: blocks::User<'a>,
+    pub block_text: blocks::Text<'a>,
+    pub block_trailer: blocks::Trailer<'a>,
 }
 
 impl<'a> Mt940<'a> {
     pub fn new(input: &'a str) -> Self {
         Mt940 {
             raw_data: input,
-            block_basic: None,
-            block_application: None,
-            block_user: None,
-            block_text: None,
-            block_trailer: None,
+            block_basic: blocks::Basic::new(),
+            block_application: blocks::Application::new(),
+            block_user: blocks::User::new(),
+            block_text: blocks::Text::new(),
+            block_trailer: blocks::Trailer::new(),
         }
     }
 
@@ -37,21 +37,20 @@ impl<'a> Mt940<'a> {
 
             match id {
                 1 => {
-                    self.block_basic = Some(blocks::Basic::new(data));
+                    self.block_basic.data = data;
                 }
                 2 => {
-                    self.block_application = Some(blocks::Application::new(data));
+                    self.block_application.data = data;
                 }
                 3 => {
-                    self.block_user = Some(blocks::User::new(data));
+                    self.block_user.data = data;
                 }
                 4 => {
-                    let mut block = blocks::Text::new(data);
-                    block.parse_tags();
-                    self.block_text = Some(block);
+                    self.block_text.data = data;
+                    self.block_text.parse_tags();
                 }
                 5 => {
-                    self.block_trailer = Some(blocks::Trailer::new(data));
+                    self.block_trailer.data = data;
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");
