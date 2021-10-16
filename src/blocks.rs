@@ -69,6 +69,9 @@ pub struct Text<'a> {
     pub tag28c: Option<tags::Tag28C<'a>>,
     pub tag60f: Option<tags::Tag60F<'a>>,
     pub tag62f: Option<tags::Tag62F<'a>>,
+    pub tag61: Option<tags::Tag61<'a>>,
+    pub tag86: Option<tags::Tag86<'a>>,
+    pub tag64: Option<tags::Tag64<'a>>,
 }
 
 impl<'a> Text<'a> {
@@ -83,6 +86,9 @@ impl<'a> Text<'a> {
             tag28c: None,
             tag60f: None,
             tag62f: None,
+            tag61: None,
+            tag86: None,
+            tag64: None,
         }
     }
 
@@ -109,6 +115,15 @@ impl<'a> Text<'a> {
                 }
                 "62F" => {
                     self.tag62f = Some(tags::Tag62F::new(value));
+                }
+                "61" => {
+                    self.tag61 = Some(tags::Tag61::new(value));
+                }
+                "86" => {
+                    self.tag86 = Some(tags::Tag86::new(value));
+                }
+                "64" => {
+                    self.tag64 = Some(tags::Tag64::new(value));
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");
