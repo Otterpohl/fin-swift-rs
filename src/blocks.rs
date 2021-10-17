@@ -64,14 +64,7 @@ pub struct Text<'a> {
     name: &'a str,
     description: &'a str,
     pub data: &'a str,
-    pub tag20: Option<tags::Tag20<'a>>,
-    pub tag25: Option<tags::Tag25<'a>>,
-    pub tag28c: Option<tags::Tag28C<'a>>,
-    pub tag60f: Option<tags::Tag60F<'a>>,
-    pub tag62f: Option<tags::Tag62F<'a>>,
-    pub tag61: Option<tags::Tag61<'a>>,
-    pub tag86: Option<tags::Tag86<'a>>,
-    pub tag64: Option<tags::Tag64<'a>>,
+    pub tags: Vec<tags::Tags<'a>>,
 }
 
 impl<'a> Text<'a> {
@@ -81,14 +74,7 @@ impl<'a> Text<'a> {
             name: "Text",
             description: "Contains the text of the message",
             data: "",
-            tag20: None,
-            tag25: None,
-            tag28c: None,
-            tag60f: None,
-            tag62f: None,
-            tag61: None,
-            tag86: None,
-            tag64: None,
+            tags: vec![],
         }
     }
 
@@ -102,28 +88,28 @@ impl<'a> Text<'a> {
 
             match key {
                 "20" => {
-                    self.tag20 = Some(tags::Tag20::new(value));
+                    self.tags.push(tags::Tags::Tag20(tags::Tag20::new(value)));
                 }
                 "25" => {
-                    self.tag25 = Some(tags::Tag25::new(value));
+                    self.tags.push(tags::Tags::Tag25(tags::Tag25::new(value)));
                 }
                 "28C" => {
-                    self.tag28c = Some(tags::Tag28C::new(value));
+                    self.tags.push(tags::Tags::Tag28C(tags::Tag28C::new(value)));
                 }
                 "60F" => {
-                    self.tag60f = Some(tags::Tag60F::new(value));
+                    self.tags.push(tags::Tags::Tag60F(tags::Tag60F::new(value)));
                 }
                 "62F" => {
-                    self.tag62f = Some(tags::Tag62F::new(value));
+                    self.tags.push(tags::Tags::Tag62F(tags::Tag62F::new(value)));
                 }
                 "61" => {
-                    self.tag61 = Some(tags::Tag61::new(value));
+                    self.tags.push(tags::Tags::Tag61(tags::Tag61::new(value)));
                 }
                 "86" => {
-                    self.tag86 = Some(tags::Tag86::new(value));
+                    self.tags.push(tags::Tags::Tag86(tags::Tag86::new(value)));
                 }
                 "64" => {
-                    self.tag64 = Some(tags::Tag64::new(value));
+                    self.tags.push(tags::Tags::Tag64(tags::Tag64::new(value)));
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");
