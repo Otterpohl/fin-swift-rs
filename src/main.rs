@@ -13,6 +13,6 @@ fn main() {
     swift.parse();
     let duration = start.elapsed();
 
-    println!("output = {:#?}", swift);
-    println!("Time elapsed: {:?}", duration);
+    eprintln!("swift = {:#?}", swift.text.tag_20.value);
+    eprintln!("Time elapsed: {:?}", duration);
 }

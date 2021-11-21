@@ -1,16 +1,4 @@
 #[derive(Debug)]
-pub enum Tags<'a> {
-    Tag20(Tag20<'a>),
-    Tag25(Tag25<'a>),
-    Tag28C(Tag28C<'a>),
-    Tag60F(Tag60F<'a>),
-    Tag61(Tag61<'a>),
-    Tag62F(Tag62F<'a>),
-    Tag64(Tag64<'a>),
-    Tag86(Tag86<'a>),
-}
-
-#[derive(Debug)]
 pub struct Tag20<'a> {
     pub key: &'a str,
     pub value: &'a str,

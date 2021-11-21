@@ -6,16 +6,16 @@ pub struct Basic<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
-    pub data: &'a str,
+    pub block_data: &'a str,
 }
 
 impl<'a> Basic<'a> {
-    pub fn new() -> Self {
+    pub fn new(block_data: &'a str) -> Self {
         Basic {
             id: 1,
             name: "Basic",
             description: "Fundamental reference for any particular message",
-            data: "",
+            block_data: block_data,
         }
     }
 }
@@ -25,16 +25,16 @@ pub struct Application<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
-    pub data: &'a str,
+    pub block_data: &'a str,
 }
 
 impl<'a> Application<'a> {
-    pub fn new() -> Self {
+    pub fn new(block_data: &'a str) -> Self {
         Application {
             id: 2,
             name: "Application",
             description: "Information about the message itself",
-            data: "",
+            block_data: block_data,
         }
     }
 }
@@ -44,16 +44,16 @@ pub struct User<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
-    pub data: &'a str,
+    pub block_data: &'a str,
 }
 
 impl<'a> User<'a> {
-    pub fn new() -> Self {
+    pub fn new(block_data: &'a str) -> Self {
         User {
             id: 3,
             name: "User",
             description: "Allows users to provide their own reference",
-            data: "",
+            block_data: block_data,
         }
     }
 }
@@ -63,53 +63,68 @@ pub struct Text<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
-    pub data: &'a str,
-    pub tags: Vec<tags::Tags<'a>>,
+    pub block_data: &'a str,
+    pub tag_20: tags::Tag20<'a>,
+    pub tag_25: tags::Tag25<'a>,
+    pub tag_28c: tags::Tag28C<'a>,
+    pub tag_60f: tags::Tag60F<'a>,
+    pub tag_62f: tags::Tag62F<'a>,
+    pub tag_61: tags::Tag61<'a>,
+    pub tag_86: tags::Tag86<'a>,
+    pub tag_64: tags::Tag64<'a>,
 }
 
 impl<'a> Text<'a> {
-    pub fn new() -> Self {
+    pub fn new(block_data: &'a str) -> Self {
         Text {
             id: 4,
             name: "Text",
             description: "Contains the text of the message",
-            data: "",
-            tags: vec![],
+            block_data: block_data,
+            tag_20: tags::Tag20::new(""),
+            tag_25: tags::Tag25::new(""),
+            tag_28c: tags::Tag28C::new(""),
+            tag_60f: tags::Tag60F::new(""),
+            tag_62f: tags::Tag62F::new(""),
+            tag_61: tags::Tag61::new(""),
+            tag_86: tags::Tag86::new(""),
+            tag_64: tags::Tag64::new(""),
         }
     }
 
     pub fn parse_tags(&mut self) {
         let tag_regex = Regex::new(r"(?m)(?:(\d\d|\d\d[A-Z]):.+)").unwrap();
 
-        for tag in tag_regex.captures_iter(self.data) {
+        for tag in tag_regex.captures_iter(self.block_data) {
             let key = tag.get(1).unwrap().as_str();
-            let data = tag.get(0).unwrap().as_str();
-            let value = data[key.len()..data.len()].trim_matches(|c| c == ':' || c == '\r');
+            let block_data = tag.get(0).unwrap().as_str();
+            let value =
+                block_data[key.len()..block_data.len()].trim_matches(|c| c == ':' || c == '\r');
 
             match key {
                 "20" => {
-                    self.tags.push(tags::Tags::Tag20(tags::Tag20::new(value)));
+                    self.tag_20.value = value;
                 }
                 "25" => {
-                    self.tags.push(tags::Tags::Tag25(tags::Tag25::new(value)));
+                    self.tag_25.value = value;
                 }
                 "28C" => {
-                    self.tags.push(tags::Tags::Tag28C(tags::Tag28C::new(value)));
+                    self.tag_28c.value = value;
                 }
                 "60F" => {
-                    self.tags.push(tags::Tags::Tag60F(tags::Tag60F::new(value)));
+                    self.tag_60f.value = value;
                 }
                 "62F" => {
-                    self.tags.push(tags::Tags::Tag62F(tags::Tag62F::new(value)));
+                    self.tag_62f.value = value;
                 }
                 "61" => {
-                    self.tags.push(tags::Tags::Tag61(tags::Tag61::new(value)));
+                    self.tag_61.value = value;
                 }
                 "86" => {
-                    self.tags.push(tags::Tags::Tag86(tags::Tag86::new(value)));
+                    self.tag_86.value = value;
                 }
                 "64" => {
-                    self.tags.push(tags::Tags::Tag64(tags::Tag64::new(value)));
+                    self.tag_64.value = value;
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");
@@ -124,16 +139,16 @@ pub struct Trailer<'a> {
     id: i8,
     name: &'a str,
     description: &'a str,
-    pub data: &'a str,
+    pub block_data: &'a str,
 }
 
 impl<'a> Trailer<'a> {
-    pub fn new() -> Self {
+    pub fn new(block_data: &'a str) -> Self {
         Trailer {
             id: 5,
             name: "Trailer",
             description: "Indicates special circumstances that relate to message handling or contains security information",
-            data: "",
+            block_data: block_data,
         }
     }
 }
