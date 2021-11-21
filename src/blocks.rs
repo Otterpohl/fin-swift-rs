@@ -3,8 +3,6 @@ use regex::Regex;
 
 #[derive(Debug)]
 pub struct Basic<'a> {
-    id: i8,
-    name: &'a str,
     description: &'a str,
     pub block_data: &'a str,
 }
@@ -12,8 +10,6 @@ pub struct Basic<'a> {
 impl<'a> Basic<'a> {
     pub fn new(block_data: &'a str) -> Self {
         Basic {
-            id: 1,
-            name: "Basic",
             description: "Fundamental reference for any particular message",
             block_data: block_data,
         }
@@ -22,8 +18,6 @@ impl<'a> Basic<'a> {
 
 #[derive(Debug)]
 pub struct Application<'a> {
-    id: i8,
-    name: &'a str,
     description: &'a str,
     pub block_data: &'a str,
 }
@@ -31,8 +25,6 @@ pub struct Application<'a> {
 impl<'a> Application<'a> {
     pub fn new(block_data: &'a str) -> Self {
         Application {
-            id: 2,
-            name: "Application",
             description: "Information about the message itself",
             block_data: block_data,
         }
@@ -41,8 +33,6 @@ impl<'a> Application<'a> {
 
 #[derive(Debug)]
 pub struct User<'a> {
-    id: i8,
-    name: &'a str,
     description: &'a str,
     pub block_data: &'a str,
 }
@@ -50,8 +40,6 @@ pub struct User<'a> {
 impl<'a> User<'a> {
     pub fn new(block_data: &'a str) -> Self {
         User {
-            id: 3,
-            name: "User",
             description: "Allows users to provide their own reference",
             block_data: block_data,
         }
@@ -60,8 +48,6 @@ impl<'a> User<'a> {
 
 #[derive(Debug)]
 pub struct Text<'a> {
-    id: i8,
-    name: &'a str,
     description: &'a str,
     pub block_data: &'a str,
     pub tag_20: tags::Tag20<'a>,
@@ -77,8 +63,6 @@ pub struct Text<'a> {
 impl<'a> Text<'a> {
     pub fn new(block_data: &'a str) -> Self {
         Text {
-            id: 4,
-            name: "Text",
             description: "Contains the text of the message",
             block_data: block_data,
             tag_20: tags::Tag20::new(""),
@@ -136,8 +120,6 @@ impl<'a> Text<'a> {
 
 #[derive(Debug)]
 pub struct Trailer<'a> {
-    id: i8,
-    name: &'a str,
     description: &'a str,
     pub block_data: &'a str,
 }
@@ -145,8 +127,6 @@ pub struct Trailer<'a> {
 impl<'a> Trailer<'a> {
     pub fn new(block_data: &'a str) -> Self {
         Trailer {
-            id: 5,
-            name: "Trailer",
             description: "Indicates special circumstances that relate to message handling or contains security information",
             block_data: block_data,
         }
