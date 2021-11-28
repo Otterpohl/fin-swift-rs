@@ -4,14 +4,14 @@ use regex::Regex;
 #[derive(Debug)]
 pub struct Basic<'a> {
     description: &'a str,
-    pub block_data: &'a str,
+    pub data: &'a str,
 }
 
 impl<'a> Basic<'a> {
     pub fn new(block_data: &'a str) -> Self {
         Basic {
             description: "Fundamental reference for any particular message",
-            block_data: block_data,
+            data: block_data,
         }
     }
 }
@@ -19,14 +19,14 @@ impl<'a> Basic<'a> {
 #[derive(Debug)]
 pub struct Application<'a> {
     description: &'a str,
-    pub block_data: &'a str,
+    pub data: &'a str,
 }
 
 impl<'a> Application<'a> {
     pub fn new(block_data: &'a str) -> Self {
         Application {
             description: "Information about the message itself",
-            block_data: block_data,
+            data: block_data,
         }
     }
 }
@@ -34,14 +34,14 @@ impl<'a> Application<'a> {
 #[derive(Debug)]
 pub struct User<'a> {
     description: &'a str,
-    pub block_data: &'a str,
+    pub data: &'a str,
 }
 
 impl<'a> User<'a> {
     pub fn new(block_data: &'a str) -> Self {
         User {
             description: "Allows users to provide their own reference",
-            block_data: block_data,
+            data: block_data,
         }
     }
 }
@@ -49,7 +49,7 @@ impl<'a> User<'a> {
 #[derive(Debug)]
 pub struct Text<'a> {
     description: &'a str,
-    pub block_data: &'a str,
+    pub data: &'a str,
     pub tag_20: tags::Tag20<'a>,
     pub tag_25: tags::Tag25<'a>,
     pub tag_28c: tags::Tag28C<'a>,
@@ -64,7 +64,7 @@ impl<'a> Text<'a> {
     pub fn new(block_data: &'a str) -> Self {
         Text {
             description: "Contains the text of the message",
-            block_data: block_data,
+            data: block_data,
             tag_20: tags::Tag20::new(""),
             tag_25: tags::Tag25::new(""),
             tag_28c: tags::Tag28C::new(""),
@@ -79,7 +79,7 @@ impl<'a> Text<'a> {
     pub fn parse_tags(&mut self) {
         let tag_regex = Regex::new(r"(?m)(?:(\d\d|\d\d[A-Z]):.+)").unwrap();
 
-        for tag in tag_regex.captures_iter(self.block_data) {
+        for tag in tag_regex.captures_iter(self.data) {
             let key = tag.get(1).unwrap().as_str();
             let block_data = tag.get(0).unwrap().as_str();
             let value =
@@ -87,28 +87,28 @@ impl<'a> Text<'a> {
 
             match key {
                 "20" => {
-                    self.tag_20.value = value;
+                    self.tag_20.data = value;
                 }
                 "25" => {
-                    self.tag_25.value = value;
+                    self.tag_25.data = value;
                 }
                 "28C" => {
-                    self.tag_28c.value = value;
+                    self.tag_28c.data = value;
                 }
                 "60F" => {
-                    self.tag_60f.value = value;
+                    self.tag_60f.data = value;
                 }
                 "62F" => {
-                    self.tag_62f.value = value;
+                    self.tag_62f.data = value;
                 }
                 "61" => {
-                    self.tag_61.value = value;
+                    self.tag_61.data = value;
                 }
                 "86" => {
-                    self.tag_86.value = value;
+                    self.tag_86.data = value;
                 }
                 "64" => {
-                    self.tag_64.value = value;
+                    self.tag_64.data = value;
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");
@@ -121,14 +121,14 @@ impl<'a> Text<'a> {
 #[derive(Debug)]
 pub struct Trailer<'a> {
     description: &'a str,
-    pub block_data: &'a str,
+    pub data: &'a str,
 }
 
 impl<'a> Trailer<'a> {
     pub fn new(block_data: &'a str) -> Self {
         Trailer {
             description: "Indicates special circumstances that relate to message handling or contains security information",
-            block_data: block_data,
+            data: block_data,
         }
     }
 }

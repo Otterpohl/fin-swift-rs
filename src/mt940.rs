@@ -2,7 +2,7 @@ use crate::blocks;
 
 #[derive(Debug)]
 pub struct Mt940<'a> {
-    pub message_data: &'a str,
+    pub data: &'a str,
     pub basic: blocks::Basic<'a>,
     pub application: blocks::Application<'a>,
     pub user: blocks::User<'a>,
@@ -12,8 +12,9 @@ pub struct Mt940<'a> {
 
 impl<'a> Mt940<'a> {
     pub fn new(message_data: &'a str) -> Self {
+        // TODO: do we really need the data field? can we not just parse before returning?
         Mt940 {
-            message_data: message_data, // do we really need this?
+            data: message_data, 
             basic: blocks::Basic::new(message_data),
             application: blocks::Application::new(message_data),
             user: blocks::User::new(message_data),
@@ -24,37 +25,37 @@ impl<'a> Mt940<'a> {
 
     pub fn parse(&mut self) {
         let block_start: Vec<usize> = self
-            .message_data
-            .match_indices("{")
+            .data
+            .match_indices('\u{007B}') // {
             .map(|(i, _)| i)
             .collect();
         let block_end: Vec<usize> = self
-            .message_data
-            .match_indices("}")
+            .data
+            .match_indices('\u{007D}') // }
             .map(|(i, _)| i)
             .collect();
         let block_segments = block_start.iter().zip(block_end.iter());
 
         for (i, (start, end)) in block_segments.enumerate() {
             let id = 1 + i as i8;
-            let data = self.strip_block(id, start, end);
+            let block_data = self.strip_block(id, start, end);
 
             match id {
                 1 => {
-                    self.basic.block_data = data;
+                    self.basic.data = block_data;
                 }
                 2 => {
-                    self.application.block_data = data;
+                    self.application.data = block_data;
                 }
                 3 => {
-                    self.user.block_data = data;
+                    self.user.data = block_data;
                 }
                 4 => {
-                    self.text.block_data = data;
+                    self.text.data = block_data;
                     self.text.parse_tags();
                 }
                 5 => {
-                    self.trailer.block_data = data;
+                    self.trailer.data = block_data;
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");
@@ -63,6 +64,7 @@ impl<'a> Mt940<'a> {
         }
     }
 
+    // TODO: this does not need to be part of the message struct, trait this shit up
     fn strip_block(&self, block_id: i8, start: &usize, end: &usize) -> &'a str {
         let prefix = format!("{{{}:", block_id.to_string());
         let suffix = match block_id {
@@ -70,7 +72,7 @@ impl<'a> Mt940<'a> {
             _ => "}",
         };
 
-        self.message_data[*start..=*end]
+        self.data[*start..=*end]
             .strip_prefix(&prefix)
             .unwrap()
             .strip_suffix(suffix)
