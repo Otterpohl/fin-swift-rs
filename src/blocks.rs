@@ -49,7 +49,6 @@ impl<'a> User<'a> {
 #[derive(Debug)]
 pub struct Text<'a> {
     description: &'a str,
-    pub data: &'a str,
     pub tag_20: tags::Tag20<'a>,
     pub tag_25: tags::Tag25<'a>,
     pub tag_28c: tags::Tag28C<'a>,
@@ -62,24 +61,19 @@ pub struct Text<'a> {
 
 impl<'a> Text<'a> {
     pub fn new(block_data: &'a str) -> Self {
-        Text {
-            description: "Contains the text of the message",
-            data: block_data,
-            tag_20: tags::Tag20::new(""),
-            tag_25: tags::Tag25::new(""),
-            tag_28c: tags::Tag28C::new(""),
-            tag_60f: tags::Tag60F::new(""),
-            tag_62f: tags::Tag62F::new(""),
-            tag_61: tags::Tag61::new(""),
-            tag_86: tags::Tag86::new(""),
-            tag_64: tags::Tag64::new(""),
-        }
-    }
-
-    pub fn parse_tags(&mut self) {
+        
+        let mut tag_20 = None;
+        let mut tag_25 = None;
+        let mut tag_28c = None;
+        let mut tag_60f = None;
+        let mut tag_62f = None;
+        let mut tag_61 = None;
+        let mut tag_86 = None;
+        let mut tag_64 = None;
+        
         let tag_regex = Regex::new(r"(?m)(?:(\d\d|\d\d[A-Z]):.+)").unwrap();
 
-        for tag in tag_regex.captures_iter(self.data) {
+        for tag in tag_regex.captures_iter(block_data) {
             let key = tag.get(1).unwrap().as_str();
             let block_data = tag.get(0).unwrap().as_str();
             let value =
@@ -87,33 +81,45 @@ impl<'a> Text<'a> {
 
             match key {
                 "20" => {
-                    self.tag_20.data = value;
+                    tag_20 = Some(tags::Tag20::new(value));
                 }
                 "25" => {
-                    self.tag_25.data = value;
+                    tag_25 = Some(tags::Tag25::new(value));
                 }
                 "28C" => {
-                    self.tag_28c.data = value;
+                    tag_28c = Some(tags::Tag28C::new(value));
                 }
                 "60F" => {
-                    self.tag_60f.data = value;
+                    tag_60f = Some(tags::Tag60F::new(value));
                 }
                 "62F" => {
-                    self.tag_62f.data = value;
+                    tag_62f = Some(tags::Tag62F::new(value));
                 }
                 "61" => {
-                    self.tag_61.data = value;
+                    tag_61 = Some(tags::Tag61::new(value));
                 }
                 "86" => {
-                    self.tag_86.data = value;
+                    tag_86 = Some(tags::Tag86::new(value));
                 }
                 "64" => {
-                    self.tag_64.data = value;
+                    tag_64 = Some(tags::Tag64::new(value));
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");
                 }
             };
+        }
+
+        Text {
+            description: "Contains the text of the message",
+            tag_20: tag_20.unwrap(),
+            tag_25: tag_25.unwrap(),
+            tag_28c: tag_28c.unwrap(),
+            tag_60f: tag_60f.unwrap(),
+            tag_62f: tag_62f.unwrap(),
+            tag_61: tag_61.unwrap(),
+            tag_86: tag_86.unwrap(),
+            tag_64: tag_64.unwrap(),
         }
     }
 }
