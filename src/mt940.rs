@@ -1,12 +1,12 @@
-use crate::blocks::{self};
+use crate::block::{self};
 
 #[derive(Debug)]
 pub struct MT940<'a> {
-    pub basic: blocks::Basic<'a>,
-    pub application: blocks::Application<'a>,
-    pub user: blocks::User<'a>,
-    pub text: blocks::Text<'a>,
-    pub trailer: blocks::Trailer<'a>,
+    pub basic: block::Basic<'a>,
+    pub application: block::Application<'a>,
+    pub user: block::User<'a>,
+    pub text: block::Text<'a>,
+    pub trailer: block::Trailer<'a>,
 }
 
 impl<'a> MT940<'a> {
@@ -45,20 +45,20 @@ impl<'a> MT940<'a> {
 
             match block_id {
                 1 => {
-                    basic = Some(blocks::Basic::new(block_data));
+                    basic = Some(block::Basic::new(block_data));
                 }
                 2 => {
-                    application = Some(blocks::Application::new(block_data));
+                    application = Some(block::Application::new(block_data));
                 }
                 3 => {
-                    user = Some(blocks::User::new(block_data));
+                    user = Some(block::User::new(block_data));
                 }
                 4 => {
-                    text = Some(blocks::Text::new(block_data));
+                    text = Some(block::Text::new(block_data));
                     //self.text.parse_tags();
                 }
                 5 => {
-                    trailer = Some(blocks::Trailer::new(block_data));
+                    trailer = Some(block::Trailer::new(block_data));
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");

@@ -1,4 +1,4 @@
-use crate::tags;
+use crate::tag;
 use regex::Regex;
 
 #[derive(Debug)]
@@ -49,14 +49,14 @@ impl<'a> User<'a> {
 #[derive(Debug)]
 pub struct Text<'a> {
     description: &'a str,
-    pub tag_20: tags::Tag20<'a>,
-    pub tag_25: tags::Tag25<'a>,
-    pub tag_28c: tags::Tag28C<'a>,
-    pub tag_60f: tags::Tag60F<'a>,
-    pub tag_62f: tags::Tag62F<'a>,
-    pub tag_61: Vec<tags::Tag61<'a>>,
-    pub tag_86: Vec<tags::Tag86<'a>>,
-    pub tag_64: tags::Tag64<'a>,
+    pub tag_20: tag::Tag20<'a>,
+    pub tag_25: tag::Tag25<'a>,
+    pub tag_28c: tag::Tag28C<'a>,
+    pub tag_60f: tag::Tag60F<'a>,
+    pub tag_62f: tag::Tag62F<'a>,
+    pub tag_61: Vec<tag::Tag61<'a>>,
+    pub tag_86: Vec<tag::Tag86<'a>>,
+    pub tag_64: tag::Tag64<'a>,
 }
 
 impl<'a> Text<'a> {
@@ -66,8 +66,8 @@ impl<'a> Text<'a> {
         let mut tag_28c = None;
         let mut tag_60f = None;
         let mut tag_62f = None;
-        let mut tag_61: Vec<tags::Tag61> = vec![];
-        let mut tag_86: Vec<tags::Tag86> = vec![];
+        let mut tag_61: Vec<tag::Tag61> = vec![];
+        let mut tag_86: Vec<tag::Tag86> = vec![];
         let mut tag_64 = None;
         
         let tag_regex = Regex::new(r"(?m)(?:(\d\d|\d\d[A-Z]):.+)").unwrap();
@@ -80,28 +80,28 @@ impl<'a> Text<'a> {
 
             match key {
                 "20" => {
-                    tag_20 = Some(tags::Tag20::new(value));
+                    tag_20 = Some(tag::Tag20::new(value));
                 }
                 "25" => {
-                    tag_25 = Some(tags::Tag25::new(value));
+                    tag_25 = Some(tag::Tag25::new(value));
                 }
                 "28C" => {
-                    tag_28c = Some(tags::Tag28C::new(value));
+                    tag_28c = Some(tag::Tag28C::new(value));
                 }
                 "60F" => {
-                    tag_60f = Some(tags::Tag60F::new(value));
+                    tag_60f = Some(tag::Tag60F::new(value));
                 }
                 "62F" => {
-                    tag_62f = Some(tags::Tag62F::new(value));
+                    tag_62f = Some(tag::Tag62F::new(value));
                 }
                 "61" => {
-                    tag_61.push(tags::Tag61::new(value));
+                    tag_61.push(tag::Tag61::new(value));
                 }
                 "86" => {
-                    tag_86.push(tags::Tag86::new(value));
+                    tag_86.push(tag::Tag86::new(value));
                 }
                 "64" => {
-                    tag_64 = Some(tags::Tag64::new(value));
+                    tag_64 = Some(tag::Tag64::new(value));
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");

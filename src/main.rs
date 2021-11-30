@@ -1,10 +1,10 @@
 use std::fs;
 use std::time::Instant;
 
-mod blocks;
+mod block;
 mod message;
 mod mt940;
-mod tags;
+mod tag;
 
 fn main() {
     let filename = "./tests/test_messages/basic_test_3.txt";
