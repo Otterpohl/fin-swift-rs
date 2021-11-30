@@ -54,21 +54,20 @@ pub struct Text<'a> {
     pub tag_28c: tags::Tag28C<'a>,
     pub tag_60f: tags::Tag60F<'a>,
     pub tag_62f: tags::Tag62F<'a>,
-    pub tag_61: tags::Tag61<'a>,
-    pub tag_86: tags::Tag86<'a>,
+    pub tag_61: Vec<tags::Tag61<'a>>,
+    pub tag_86: Vec<tags::Tag86<'a>>,
     pub tag_64: tags::Tag64<'a>,
 }
 
 impl<'a> Text<'a> {
     pub fn new(block_data: &'a str) -> Self {
-        
         let mut tag_20 = None;
         let mut tag_25 = None;
         let mut tag_28c = None;
         let mut tag_60f = None;
         let mut tag_62f = None;
-        let mut tag_61 = None;
-        let mut tag_86 = None;
+        let mut tag_61: Vec<tags::Tag61> = vec![];
+        let mut tag_86: Vec<tags::Tag86> = vec![];
         let mut tag_64 = None;
         
         let tag_regex = Regex::new(r"(?m)(?:(\d\d|\d\d[A-Z]):.+)").unwrap();
@@ -96,10 +95,10 @@ impl<'a> Text<'a> {
                     tag_62f = Some(tags::Tag62F::new(value));
                 }
                 "61" => {
-                    tag_61 = Some(tags::Tag61::new(value));
+                    tag_61.push(tags::Tag61::new(value));
                 }
                 "86" => {
-                    tag_86 = Some(tags::Tag86::new(value));
+                    tag_86.push(tags::Tag86::new(value));
                 }
                 "64" => {
                     tag_64 = Some(tags::Tag64::new(value));
@@ -117,8 +116,8 @@ impl<'a> Text<'a> {
             tag_28c: tag_28c.unwrap(),
             tag_60f: tag_60f.unwrap(),
             tag_62f: tag_62f.unwrap(),
-            tag_61: tag_61.unwrap(),
-            tag_86: tag_86.unwrap(),
+            tag_61: tag_61,
+            tag_86: tag_86,
             tag_64: tag_64.unwrap(),
         }
     }
