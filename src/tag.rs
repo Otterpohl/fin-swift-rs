@@ -1,102 +1,112 @@
+// https://www.paiementor.com/swift-mt940-format-specifications/
+
+// Tag20
 #[derive(Debug)]
-pub struct Tag20<'a> {
+pub struct TransactionReferenceNumber<'a> { 
     pub data: &'a str,
 }
 
-impl<'a> Tag20<'a> {
+impl<'a> TransactionReferenceNumber<'a> {
     pub fn new(value: &'a str) -> Self {
-        Tag20 {
+        TransactionReferenceNumber {
             data: value,
         }
     }
 }
 
+// Tag25
 #[derive(Debug)]
-pub struct Tag25<'a> {
+pub struct AccountIdentification<'a> {
     pub data: &'a str,
 }
 
-impl<'a> Tag25<'a> {
+impl<'a> AccountIdentification<'a> {
     pub fn new(value: &'a str) -> Self {
-        Tag25 {
+        AccountIdentification {
             data: value,
         }
     }
 }
 
+// Tag28C
 #[derive(Debug)]
-pub struct Tag28C<'a> {
+pub struct StatementNumber<'a> {
     pub data: &'a str,
 }
 
-impl<'a> Tag28C<'a> {
+impl<'a> StatementNumber<'a> {
     pub fn new(value: &'a str) -> Self {
-        Tag28C {
+        StatementNumber {
             data: value,
         }
     }
 }
 
+// Tag60F
 #[derive(Debug)]
-pub struct Tag60F<'a> {
+pub struct OpeningBalanceFinal<'a> { // do we need a separate struct just for F and M?
     pub data: &'a str,
 }
 
-impl<'a> Tag60F<'a> {
+impl<'a> OpeningBalanceFinal<'a> {
     pub fn new(value: &'a str) -> Self {
-        Tag60F {
+        OpeningBalanceFinal {
             data: value,
         }
     }
 }
 
+// Tag61
 #[derive(Debug)]
-pub struct Tag62F<'a> {
+pub struct StatementLine<'a> {
     pub data: &'a str,
 }
 
-impl<'a> Tag62F<'a> {
+impl<'a> StatementLine<'a> {
     pub fn new(value: &'a str) -> Self {
-        Tag62F {
+        StatementLine {
             data: value,
         }
     }
 }
 
+// Tag62F
 #[derive(Debug)]
-pub struct Tag61<'a> {
+pub struct BookedFundsFinal<'a> { // do we need a separate struct just for F and M?
     pub data: &'a str,
 }
 
-impl<'a> Tag61<'a> {
+impl<'a> BookedFundsFinal<'a> {
     pub fn new(value: &'a str) -> Self {
-        Tag61 {
+        BookedFundsFinal {
             data: value,
         }
     }
 }
 
+// Tag64
 #[derive(Debug)]
-pub struct Tag86<'a> {
+pub struct ClosingAvailableBalance<'a> {
     pub data: &'a str,
 }
 
-impl<'a> Tag86<'a> {
+impl<'a> ClosingAvailableBalance<'a> {
     pub fn new(value: &'a str) -> Self {
-        Tag86 {
+        ClosingAvailableBalance {
             data: value,
         }
     }
 }
 
+// Tag86
 #[derive(Debug)]
-pub struct Tag64<'a> {
+pub struct InformationToAccountOwner<'a> {
     pub data: &'a str,
 }
 
-impl<'a> Tag64<'a> {
+impl<'a> InformationToAccountOwner<'a> {
     pub fn new(value: &'a str) -> Self {
-        Tag64 {
+        InformationToAccountOwner {
             data: value,
         }
     }

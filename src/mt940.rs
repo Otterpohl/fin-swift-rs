@@ -1,3 +1,5 @@
+// https://www.paiementor.com/swift-mt950-statement-message-detailed-analysis/
+
 use crate::block::{self};
 
 #[derive(Debug)]
@@ -11,7 +13,6 @@ pub struct MT940<'a> {
 
 impl<'a> MT940<'a> {
     pub fn new(message_data: &'a str) -> Self {
-        
         let mut basic = None;
         let mut application = None;
         let mut user = None;
@@ -55,7 +56,6 @@ impl<'a> MT940<'a> {
                 }
                 4 => {
                     text = Some(block::Text::new(block_data));
-                    //self.text.parse_tags();
                 }
                 5 => {
                     trailer = Some(block::Trailer::new(block_data));

@@ -2,7 +2,7 @@ use crate::mt940;
 
 #[derive(Debug)]
 pub struct Message<'a> {
-    data: mt940::MT940<'a>
+    pub data: mt940::MT940<'a>
 }
 
 impl<'a> Message<'a> {
@@ -16,10 +16,8 @@ impl<'a> Message<'a> {
             
         match message_type {
             "940" => {
-                let mt940 = mt940::MT940::new(message_data);
-
                 Message {
-                    data: mt940
+                    data: mt940::MT940::new(message_data)
                 }
             }
             _ => {
