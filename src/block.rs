@@ -1,23 +1,63 @@
 use crate::tag;
 use regex::Regex;
 
+// TODO: add enum for block data
+
+#[derive(Debug)]
+pub struct LogicalTerminalAddress<'a> {
+    bic: &'a str,
+    terminal_code: &'a str, // try to make this a char?
+    branch_code: &'a str,
+}
+
+impl<'a> LogicalTerminalAddress<'a> {
+    fn new(data: &'a str) -> Self {
+        LogicalTerminalAddress {
+            bic: &data[..8],
+            terminal_code: &data[8..9],
+            branch_code: &data[9..],
+        }
+    }
+}
+
 // https://www.paiementor.com/swift-mt-message-block-1-basic-header-
 // Fundamental reference for any particular message
 #[derive(Debug)]
 pub struct Basic<'a> {
     pub application_id: &'a str,
     pub service_id: &'a str,
-    pub logical_terminal_address: &'a str,
+    pub source_address: LogicalTerminalAddress<'a>,
     pub session_number: &'a str,
     pub sequence_number: &'a str,
 }
 
 impl<'a> Basic<'a> {
     pub fn new(block_data: &'a str) -> Self {
+        // i really dont like this.
+        let application_id = match &block_data[..1] {
+            n @ "F" | n @ "A" | n @ "L" => { 
+                n
+            }
+            n => {
+                panic!("unexpected application_id `{}` in Basic block",n)
+            }
+        };
+
+        let service_id = match &block_data[1..3] {
+            n @ "01" | n @ "21" => {
+                n
+            }
+            n => {
+                 panic!("unexpected service_id `{}` in Basic block",n)
+             }
+        };
+
+        let source_address = LogicalTerminalAddress::new(&block_data[3..15]);
+
         Basic {
-            application_id : &block_data[..1],
-            service_id : &block_data[1..3],
-            logical_terminal_address : &block_data[3..15],
+            application_id,
+            service_id,
+            source_address,
             session_number : &block_data[15..19],
             sequence_number : &block_data[19..],
         }
@@ -29,7 +69,7 @@ impl<'a> Basic<'a> {
 pub struct Application<'a> {
     input_output_id: &'a str,
     message_type: &'a str,
-    destination_address: &'a str,
+    destination_address: LogicalTerminalAddress<'a>,
     priority: Option<&'a str>,
     delivery_monitoring: Option<&'a str>,
     obsolescence_period: Option<&'a str>,
@@ -38,10 +78,27 @@ pub struct Application<'a> {
 impl<'a> Application<'a> {
     pub fn new(block_data: &'a str) -> Self {
 
+        let input_output_id = match &block_data[..1] {
+            n @ "I" | n @ "O" => { 
+                n 
+            }
+            n => {
+                panic!("unexpected input_output_id `{}` in Application block",n)
+            }
+        };
+
+        let message_type = match &block_data[1..4] {
+            n @ "940" => { 
+                n
+            }
+            n => {
+                panic!("unexpected message_type `{}`",n)
+            }
+        };
+
         let mut priority = None;
         let mut delivery_monitoring = None;
         let mut obsolescence_period = None;
-        eprintln!("block_data.len() = {:#?}", block_data.len());
         
         if block_data.len() >= 16 {
             priority = Some(&block_data[16..17]);
@@ -54,14 +111,16 @@ impl<'a> Application<'a> {
         if block_data.len() >= 21 {
             obsolescence_period = Some(&block_data[18..]);
         }
+
+        let destination_address = LogicalTerminalAddress::new(&block_data[4..16]);
         
         Application {
-            input_output_id: &block_data[..1],
-            message_type: &block_data[1..4],
-            destination_address: &block_data[4..16],
-            priority: priority,
-            delivery_monitoring: delivery_monitoring,
-            obsolescence_period: obsolescence_period,
+            input_output_id,
+            message_type,
+            destination_address,
+            priority,
+            delivery_monitoring,
+            obsolescence_period,
         }
     }
 }
