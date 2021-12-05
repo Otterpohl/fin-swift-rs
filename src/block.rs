@@ -20,7 +20,7 @@ impl<'a> LogicalTerminalAddress<'a> {
     }
 }
 
-// https://www.paiementor.com/swift-mt-message-block-1-basic-header-
+// https://www.paiementor.com/swift-mt-message-block-1-basic-header-description
 // Fundamental reference for any particular message
 #[derive(Debug)]
 pub struct Basic<'a> {
@@ -128,13 +128,19 @@ impl<'a> Application<'a> {
 // Allows users to provide their own reference
 #[derive(Debug)]
 pub struct User<'a> {
-    pub data: &'a str,
+    pub data: Option<&'a str>,
 }
 
 impl<'a> User<'a> {
     pub fn new(block_data: &'a str) -> Self {
+        let mut data = None;
+
+        if block_data.len() > 0 {
+            data = Some(block_data)
+        }
+
         User {
-            data: block_data,
+            data,
         }
     }
 }
@@ -149,7 +155,7 @@ pub struct Text<'a> {
     pub tag_62f: tag::BookedFundsFinal<'a>,
     pub tag_61: Vec<tag::StatementLine<'a>>,
     pub tag_86: Vec<tag::InformationToAccountOwner<'a>>,
-    pub tag_64: tag::ClosingAvailableBalance<'a>,
+    pub tag_64: Option<tag::ClosingAvailableBalance<'a>>,
 }
 
 impl<'a> Text<'a> {
@@ -210,7 +216,7 @@ impl<'a> Text<'a> {
             tag_62f: booked_funds_final.unwrap(),
             tag_61: statement_line,
             tag_86: information_to_account_owner,
-            tag_64: closing_available_balance.unwrap(),
+            tag_64: closing_available_balance,
         }
     }
 }
@@ -218,13 +224,19 @@ impl<'a> Text<'a> {
 // Indicates special circumstances that relate to message handling or contains security information
 #[derive(Debug)]
 pub struct Trailer<'a> {
-    pub data: &'a str,
+    pub data: Option<&'a str>,
 }
 
 impl<'a> Trailer<'a> {
     pub fn new(block_data: &'a str) -> Self {
+        let mut data = None;
+
+        if block_data.len() > 0 {
+            data = Some(block_data)
+        }
+        
         Trailer {
-            data: block_data,
+            data,
         }
     }
 }

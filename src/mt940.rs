@@ -58,6 +58,7 @@ impl<'a> MT940<'a> {
                     text = Some(block::Text::new(block_data));
                 }
                 5 => {
+                    // TODO: if it is zero here then lets not even create an empty struct?
                     trailer = Some(block::Trailer::new(block_data));
                 }
                 _ => {
