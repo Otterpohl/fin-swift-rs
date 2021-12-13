@@ -1,7 +1,6 @@
 use chrono::prelude::*;
 use std::convert::TryFrom;
 use iso_4217::*;
-use std::fmt;
 
 // https://www.paiementor.com/swift-mt940-format-specifications/
 
@@ -23,6 +22,45 @@ impl<'a> TransactionReferenceNumber<'a> {
 enum CreditOrDebit {
     Credit,
     Debit,
+}
+
+#[derive(Debug)]
+pub enum BalanceType {
+    Final,
+    Intermediary,
+}
+
+#[derive(Debug)]
+pub struct Balance {
+    credit_or_debit: CreditOrDebit,
+    date: NaiveDate,
+    currency: CurrencyCode,
+    amount: f64
+}
+
+impl Balance {
+    pub fn new(value: &str) -> Self {
+        // TODO: account for 1900??
+        let credit_or_debit = match &value[..1] {
+            "C" => {CreditOrDebit::Credit}
+            "D" => {CreditOrDebit::Debit}
+            _ => {panic!("We really shouldn't have reached this, too bad!");}
+        };
+        let date = NaiveDate::from_ymd(
+            2000 + value[1..3].parse::<i32>().unwrap(),
+            value[3..5].parse::<u32>().unwrap(), 
+            value[5..7].parse::<u32>().unwrap()
+        );
+        let currency: CurrencyCode = TryFrom::try_from(&value[7..10]).unwrap();
+        let amount = value[10..].replace(',', '.'.to_string().as_ref()).parse::<f64>().unwrap();
+
+        Self {
+            credit_or_debit,
+            date,
+            currency,
+            amount,
+        }
+    }
 }
 
 // Tag25
@@ -66,34 +104,16 @@ impl StatementNumber {
 
 // Tag60F
 #[derive(Debug)]
-pub struct OpeningBalanceFinal { // do we need a separate struct just for F and M?
-    credit_or_debit: CreditOrDebit,
-    date: NaiveDate,
-    currency: CurrencyCode,
-    amount: f64
+pub struct OpeningBalance { // do we need a separate struct just for F and M?
+    balance_type: BalanceType,
+    balance_data: Balance,
 }
 
-impl OpeningBalanceFinal {
-    pub fn new(value: &str) -> Self {
-        // TODO: account for 1900??
-        let credit_or_debit = match &value[..1] {
-            "C" => {CreditOrDebit::Credit}
-            "D" => {CreditOrDebit::Debit}
-            _ => {panic!("We really shouldn't have reached this, too bad!");}
-        };
-        let date = NaiveDate::from_ymd(
-            2000 + value[1..3].parse::<i32>().unwrap(),
-            value[3..5].parse::<u32>().unwrap(), 
-            value[5..7].parse::<u32>().unwrap()
-        );
-        let currency: CurrencyCode = TryFrom::try_from(&value[7..10]).unwrap();
-        let amount = value[10..].replace(',', '.'.to_string().as_ref()).parse::<f64>().unwrap();
-
-        OpeningBalanceFinal {
-            credit_or_debit,
-            date,
-            currency,
-            amount,
+impl OpeningBalance {
+    pub fn new(balance_type: BalanceType, balance_data: &str) -> Self {
+        OpeningBalance {
+            balance_type: balance_type,
+            balance_data: Balance::new(balance_data),
         }
     }
 }
@@ -114,14 +134,16 @@ impl<'a> StatementLine<'a> {
 
 // Tag62F
 #[derive(Debug)]
-pub struct BookedFundsFinal<'a> { // do we need a separate struct just for F and M?
-    pub data: &'a str,
+pub struct BookedFunds { // do we need a separate struct just for F and M?
+    balance_type: BalanceType,
+    balance: Balance,
 }
 
-impl<'a> BookedFundsFinal<'a> {
-    pub fn new(value: &'a str) -> Self {
-        BookedFundsFinal {
-            data: value,
+impl BookedFunds {
+    pub fn new(balance_type: BalanceType, balance_data: &str) -> Self {
+        BookedFunds {
+            balance_type: balance_type,
+            balance: Balance::new(balance_data),
         }
     }
 }

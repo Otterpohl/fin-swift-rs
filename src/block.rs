@@ -152,8 +152,8 @@ pub struct Text<'a> {
     pub tag_20: tag::TransactionReferenceNumber<'a>,
     pub tag_25: tag::AccountIdentification<'a>,
     pub tag_28c: tag::StatementNumber,
-    pub tag_60f: tag::OpeningBalanceFinal,
-    pub tag_62f: tag::BookedFundsFinal<'a>,
+    pub tag_60f: tag::OpeningBalance,
+    pub tag_62f: tag::BookedFunds,
     pub tag_61: Vec<tag::StatementLine<'a>>,
     pub tag_86: Vec<tag::InformationToAccountOwner<'a>>,
     pub tag_64: Option<tag::ClosingAvailableBalance<'a>>,
@@ -164,7 +164,7 @@ impl<'a> Text<'a> {
         let mut transaction_reference_number = None;
         let mut tag_account_identification = None;
         let mut statement_number = None;
-        let mut opening_balance_final = None;
+        let mut opening_balance = None;
         let mut booked_funds_final = None;
         let mut statement_line: Vec<tag::StatementLine> = vec![];
         let mut information_to_account_owner: Vec<tag::InformationToAccountOwner> = vec![];
@@ -189,10 +189,10 @@ impl<'a> Text<'a> {
                     statement_number = Some(tag::StatementNumber::new(value));
                 }
                 "60F" => {
-                    opening_balance_final = Some(tag::OpeningBalanceFinal::new(value));
+                    opening_balance = Some(tag::OpeningBalance::new(tag::BalanceType::Final, value));
                 }
                 "62F" => {
-                    booked_funds_final = Some(tag::BookedFundsFinal::new(value));
+                    booked_funds_final = Some(tag::BookedFunds::new(tag::BalanceType::Final, value));
                 }
                 "61" => {
                     statement_line.push(tag::StatementLine::new(value));
@@ -213,7 +213,7 @@ impl<'a> Text<'a> {
             tag_20: transaction_reference_number.unwrap(),
             tag_25: tag_account_identification.unwrap(),
             tag_28c: statement_number.unwrap(),
-            tag_60f: opening_balance_final.unwrap(),
+            tag_60f: opening_balance.unwrap(),
             tag_62f: booked_funds_final.unwrap(),
             tag_61: statement_line,
             tag_86: information_to_account_owner,
