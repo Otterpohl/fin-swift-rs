@@ -21,6 +21,7 @@ impl<'a> LogicalTerminalAddress<'a> {
 }
 
 // https://www.paiementor.com/swift-mt-message-block-1-basic-header-description
+// https://www2.swift.com/knowledgecentre/publications/us9m_20180720/?topic=ajc.htm#genajc
 // Fundamental reference for any particular message
 #[derive(Debug)]
 pub struct Basic<'a> {
@@ -150,8 +151,8 @@ impl<'a> User<'a> {
 pub struct Text<'a> {
     pub tag_20: tag::TransactionReferenceNumber<'a>,
     pub tag_25: tag::AccountIdentification<'a>,
-    pub tag_28c: tag::StatementNumber<'a>,
-    pub tag_60f: tag::OpeningBalanceFinal<'a>,
+    pub tag_28c: tag::StatementNumber,
+    pub tag_60f: tag::OpeningBalanceFinal,
     pub tag_62f: tag::BookedFundsFinal<'a>,
     pub tag_61: Vec<tag::StatementLine<'a>>,
     pub tag_86: Vec<tag::InformationToAccountOwner<'a>>,
