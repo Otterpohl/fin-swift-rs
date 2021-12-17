@@ -7,7 +7,7 @@ mod mt940;
 mod tag;
 
 fn main() {
-    let filename = "./tests/test_messages/basic_test_3.txt";
+    let filename = "./tests/test_messages/basic_test_2.txt";
     let content = &fs::read_to_string(filename).expect("Unable to read file");
     
     let start = Instant::now();

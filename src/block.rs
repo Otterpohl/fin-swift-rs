@@ -2,6 +2,7 @@ use crate::tag;
 use regex::Regex;
 use iso3166_1::*;
 
+
 // TODO: add enum for block data
 
 #[derive(Debug)]
@@ -14,7 +15,7 @@ pub struct BusinessIdentifierCode<'a> {
 impl<'a> BusinessIdentifierCode<'a> {
     fn new(data: &'a str) -> Self {
         let business_party_prefix = &data[0..4];
-        let country_code = iso3166_1::alpha2(&data[4..6]).unwrap().alpha2;
+        let country_code = alpha2(&data[4..6]).unwrap().alpha2;
         let business_party_suffix = &data[6..];
 
         Self {
