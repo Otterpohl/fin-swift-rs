@@ -1,19 +1,43 @@
 use crate::tag;
 use regex::Regex;
+use iso3166_1::*;
 
 // TODO: add enum for block data
 
 #[derive(Debug)]
+pub struct BusinessIdentifierCode<'a> {
+    business_party_prefix: &'a str,
+    country_code: &'a str,
+    business_party_suffix: &'a str,
+}
+
+impl<'a> BusinessIdentifierCode<'a> {
+    fn new(data: &'a str) -> Self {
+        let business_party_prefix = &data[0..4];
+        let country_code = iso3166_1::alpha2(&data[4..6]).unwrap().alpha2;
+        let business_party_suffix = &data[6..];
+
+        BusinessIdentifierCode {
+            business_party_prefix,
+            country_code,
+            business_party_suffix,
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct LogicalTerminalAddress<'a> {
-    bic: &'a str,
+    bic_code: BusinessIdentifierCode<'a>,
     terminal_code: &'a str, // try to make this a char?
     branch_code: &'a str,
 }
 
 impl<'a> LogicalTerminalAddress<'a> {
     fn new(data: &'a str) -> Self {
+        let bic_code = BusinessIdentifierCode::new(&data[..8]);
+        
         LogicalTerminalAddress {
-            bic: &data[..8],
+            bic_code,
             terminal_code: &data[8..9],
             branch_code: &data[9..],
         }

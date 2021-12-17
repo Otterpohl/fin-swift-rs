@@ -1,6 +1,6 @@
 use chrono::prelude::*;
 use std::convert::TryFrom;
-use iso_4217::*;
+use iso_4217::*; // currency
 
 // https://www.paiementor.com/swift-mt940-format-specifications/
 
