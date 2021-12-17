@@ -57,7 +57,7 @@ pub struct TransactionReferenceNumber<'a> {
 
 impl<'a> TransactionReferenceNumber<'a> {
     pub fn new(value: &'a str) -> Self {
-        TransactionReferenceNumber {
+        Self {
             transaction_reference_number: value,
         }
     }
@@ -71,7 +71,7 @@ pub struct AccountIdentification<'a> {
 
 impl<'a> AccountIdentification<'a> {
     pub fn new(value: &'a str) -> Self {
-        AccountIdentification {
+        Self {
             account_identification: value,
         }
     }
@@ -95,7 +95,7 @@ impl StatementNumber {
                 .unwrap())
             .collect::<Vec<_>>();
 
-        StatementNumber {
+        Self {
             statement_number: statement_sequence_number[0],
             sequence_number: statement_sequence_number[1],
         }
@@ -111,7 +111,7 @@ pub struct OpeningBalance {
 
 impl OpeningBalance {
     pub fn new(balance_type: BalanceType, balance_data: &str) -> Self {
-        OpeningBalance {
+        Self {
             balance_type,
             balance_data: Balance::new(balance_data),
         }
@@ -126,7 +126,7 @@ pub struct StatementLine<'a> {
 
 impl<'a> StatementLine<'a> {
     pub fn new(value: &'a str) -> Self {
-        StatementLine {
+        Self {
             statement_line: value,
         }
     }
@@ -141,7 +141,7 @@ pub struct BookedFunds {
 
 impl BookedFunds {
     pub fn new(balance_type: BalanceType, balance_data: &str) -> Self {
-        BookedFunds {
+        Self {
             balance_type,
             balance: Balance::new(balance_data),
         }
@@ -156,7 +156,7 @@ pub struct ClosingAvailableBalance<'a> {
 
 impl<'a> ClosingAvailableBalance<'a> {
     pub fn new(value: &'a str) -> Self {
-        ClosingAvailableBalance {
+        Self {
             closing_available_balance: value,
         }
     }
@@ -170,7 +170,7 @@ pub struct InformationToAccountOwner<'a> {
 
 impl<'a> InformationToAccountOwner<'a> {
     pub fn new(value: &'a str) -> Self {
-        InformationToAccountOwner {
+        Self {
             information_to_account_owner: value,
         }
     }

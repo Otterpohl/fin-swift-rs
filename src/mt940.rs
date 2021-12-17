@@ -67,7 +67,7 @@ impl<'a> MT940<'a> {
             }
         }
 
-        MT940 {
+        Self {
             basic: block_1.unwrap(),
             application: block_2.unwrap(),
             user: block_3.unwrap(),

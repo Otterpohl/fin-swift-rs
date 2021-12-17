@@ -17,7 +17,7 @@ impl<'a> BusinessIdentifierCode<'a> {
         let country_code = iso3166_1::alpha2(&data[4..6]).unwrap().alpha2;
         let business_party_suffix = &data[6..];
 
-        BusinessIdentifierCode {
+        Self {
             business_party_prefix,
             country_code,
             business_party_suffix,
@@ -36,7 +36,7 @@ impl<'a> LogicalTerminalAddress<'a> {
     fn new(data: &'a str) -> Self {
         let bic_code = BusinessIdentifierCode::new(&data[..8]);
         
-        LogicalTerminalAddress {
+        Self {
             bic_code,
             terminal_code: &data[8..9],
             branch_code: &data[9..],
@@ -79,7 +79,7 @@ impl<'a> Basic<'a> {
 
         let source_address = LogicalTerminalAddress::new(&block_data[3..15]);
 
-        Basic {
+        Self {
             application_id,
             service_id,
             source_address,
@@ -139,7 +139,7 @@ impl<'a> Application<'a> {
 
         let destination_address = LogicalTerminalAddress::new(&block_data[4..16]);
         
-        Application {
+        Self {
             input_output_id,
             message_type,
             destination_address,
@@ -164,7 +164,7 @@ impl<'a> User<'a> {
             data = Some(block_data)
         }
 
-        User {
+        Self {
             data,
         }
     }
@@ -233,7 +233,7 @@ impl<'a> Text<'a> {
             };
         }
 
-        Text {
+        Self {
             tag_20: transaction_reference_number.unwrap(),
             tag_25: tag_account_identification.unwrap(),
             tag_28c: statement_number.unwrap(),
@@ -260,7 +260,7 @@ impl<'a> Trailer<'a> {
             data = Some(block_data)
         }
         
-        Trailer {
+        Self {
             data,
         }
     }

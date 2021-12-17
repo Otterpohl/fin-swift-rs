@@ -6,7 +6,7 @@ pub struct Message<'a> {
 }
 
 impl<'a> Message<'a> {
-    pub fn new(message_data: &str) -> Message {
+    pub fn new(message_data: &'a str) -> Message {
         let message_type_start = message_data
             .match_indices('\u{007B}') // {
             .map(|(i, _)| i)
@@ -16,7 +16,7 @@ impl<'a> Message<'a> {
             
         match message_type {
             "940" => {
-                Message {
+                Self {
                     data: mt940::MT940::new(message_data)
                 }
             }
