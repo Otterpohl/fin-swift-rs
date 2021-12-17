@@ -4,20 +4,6 @@ use iso_4217::*;
 
 // https://www.paiementor.com/swift-mt940-format-specifications/
 
-// Tag20
-#[derive(Debug)]
-pub struct TransactionReferenceNumber<'a> { 
-    pub data: &'a str,
-}
-
-impl<'a> TransactionReferenceNumber<'a> {
-    pub fn new(value: &'a str) -> Self {
-        TransactionReferenceNumber {
-            data: value,
-        }
-    }
-}
-
 #[derive(Debug)]
 enum CreditOrDebit {
     Credit,
@@ -27,7 +13,7 @@ enum CreditOrDebit {
 #[derive(Debug)]
 pub enum BalanceType {
     Final,
-    Intermediary,
+    //Intermediary,
 }
 
 #[derive(Debug)]
@@ -63,16 +49,30 @@ impl Balance {
     }
 }
 
+// Tag20
+#[derive(Debug)]
+pub struct TransactionReferenceNumber<'a> { 
+    pub transaction_reference_number: &'a str,
+}
+
+impl<'a> TransactionReferenceNumber<'a> {
+    pub fn new(value: &'a str) -> Self {
+        TransactionReferenceNumber {
+            transaction_reference_number: value,
+        }
+    }
+}
+
 // Tag25
 #[derive(Debug)]
 pub struct AccountIdentification<'a> {
-    pub data: &'a str,
+    pub account_identification: &'a str,
 }
 
 impl<'a> AccountIdentification<'a> {
     pub fn new(value: &'a str) -> Self {
         AccountIdentification {
-            data: value,
+            account_identification: value,
         }
     }
 }
@@ -104,7 +104,7 @@ impl StatementNumber {
 
 // Tag60F
 #[derive(Debug)]
-pub struct OpeningBalance { // do we need a separate struct just for F and M?
+pub struct OpeningBalance {
     balance_type: BalanceType,
     balance_data: Balance,
 }
@@ -112,7 +112,7 @@ pub struct OpeningBalance { // do we need a separate struct just for F and M?
 impl OpeningBalance {
     pub fn new(balance_type: BalanceType, balance_data: &str) -> Self {
         OpeningBalance {
-            balance_type: balance_type,
+            balance_type,
             balance_data: Balance::new(balance_data),
         }
     }
@@ -121,20 +121,20 @@ impl OpeningBalance {
 // Tag61
 #[derive(Debug)]
 pub struct StatementLine<'a> {
-    pub data: &'a str,
+    pub statement_line: &'a str,
 }
 
 impl<'a> StatementLine<'a> {
     pub fn new(value: &'a str) -> Self {
         StatementLine {
-            data: value,
+            statement_line: value,
         }
     }
 }
 
 // Tag62F
 #[derive(Debug)]
-pub struct BookedFunds { // do we need a separate struct just for F and M?
+pub struct BookedFunds {
     balance_type: BalanceType,
     balance: Balance,
 }
@@ -142,7 +142,7 @@ pub struct BookedFunds { // do we need a separate struct just for F and M?
 impl BookedFunds {
     pub fn new(balance_type: BalanceType, balance_data: &str) -> Self {
         BookedFunds {
-            balance_type: balance_type,
+            balance_type,
             balance: Balance::new(balance_data),
         }
     }
@@ -151,13 +151,13 @@ impl BookedFunds {
 // Tag64
 #[derive(Debug)]
 pub struct ClosingAvailableBalance<'a> {
-    pub data: &'a str,
+    pub closing_available_balance: &'a str,
 }
 
 impl<'a> ClosingAvailableBalance<'a> {
     pub fn new(value: &'a str) -> Self {
         ClosingAvailableBalance {
-            data: value,
+            closing_available_balance: value,
         }
     }
 }
@@ -165,13 +165,13 @@ impl<'a> ClosingAvailableBalance<'a> {
 // Tag86
 #[derive(Debug)]
 pub struct InformationToAccountOwner<'a> {
-    pub data: &'a str,
+    pub information_to_account_owner: &'a str,
 }
 
 impl<'a> InformationToAccountOwner<'a> {
     pub fn new(value: &'a str) -> Self {
         InformationToAccountOwner {
-            data: value,
+            information_to_account_owner: value,
         }
     }
 }

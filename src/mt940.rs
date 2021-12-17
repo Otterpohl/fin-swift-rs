@@ -13,11 +13,11 @@ pub struct MT940<'a> {
 
 impl<'a> MT940<'a> {
     pub fn new(message_data: &'a str) -> Self {
-        let mut basic = None;
-        let mut application = None;
-        let mut user = None;
-        let mut text = None;
-        let mut trailer = None;
+        let mut block_1 = None;
+        let mut block_2 = None;
+        let mut block_3 = None;
+        let mut block_4 = None;
+        let mut block_5 = None;
 
         let block_start: Vec<usize> = message_data
             .match_indices('\u{007B}') // {
@@ -46,20 +46,20 @@ impl<'a> MT940<'a> {
 
             match block_id {
                 1 => {
-                    basic = Some(block::Basic::new(block_data));
+                    block_1 = Some(block::Basic::new(block_data));
                 }
                 2 => {
-                    application = Some(block::Application::new(block_data));
+                    block_2 = Some(block::Application::new(block_data));
                 }
                 3 => {
-                    user = Some(block::User::new(block_data));
+                    block_3 = Some(block::User::new(block_data));
                 }
                 4 => {
-                    text = Some(block::Text::new(block_data));
+                    block_4 = Some(block::Text::new(block_data));
                 }
                 5 => {
                     // TODO: if it is zero here then lets not even create an empty struct?
-                    trailer = Some(block::Trailer::new(block_data));
+                    block_5 = Some(block::Trailer::new(block_data));
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");
@@ -68,11 +68,11 @@ impl<'a> MT940<'a> {
         }
 
         MT940 {
-            basic: basic.unwrap(),
-            application: application.unwrap(),
-            user: user.unwrap(),
-            text: text.unwrap(),
-            trailer: trailer.unwrap(),
+            basic: block_1.unwrap(),
+            application: block_2.unwrap(),
+            user: block_3.unwrap(),
+            text: block_4.unwrap(),
+            trailer: block_5.unwrap(),
         }
     }
 }

@@ -136,7 +136,7 @@ impl<'a> User<'a> {
     pub fn new(block_data: &'a str) -> Self {
         let mut data = None;
 
-        if block_data.len() > 0 {
+        if !block_data.is_empty() {
             data = Some(block_data)
         }
 
@@ -232,7 +232,7 @@ impl<'a> Trailer<'a> {
     pub fn new(block_data: &'a str) -> Self {
         let mut data = None;
 
-        if block_data.len() > 0 {
+        if !block_data.is_empty() {
             data = Some(block_data)
         }
         
