@@ -1,46 +1,20 @@
-use chrono::prelude::*;
 use crate::utils::*;
-use std::convert::TryFrom;
+use chrono::prelude::*;
 use iso_4217::*; // currency
-
-#[derive(Debug)]
-enum CreditDebit {
-    Credit,
-    Debit,
-    CreditReversal,
-    DebitReversal,
-}
-
-#[derive(Debug)]
-pub enum BalanceType {
-    Final,
-    Intermediary,
-}
-
-#[derive(Debug,PartialEq)]
-pub enum FundsCode {
-    SwiftTransfer,
-    NonSwiftTransfer,
-    FirstAdvice,
-}
 
 #[derive(Debug)]
 pub struct Balance {
     credit_or_debit: CreditDebit,
     date: NaiveDate,
     currency: CurrencyCode,
-    amount: f64
+    amount: f64,
 }
 
 impl Balance {
     pub fn new(value: &str) -> Self {
-        let credit_or_debit = match &value[..1] { // try from
-            "C" => CreditDebit::Credit,
-            "D" => CreditDebit::Debit,
-            _ => panic!("We really shouldn't have reached this, too bad!"),
-        };
+        let credit_or_debit = CreditDebit::try_from(&value[..1]).unwrap();
         let date = naive_date_from_swift_date(&value[1..7]);
-        let currency: CurrencyCode = TryFrom::try_from(&value[7..10]).unwrap();
+        let currency = CurrencyCode::try_from(&value[7..10]).unwrap();
         let amount = money_from_swift_amount(&value[10..]);
 
         Self {
@@ -54,7 +28,7 @@ impl Balance {
 
 // Tag20
 #[derive(Debug)]
-pub struct TransactionReferenceNumber<'a> { 
+pub struct TransactionReferenceNumber<'a> {
     pub transaction_reference_number: &'a str,
 }
 
@@ -91,11 +65,7 @@ impl StatementNumber {
     pub fn new(value: &str) -> Self {
         let statement_sequence_number = value
             .split('/')
-            .map(|x| x
-                .strip_prefix('0')
-                .unwrap_or(x)
-                .parse::<u32>()
-                .unwrap())
+            .map(|x| x.strip_prefix('0').unwrap_or(x).parse::<u32>().unwrap())
             .collect::<Vec<_>>();
 
         Self {
@@ -137,7 +107,7 @@ pub struct StatementLine<'a> {
 
 impl<'a> StatementLine<'a> {
     pub fn new(value: &'a str) -> Self {
-        // we will use this to track where in the string we 
+        // we will use this to track where in the string we
         // should start parsing from each time we get a value
         let mut next_index = 0;
 
@@ -146,31 +116,32 @@ impl<'a> StatementLine<'a> {
 
         next_index += 6;
 
-        if value[next_index..next_index + 4].chars().all(|x| x.is_numeric()) {
+        if value[next_index..next_index + 4]
+            .chars()
+            .all(|x| x.is_numeric())
+        {
             entry_date = naive_date_from_swift_date(&value[6..10]);
             next_index += 4;
         }
 
         // god i hate this shit, i wish i was better at rust
-        let debit_or_credit = if &value[next_index..next_index + 2] == "CR" || 
-            &value[next_index..next_index + 2] == "RC" {
+        let debit_or_credit = if &value[next_index..next_index + 2] == "CR"
+            || &value[next_index..next_index + 2] == "RC"
+        {
             next_index += 2;
             CreditDebit::CreditReversal
-        }
-        else if &value[next_index..next_index + 2] == "DR" || 
-            &value[next_index..next_index + 2] == "RD" {
+        } else if &value[next_index..next_index + 2] == "DR"
+            || &value[next_index..next_index + 2] == "RD"
+        {
             next_index += 2;
             CreditDebit::DebitReversal
-        }
-        else if &value[next_index..next_index + 1] == "C" {
+        } else if &value[next_index..next_index + 1] == "C" {
             next_index += 1;
             CreditDebit::Credit
-        }
-        else if &value[next_index..next_index + 1] == "D" {
+        } else if &value[next_index..next_index + 1] == "D" {
             next_index += 1;
             CreditDebit::Debit
-        }
-        else {
+        } else {
             panic!("We really shouldn't have reached this, too bad!");
         };
 
@@ -179,9 +150,8 @@ impl<'a> StatementLine<'a> {
         for c in value[next_index..next_index + 15].chars() {
             if c.to_string().parse::<u8>().is_ok() || c.to_string() == "," {
                 amount_string.push_str(&c.to_string());
-            }
-            else{
-                break
+            } else {
+                break;
             }
         }
 
@@ -189,87 +159,20 @@ impl<'a> StatementLine<'a> {
         next_index += amount.to_string().len();
 
         // fold here maybe?
-        let funds_code = if value[next_index..next_index + 1].chars().any(|x| 
-            x.to_string() == "S" ||
-            x.to_string() == "N" ||
-            x.to_string() == "F") {
-
-            match &value[next_index..next_index + 1] {
-                "S" => FundsCode::SwiftTransfer,
-                "N" => FundsCode::NonSwiftTransfer,
-                "F" => FundsCode::FirstAdvice,
-                _ => panic!("We really shouldn't have reached this, too bad!"),
-            }
-        }
-        else {
+        let funds_code = if value[next_index..next_index + 1]
+            .chars()
+            .any(|x| x.to_string() == "S" || x.to_string() == "N" || x.to_string() == "F")
+        {
+            FundsCode::try_from(&value[next_index..next_index + 1]).unwrap()
+        } else {
             panic!("We really shouldn't have reached this, too bad!");
         };
 
         next_index += 1;
 
         let transaction_type = if funds_code != FundsCode::SwiftTransfer {
-            Some(match &value[next_index..next_index + 3] { // try from this shit
-                "BNK" => TransactionType::BNK,
-                "BOE" => TransactionType::BOE,
-                "BRF" => TransactionType::BRF,
-                "CAR" => TransactionType::CAR,
-                "CAS" => TransactionType::CAS,
-                "CHG" => TransactionType::CHG,
-                "CHK" => TransactionType::CHK,
-                "CLR" => TransactionType::CLR,
-                "CMI" => TransactionType::CMI,
-                "CMN" => TransactionType::CMN,
-                "CMP" => TransactionType::CMP,
-                "CMS" => TransactionType::CMS,
-                "CMT" => TransactionType::CMT,
-                "CMZ" => TransactionType::CMZ,
-                "COL" => TransactionType::COL,
-                "COM" => TransactionType::COM,
-                "CPN" => TransactionType::CPN,
-                "DCR" => TransactionType::DCR,
-                "DDT" => TransactionType::DDT,
-                "DIS" => TransactionType::DIS,
-                "DIV" => TransactionType::DIV,
-                "EQA" => TransactionType::EQA,
-                "EXT" => TransactionType::EXT,
-                "FEX" => TransactionType::FEX,
-                "INT" => TransactionType::INT,
-                "LBX" => TransactionType::LBX,
-                "LDP" => TransactionType::LDP,
-                "MAR" => TransactionType::MAR,
-                "MAT" => TransactionType::MAT,
-                "MGT" => TransactionType::MGT,
-                "MSC" => TransactionType::MSC,
-                "NWI" => TransactionType::NWI,
-                "ODC" => TransactionType::ODC,
-                "OPT" => TransactionType::OPT,
-                "PCH" => TransactionType::PCH,
-                "POP" => TransactionType::POP,
-                "PRN" => TransactionType::PRN,
-                "REC" => TransactionType::REC,
-                "RED" => TransactionType::RED,
-                "RIG" => TransactionType::RIG,
-                "RTI" => TransactionType::RTI,
-                "SAL" => TransactionType::SAL,
-                "SEC" => TransactionType::SEC,
-                "SLE" => TransactionType::SLE,
-                "STO" => TransactionType::STO,
-                "STP" => TransactionType::STP,
-                "SUB" => TransactionType::SUB,
-                "SWP" => TransactionType::SWP,
-                "TAX" => TransactionType::TAX,
-                "TCK" => TransactionType::TCK,
-                "TCM" => TransactionType::TCM,
-                "TRA" => TransactionType::TRA,
-                "TRF" => TransactionType::TRF,
-                "TRN" => TransactionType::TRN,
-                "UWC" => TransactionType::UWC,
-                "VDA" => TransactionType::VDA,
-                "WAR" => TransactionType::WAR,
-                _ => panic!("We really shouldn't have reached this, too bad!"),
-            })
-        } 
-        else {
+            Some(TransactionType::try_from(&value[next_index..next_index + 3]).unwrap())
+        } else {
             None
         };
 
@@ -280,13 +183,12 @@ impl<'a> StatementLine<'a> {
         let account_owner_reference = &value[next_index..next_index + 16];
 
         next_index += 16;
-        
+
         let mut supplementary_details = None;
 
-        let account_servicing_insitution_reference =  if value[next_index..].starts_with("NONREF") {
+        let account_servicing_insitution_reference = if value[next_index..].starts_with("NONREF") {
             Some("NONREF")
-        } 
-        else {
+        } else {
             Some(&value[next_index..])
         };
 
@@ -334,7 +236,7 @@ pub struct ClosingAvailableBalance {
 impl ClosingAvailableBalance {
     pub fn new(value: &str) -> Self {
         Self {
-            balance_data: Balance::new(value)
+            balance_data: Balance::new(value),
         }
     }
 }

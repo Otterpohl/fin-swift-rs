@@ -1,6 +1,7 @@
 use crate::tag;
-use regex::Regex;
+use crate::utils::*;
 use iso3166_1::*;
+use regex::Regex;
 
 // TODO: add enum for block data
 
@@ -35,7 +36,7 @@ pub struct LogicalTerminalAddress<'a> {
 impl<'a> LogicalTerminalAddress<'a> {
     fn new(data: &'a str) -> Self {
         let bic_code = BusinessIdentifierCode::new(&data[..8]);
-        
+
         Self {
             bic_code,
             terminal_code: &data[8..9],
@@ -60,21 +61,17 @@ impl<'a> Basic<'a> {
     pub fn new(block_data: &'a str) -> Self {
         // i really dont like this.
         let application_id = match &block_data[..1] {
-            n @ "F" | n @ "A" | n @ "L" => { 
-                n
-            }
+            n @ "F" | n @ "A" | n @ "L" => n,
             n => {
-                panic!("unexpected application_id `{}` in Basic block",n)
+                panic!("unexpected application_id `{}` in Basic block", n)
             }
         };
 
         let service_id = match &block_data[1..3] {
-            n @ "01" | n @ "21" => {
-                n
-            }
+            n @ "01" | n @ "21" => n,
             n => {
-                 panic!("unexpected service_id `{}` in Basic block",n)
-             }
+                panic!("unexpected service_id `{}` in Basic block", n)
+            }
         };
 
         let source_address = LogicalTerminalAddress::new(&block_data[3..15]);
@@ -83,8 +80,8 @@ impl<'a> Basic<'a> {
             application_id,
             service_id,
             source_address,
-            session_number : &block_data[15..19],
-            sequence_number : &block_data[19..],
+            session_number: &block_data[15..19],
+            sequence_number: &block_data[19..],
         }
     }
 }
@@ -102,33 +99,31 @@ pub struct Application<'a> {
 
 impl<'a> Application<'a> {
     pub fn new(block_data: &'a str) -> Self {
-
         let input_output_id = match &block_data[..1] {
-            n @ "I" | n @ "O" => { // struct this?
-                n 
+            n @ "I" | n @ "O" => {
+                // struct this?
+                n
             }
             n => {
-                panic!("unexpected input_output_id `{}` in Application block",n)
+                panic!("unexpected input_output_id `{}` in Application block", n)
             }
         };
 
         let message_type = match &block_data[1..4] {
-            n @ "940" => { 
-                n
-            }
+            n @ "940" => n,
             n => {
-                panic!("unexpected message_type `{}`",n)
+                panic!("unexpected message_type `{}`", n)
             }
         };
 
         let mut priority = None;
         let mut delivery_monitoring = None;
         let mut obsolescence_period = None;
-        
+
         if block_data.len() >= 16 {
             priority = Some(&block_data[16..17]);
         }
-        
+
         if block_data.len() >= 18 {
             delivery_monitoring = Some(&block_data[17..18]);
         }
@@ -138,7 +133,7 @@ impl<'a> Application<'a> {
         }
 
         let destination_address = LogicalTerminalAddress::new(&block_data[4..16]);
-        
+
         Self {
             input_output_id,
             message_type,
@@ -164,9 +159,7 @@ impl<'a> User<'a> {
             data = Some(block_data)
         }
 
-        Self {
-            data,
-        }
+        Self { data }
     }
 }
 
@@ -193,18 +186,19 @@ impl<'a> Text<'a> {
         let mut statement_line: Vec<tag::StatementLine> = vec![];
         let mut information_to_account_owner: Vec<tag::InformationToAccountOwner> = vec![];
         let mut closing_available_balance = None;
-        
+
         let tag_regex = Regex::new(r"(?m)(?:(\d\d|\d\d[A-Z]):.+)").unwrap();
 
         for tag in tag_regex.captures_iter(block_data) {
             let block_key = tag.get(1).unwrap().as_str();
             let block_data = tag.get(0).unwrap().as_str();
             let value = block_data[block_key.len()..block_data.len()]
-                    .trim_matches(|c| c == ':' || c == '\r');
+                .trim_matches(|c| c == ':' || c == '\r');
 
             match block_key {
                 "20" => {
-                    transaction_reference_number = Some(tag::TransactionReferenceNumber::new(value));
+                    transaction_reference_number =
+                        Some(tag::TransactionReferenceNumber::new(value));
                 }
                 "25" => {
                     tag_account_identification = Some(tag::AccountIdentification::new(value));
@@ -213,16 +207,18 @@ impl<'a> Text<'a> {
                     statement_number = Some(tag::StatementNumber::new(value));
                 }
                 "60F" => {
-                    opening_balance = Some(tag::OpeningBalance::new(tag::BalanceType::Final, value));
+                    opening_balance = Some(tag::OpeningBalance::new(BalanceType::Final, value));
                 }
                 "60M" => {
-                    opening_balance = Some(tag::OpeningBalance::new(tag::BalanceType::Intermediary, value));
+                    opening_balance =
+                        Some(tag::OpeningBalance::new(BalanceType::Intermediary, value));
                 }
                 "62F" => {
-                    booked_funds_final = Some(tag::BookedFunds::new(tag::BalanceType::Final, value));
+                    booked_funds_final = Some(tag::BookedFunds::new(BalanceType::Final, value));
                 }
                 "62M" => {
-                    booked_funds_final = Some(tag::BookedFunds::new(tag::BalanceType::Intermediary, value));
+                    booked_funds_final =
+                        Some(tag::BookedFunds::new(BalanceType::Intermediary, value));
                 }
                 "61" => {
                     statement_line.push(tag::StatementLine::new(value));
@@ -265,9 +261,7 @@ impl<'a> Trailer<'a> {
         if !block_data.is_empty() {
             data = Some(block_data)
         }
-        
-        Self {
-            data,
-        }
+
+        Self { data }
     }
 }

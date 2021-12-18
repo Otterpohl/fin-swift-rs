@@ -1,4 +1,3 @@
-use std::fmt;
 use chrono::prelude::*;
 use chrono::NaiveDate;
 
@@ -63,92 +62,135 @@ pub enum TransactionType {
     WAR,
 }
 
-impl fmt::Display for TransactionType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let description = match self {
-            TransactionType::BNK => "Securities Related Item – Bank fees",
-            TransactionType::BOE => "Bill of exchange",
-            TransactionType::BRF => "Brokerage fee",
-            TransactionType::CAR => "Securities Related Item – Corporate Actions Related (Should only be used when no specific corporate action event code is available)",
-            TransactionType::CAS => "Securities Related Item – Cash in Lieu",
-            TransactionType::CHG => "Charges and other expenses",
-            TransactionType::CHK => "Cheques",
-            TransactionType::CLR => "Cash letters/Cheques remittance",
-            TransactionType::CMI => "Cash management item – No detail",
-            TransactionType::CMN => "Cash management item – Notional pooling",
-            TransactionType::CMP => "Compensation claims",
-            TransactionType::CMS => "Cash management item – Sweeping",
-            TransactionType::CMT => "Cash management item -Topping",
-            TransactionType::CMZ => "Cash management item – Zero balancing",
-            TransactionType::COL => "Collections (used when entering a principal amount)",
-            TransactionType::COM => "Commission",
-            TransactionType::CPN => "Securities Related Item – Coupon payments",
-            TransactionType::DCR => "Documentary credit (used when entering a principal amount)",
-            TransactionType::DDT => "Direct Debit Item",
-            TransactionType::DIS => "Securities Related Item – Gains disbursement",
-            TransactionType::DIV => "Securities Related Item – Dividends",
-            TransactionType::EQA => "Equivalent amount",
-            TransactionType::EXT => "Securities Related Item – External transfer for own account",
-            TransactionType::FEX => "Foreign exchange",
-            TransactionType::INT => "Interest",
-            TransactionType::LBX => "Lock box",
-            TransactionType::LDP => "Loan deposit",
-            TransactionType::MAR => "Securities Related Item – Margin payments/Receipts",
-            TransactionType::MAT => "Securities Related Item – Maturity",
-            TransactionType::MGT => "Securities Related Item – Management fees",
-            TransactionType::MSC => "Miscellaneous",
-            TransactionType::NWI => "Securities Related Item – New issues distribution",
-            TransactionType::ODC => "Overdraft charge",
-            TransactionType::OPT => "Securities Related Item – Options",
-            TransactionType::PCH => "Securities Related Item – Purchase (including STIF and Time deposits)",
-            TransactionType::POP => "Securities Related Item – Pair-off proceeds",
-            TransactionType::PRN => "Securities Related Item – Principal pay-down/pay-up",
-            TransactionType::REC => "Securities Related Item – Tax reclaim",
-            TransactionType::RED => "Securities Related Item – Redemption/Withdrawal",
-            TransactionType::RIG => "Securities Related Item – Rights",
-            TransactionType::RTI => "Returned item",
-            TransactionType::SAL => "Securities Related Item – Sale (including STIF and Time deposits)",
-            TransactionType::SEC => "Securities (used when entering a principal amount)",
-            TransactionType::SLE => "Securities Related Item – Securities lending related",
-            TransactionType::STO => "Standing order",
-            TransactionType::STP => "Securities Related Item – Stamp duty",
-            TransactionType::SUB => "Securities Related Item – Subscription",
-            TransactionType::SWP => "Securities Related Item – SWAP payment",
-            TransactionType::TAX => "Securities Related Item – Withholding tax payment",
-            TransactionType::TCK => "Travellers cheques",
-            TransactionType::TCM => "Securities Related Item – Tripartite collateral management",
-            TransactionType::TRA => "Securities Related Item – Internal transfer for own account",
-            TransactionType::TRF => "Transfer",
-            TransactionType::TRN => "Securities Related Item – Transaction fee",
-            TransactionType::UWC => "Securities Related Item – Underwriting commission",
-            TransactionType::VDA => "Value date adjustment (used with an entry made to withdraw an incorrectly dated entry – it will be followed by the correct entry with the relevant code)",
-            TransactionType::WAR => "Securities Related Item – Warrant",
-        };
-        write!(f, "({:?}, {})", self, description)
+impl TryFrom<&str> for TransactionType {
+    type Error = &'static str;
+
+    fn try_from(transaction_type: &str) -> Result<Self, Self::Error> {
+        match transaction_type {
+            "BNK" => Ok(TransactionType::BNK),
+            "BOE" => Ok(TransactionType::BOE),
+            "BRF" => Ok(TransactionType::BRF),
+            "CAR" => Ok(TransactionType::CAR),
+            "CAS" => Ok(TransactionType::CAS),
+            "CHG" => Ok(TransactionType::CHG),
+            "CHK" => Ok(TransactionType::CHK),
+            "CLR" => Ok(TransactionType::CLR),
+            "CMI" => Ok(TransactionType::CMI),
+            "CMN" => Ok(TransactionType::CMN),
+            "CMP" => Ok(TransactionType::CMP),
+            "CMS" => Ok(TransactionType::CMS),
+            "CMT" => Ok(TransactionType::CMT),
+            "CMZ" => Ok(TransactionType::CMZ),
+            "COL" => Ok(TransactionType::COL),
+            "COM" => Ok(TransactionType::COM),
+            "CPN" => Ok(TransactionType::CPN),
+            "DCR" => Ok(TransactionType::DCR),
+            "DDT" => Ok(TransactionType::DDT),
+            "DIS" => Ok(TransactionType::DIS),
+            "DIV" => Ok(TransactionType::DIV),
+            "EQA" => Ok(TransactionType::EQA),
+            "EXT" => Ok(TransactionType::EXT),
+            "FEX" => Ok(TransactionType::FEX),
+            "INT" => Ok(TransactionType::INT),
+            "LBX" => Ok(TransactionType::LBX),
+            "LDP" => Ok(TransactionType::LDP),
+            "MAR" => Ok(TransactionType::MAR),
+            "MAT" => Ok(TransactionType::MAT),
+            "MGT" => Ok(TransactionType::MGT),
+            "MSC" => Ok(TransactionType::MSC),
+            "NWI" => Ok(TransactionType::NWI),
+            "ODC" => Ok(TransactionType::ODC),
+            "OPT" => Ok(TransactionType::OPT),
+            "PCH" => Ok(TransactionType::PCH),
+            "POP" => Ok(TransactionType::POP),
+            "PRN" => Ok(TransactionType::PRN),
+            "REC" => Ok(TransactionType::REC),
+            "RED" => Ok(TransactionType::RED),
+            "RIG" => Ok(TransactionType::RIG),
+            "RTI" => Ok(TransactionType::RTI),
+            "SAL" => Ok(TransactionType::SAL),
+            "SEC" => Ok(TransactionType::SEC),
+            "SLE" => Ok(TransactionType::SLE),
+            "STO" => Ok(TransactionType::STO),
+            "STP" => Ok(TransactionType::STP),
+            "SUB" => Ok(TransactionType::SUB),
+            "SWP" => Ok(TransactionType::SWP),
+            "TAX" => Ok(TransactionType::TAX),
+            "TCK" => Ok(TransactionType::TCK),
+            "TCM" => Ok(TransactionType::TCM),
+            "TRA" => Ok(TransactionType::TRA),
+            "TRF" => Ok(TransactionType::TRF),
+            "TRN" => Ok(TransactionType::TRN),
+            "UWC" => Ok(TransactionType::UWC),
+            "VDA" => Ok(TransactionType::VDA),
+            "WAR" => Ok(TransactionType::WAR),
+            _ => Err("We really shouldn't have reached this, too bad!"),
+        }
     }
 }
 
+#[derive(Debug)]
+pub enum CreditDebit {
+    Credit,
+    Debit,
+    CreditReversal,
+    DebitReversal,
+}
+
+impl TryFrom<&str> for CreditDebit {
+    type Error = &'static str;
+
+    fn try_from(credit_or_debit: &str) -> Result<Self, Self::Error> {
+        match credit_or_debit {
+            "C" => Ok(CreditDebit::Credit),
+            "D" => Ok(CreditDebit::Debit),
+            _ => Err("We really shouldn't have reached this, too bad!"),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum BalanceType {
+    Final,
+    Intermediary,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum FundsCode {
+    SwiftTransfer,
+    NonSwiftTransfer,
+    FirstAdvice,
+}
+
+impl TryFrom<&str> for FundsCode {
+    type Error = &'static str;
+
+    fn try_from(funds_code: &str) -> Result<Self, Self::Error> {
+        match funds_code {
+            "S" => Ok(FundsCode::SwiftTransfer),
+            "N" => Ok(FundsCode::NonSwiftTransfer),
+            "F" => Ok(FundsCode::FirstAdvice),
+            _ => Err("We really shouldn't have reached this, too bad!"),
+        }
+    }
+}
 
 pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
     if date.len() == 6 {
         NaiveDate::from_ymd(
             2000 + date[..2].parse::<i32>().unwrap(),
-            date[2..4].parse::<u32>().unwrap(), 
-            date[4..6].parse::<u32>().unwrap()
+            date[2..4].parse::<u32>().unwrap(),
+            date[4..6].parse::<u32>().unwrap(),
         )
-    }
-    else {
+    } else {
         NaiveDate::from_ymd(
             chrono::Utc::now().year(),
-            date[..2].parse::<u32>().unwrap(), 
-            date[2..].parse::<u32>().unwrap()
+            date[..2].parse::<u32>().unwrap(),
+            date[2..].parse::<u32>().unwrap(),
         )
     }
-    
-    
 }
 
 pub fn money_from_swift_amount(amount: &str) -> f64 {
     amount.replace(',', ".").parse::<f64>().unwrap()
 }
-

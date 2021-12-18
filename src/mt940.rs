@@ -28,7 +28,7 @@ impl<'a> MT940<'a> {
             .map(|(i, _)| i)
             .collect();
         let block_segments = block_start.iter().zip(block_end.iter());
-        
+
         for (i, (start, end)) in block_segments.enumerate() {
             let block_id = 1 + i as i8;
 
