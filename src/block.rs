@@ -2,7 +2,6 @@ use crate::tag;
 use regex::Regex;
 use iso3166_1::*;
 
-
 // TODO: add enum for block data
 
 #[derive(Debug)]
@@ -178,10 +177,10 @@ pub struct Text<'a> {
     pub tag_25: tag::AccountIdentification<'a>,
     pub tag_28c: tag::StatementNumber,
     pub tag_60f: tag::OpeningBalance,
-    pub tag_62f: tag::BookedFunds,
     pub tag_61: Vec<tag::StatementLine<'a>>,
+    pub tag_62f: tag::BookedFunds,
+    pub tag_64: Option<tag::ClosingAvailableBalance>,
     pub tag_86: Vec<tag::InformationToAccountOwner<'a>>,
-    pub tag_64: Option<tag::ClosingAvailableBalance<'a>>,
 }
 
 impl<'a> Text<'a> {
@@ -216,8 +215,14 @@ impl<'a> Text<'a> {
                 "60F" => {
                     opening_balance = Some(tag::OpeningBalance::new(tag::BalanceType::Final, value));
                 }
+                "60M" => {
+                    opening_balance = Some(tag::OpeningBalance::new(tag::BalanceType::Intermediary, value));
+                }
                 "62F" => {
                     booked_funds_final = Some(tag::BookedFunds::new(tag::BalanceType::Final, value));
+                }
+                "62M" => {
+                    booked_funds_final = Some(tag::BookedFunds::new(tag::BalanceType::Intermediary, value));
                 }
                 "61" => {
                     statement_line.push(tag::StatementLine::new(value));
@@ -239,10 +244,10 @@ impl<'a> Text<'a> {
             tag_25: tag_account_identification.unwrap(),
             tag_28c: statement_number.unwrap(),
             tag_60f: opening_balance.unwrap(),
-            tag_62f: booked_funds_final.unwrap(),
             tag_61: statement_line,
-            tag_86: information_to_account_owner,
+            tag_62f: booked_funds_final.unwrap(),
             tag_64: closing_available_balance,
+            tag_86: information_to_account_owner,
         }
     }
 }
