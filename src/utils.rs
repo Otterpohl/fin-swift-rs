@@ -1,6 +1,7 @@
 use chrono::prelude::*;
 use chrono::NaiveDate;
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug)]
 pub enum TransactionType {
     BNK,
@@ -191,6 +192,6 @@ pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
     }
 }
 
-pub fn money_from_swift_amount(amount: &str) -> f64 {
+pub fn float_from_swift_amount(amount: &str) -> f64 {
     amount.replace(',', ".").parse::<f64>().unwrap()
 }

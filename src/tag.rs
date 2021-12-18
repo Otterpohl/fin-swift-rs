@@ -15,7 +15,7 @@ impl Balance {
         let credit_or_debit = CreditDebit::try_from(&value[..1]).unwrap();
         let date = naive_date_from_swift_date(&value[1..7]);
         let currency = CurrencyCode::try_from(&value[7..10]).unwrap();
-        let amount = money_from_swift_amount(&value[10..]);
+        let amount = float_from_swift_amount(&value[10..]);
 
         Self {
             credit_or_debit,
@@ -155,7 +155,7 @@ impl<'a> StatementLine<'a> {
             }
         }
 
-        let amount = money_from_swift_amount(&amount_string);
+        let amount = float_from_swift_amount(&amount_string);
         next_index += amount.to_string().len();
 
         // fold here maybe?
