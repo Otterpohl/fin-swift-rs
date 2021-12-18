@@ -105,7 +105,7 @@ impl<'a> Application<'a> {
     pub fn new(block_data: &'a str) -> Self {
 
         let input_output_id = match &block_data[..1] {
-            n @ "I" | n @ "O" => { 
+            n @ "I" | n @ "O" => { // struct this?
                 n 
             }
             n => {
