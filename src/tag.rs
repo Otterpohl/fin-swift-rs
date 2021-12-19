@@ -196,7 +196,12 @@ impl<'a> StatementLine<'a> {
         let account_servicing_insitution_reference = if value[next_index..].starts_with("NONREF") {
             Some("NONREF")
         } else {
-            Some(&value[next_index..])
+            if value[next_index..].is_empty() {
+                None
+            } 
+            else {
+                Some(&value[next_index..])
+            }
         };
 
         if account_servicing_insitution_reference == Some("NONREF") {
