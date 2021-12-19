@@ -47,9 +47,9 @@ pub struct AccountIdentification<'a> {
 }
 
 impl<'a> AccountIdentification<'a> {
-    pub fn new(value: &'a str) -> Self {
+    pub fn new(account_identification: &'a str) -> Self {
         Self {
-            account_identification: value,
+            account_identification,
         }
     }
 }
@@ -156,7 +156,9 @@ impl<'a> StatementLine<'a> {
         }
 
         let amount = float_from_swift_amount(&amount_string);
-        next_index += amount.to_string().len();
+
+        // float will truncate the 0 and so the len will be 1 char short, check the string version instead!
+        next_index += amount_string.to_string().len();
 
         // fold here maybe?
         let funds_code = if value[next_index..next_index + 1]
@@ -180,9 +182,14 @@ impl<'a> StatementLine<'a> {
             next_index += 3;
         }
 
-        let account_owner_reference = &value[next_index..next_index + 16];
+        let account_owner_reference = if value[next_index..].len() > 16 {
+            &value[next_index..next_index + 16]
+        }
+        else {
+            &value[next_index..]
+        };
 
-        next_index += 16;
+        next_index += account_owner_reference.len();
 
         let mut supplementary_details = None;
 
