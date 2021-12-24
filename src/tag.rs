@@ -109,37 +109,37 @@ impl<'a> StatementLine<'a> {
     pub fn new(value: &'a str) -> Self {
         // we will use this to track where in the string we
         // should start parsing from each time we get a value
-        let mut next_index = 0;
+        let mut index = 0;
 
-        let value_date = naive_date_from_swift_date(&value[next_index..6]);
+        let value_date = naive_date_from_swift_date(&value[index..index + 6]);
         let mut entry_date = value_date;
 
-        next_index += 6;
+        index += 6;
 
-        if value[next_index..next_index + 4]
+        if value[index..index + 4]
             .chars()
             .all(|x| x.is_numeric())
         {
-            entry_date = naive_date_from_swift_date(&value[next_index..next_index + 4]);
-            next_index += 4;
+            entry_date = naive_date_from_swift_date(&value[index..index + 4]);
+            index += 4;
         }
 
         // god i hate this shit, i wish i was better at rust
-        let debit_or_credit = if &value[next_index..next_index + 2] == "CR"
-            || &value[next_index..next_index + 2] == "RC"
+        let debit_or_credit = if &value[index..index + 2] == "CR"
+            || &value[index..index + 2] == "RC"
         {
-            next_index += 2;
+            index += 2;
             CreditDebit::CreditReversal
-        } else if &value[next_index..next_index + 2] == "DR"
-            || &value[next_index..next_index + 2] == "RD"
+        } else if &value[index..index + 2] == "DR"
+            || &value[index..index + 2] == "RD"
         {
-            next_index += 2;
+            index += 2;
             CreditDebit::DebitReversal
-        } else if &value[next_index..next_index + 1] == "C" {
-            next_index += 1;
+        } else if &value[index..index + 1] == "C" {
+            index += 1;
             CreditDebit::Credit
-        } else if &value[next_index..next_index + 1] == "D" {
-            next_index += 1;
+        } else if &value[index..index + 1] == "D" {
+            index += 1;
             CreditDebit::Debit
         } else {
             panic!("We really shouldn't have reached this, too bad!");
@@ -147,7 +147,7 @@ impl<'a> StatementLine<'a> {
 
         let mut amount_string = "".to_string();
 
-        for c in value[next_index..next_index + 15].chars() {
+        for c in value[index..index + 15].chars() {
             if c.to_string().parse::<u8>().is_ok() || c.to_string() == "," {
                 amount_string.push_str(&c.to_string());
             } else {
@@ -157,52 +157,53 @@ impl<'a> StatementLine<'a> {
 
         let amount = float_from_swift_amount(&amount_string);
 
-        // float will truncate the 0 and so the len will be 1 char short, check the string version instead!
-        next_index += amount_string.to_string().len();
+        // float will truncate the 0 and so the len will be 1 char short, check the string instead!
+        index += amount_string.to_string().len();
 
         // fold here maybe?
-        let funds_code = if value[next_index..next_index + 1]
+        let funds_code = if value[index..index + 1]
             .chars()
-            .any(|x| x.to_string() == "S" || x.to_string() == "N" || x.to_string() == "F")
+            .map(|x| x.to_string())
+            .any(|x| x == "S" || x == "N" || x == "F")
         {
-            FundsCode::try_from(&value[next_index..next_index + 1]).unwrap()
+            FundsCode::try_from(&value[index..index + 1]).unwrap()
         } else {
             panic!("We really shouldn't have reached this, too bad!");
         };
 
-        next_index += 1;
+        index += 1;
 
         let transaction_type = if funds_code != FundsCode::SwiftTransfer {
-            Some(TransactionType::try_from(&value[next_index..next_index + 3]).unwrap())
+            Some(TransactionType::try_from(&value[index..index + 3]).unwrap())
         } else {
             None
         };
 
         if transaction_type.is_some() {
-            next_index += 3;
+            index += 3;
         }
 
-        let account_owner_reference = if value[next_index..].len() > 16 {
-            &value[next_index..next_index + 16]
+        let account_owner_reference = if value[index..].len() > 16 {
+            &value[index..index + 16]
         } else {
-            &value[next_index..]
+            &value[index..]
         };
 
-        next_index += account_owner_reference.len();
+        index += account_owner_reference.len();
 
         let mut supplementary_details = None;
 
-        let account_servicing_insitution_reference = if value[next_index..].starts_with("NONREF") {
+        let account_servicing_insitution_reference = if value[index..].starts_with("NONREF") {
             Some("NONREF")
-        } else if value[next_index..].is_empty() {
+        } else if value[index..].is_empty() {
             None
         } else {
-            Some(&value[next_index..])
+            Some(&value[index..])
         };
 
         if account_servicing_insitution_reference == Some("NONREF") {
-            next_index += 6;
-            supplementary_details = Some(&value[next_index..]);
+            index += 6;
+            supplementary_details = Some(&value[index..]);
         }
 
         Self {
