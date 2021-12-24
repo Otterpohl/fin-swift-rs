@@ -1,4 +1,4 @@
-use crate::tag;
+use crate::tag::*;
 use crate::utils::*;
 use iso3166_1::*;
 use regex::Regex;
@@ -61,14 +61,14 @@ impl<'a> Basic<'a> {
     pub fn new(block_data: &'a str) -> Self {
         // i really dont like this.
         let application_id = match &block_data[..1] {
-            n @ "F" | n @ "A" | n @ "L" => n,
+            n @ ("F" | "A" | "L") => n,
             n => {
                 panic!("unexpected application_id `{}` in Basic block", n)
             }
         };
 
         let service_id = match &block_data[1..3] {
-            n @ "01" | n @ "21" => n,
+            n @ ("01" | "21") => n,
             n => {
                 panic!("unexpected service_id `{}` in Basic block", n)
             }
@@ -166,14 +166,14 @@ impl<'a> User<'a> {
 // Contains the text of the message
 #[derive(Debug)]
 pub struct Text<'a> {
-    pub tag_20: tag::TransactionReferenceNumber<'a>,
-    pub tag_25: tag::AccountIdentification<'a>,
-    pub tag_28c: tag::StatementNumber,
-    pub tag_60f: tag::OpeningBalance,
-    pub tag_61: Vec<tag::StatementLine<'a>>,
-    pub tag_62f: tag::BookedFunds,
-    pub tag_64: Option<tag::ClosingAvailableBalance>,
-    pub tag_86: Vec<tag::InformationToAccountOwner<'a>>,
+    pub tag_20: TransactionReferenceNumber<'a>,
+    pub tag_25: AccountIdentification<'a>,
+    pub tag_28c: StatementNumber,
+    pub tag_60f: OpeningBalance,
+    pub tag_61: Vec<StatementLine<'a>>,
+    pub tag_62f: BookedFunds,
+    pub tag_64: Option<ClosingAvailableBalance>,
+    pub tag_86: Vec<InformationToAccountOwner<'a>>,
 }
 
 impl<'a> Text<'a> {
@@ -183,8 +183,8 @@ impl<'a> Text<'a> {
         let mut statement_number = None;
         let mut opening_balance = None;
         let mut booked_funds_final = None;
-        let mut statement_line: Vec<tag::StatementLine> = vec![];
-        let mut information_to_account_owner: Vec<tag::InformationToAccountOwner> = vec![];
+        let mut statement_line: Vec<StatementLine> = vec![];
+        let mut information_to_account_owner: Vec<InformationToAccountOwner> = vec![];
         let mut closing_available_balance = None;
 
         let tag_regex = Regex::new(r"(?m)(?:(\d\d|\d\d[A-Z]):.+)").unwrap();
@@ -197,37 +197,34 @@ impl<'a> Text<'a> {
 
             match block_key {
                 "20" => {
-                    transaction_reference_number =
-                        Some(tag::TransactionReferenceNumber::new(value));
+                    transaction_reference_number = Some(TransactionReferenceNumber::new(value));
                 }
                 "25" => {
-                    tag_account_identification = Some(tag::AccountIdentification::new(value));
+                    tag_account_identification = Some(AccountIdentification::new(value));
                 }
                 "28C" => {
-                    statement_number = Some(tag::StatementNumber::new(value));
+                    statement_number = Some(StatementNumber::new(value));
                 }
                 "60F" => {
-                    opening_balance = Some(tag::OpeningBalance::new(BalanceType::Final, value));
+                    opening_balance = Some(OpeningBalance::new(BalanceType::Final, value));
                 }
                 "60M" => {
-                    opening_balance =
-                        Some(tag::OpeningBalance::new(BalanceType::Intermediary, value));
+                    opening_balance = Some(OpeningBalance::new(BalanceType::Intermediary, value));
                 }
                 "62F" => {
-                    booked_funds_final = Some(tag::BookedFunds::new(BalanceType::Final, value));
+                    booked_funds_final = Some(BookedFunds::new(BalanceType::Final, value));
                 }
                 "62M" => {
-                    booked_funds_final =
-                        Some(tag::BookedFunds::new(BalanceType::Intermediary, value));
+                    booked_funds_final = Some(BookedFunds::new(BalanceType::Intermediary, value));
                 }
                 "61" => {
-                    statement_line.push(tag::StatementLine::new(value));
+                    statement_line.push(StatementLine::new(value));
                 }
                 "86" => {
-                    information_to_account_owner.push(tag::InformationToAccountOwner::new(value));
+                    information_to_account_owner.push(InformationToAccountOwner::new(value));
                 }
                 "64" => {
-                    closing_available_balance = Some(tag::ClosingAvailableBalance::new(value));
+                    closing_available_balance = Some(ClosingAvailableBalance::new(value));
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");

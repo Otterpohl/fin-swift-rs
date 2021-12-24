@@ -120,7 +120,7 @@ impl<'a> StatementLine<'a> {
             .chars()
             .all(|x| x.is_numeric())
         {
-            entry_date = naive_date_from_swift_date(&value[6..10]);
+            entry_date = naive_date_from_swift_date(&value[next_index..next_index + 4]);
             next_index += 4;
         }
 
@@ -184,8 +184,7 @@ impl<'a> StatementLine<'a> {
 
         let account_owner_reference = if value[next_index..].len() > 16 {
             &value[next_index..next_index + 16]
-        }
-        else {
+        } else {
             &value[next_index..]
         };
 
@@ -195,13 +194,10 @@ impl<'a> StatementLine<'a> {
 
         let account_servicing_insitution_reference = if value[next_index..].starts_with("NONREF") {
             Some("NONREF")
+        } else if value[next_index..].is_empty() {
+            None
         } else {
-            if value[next_index..].is_empty() {
-                None
-            } 
-            else {
-                Some(&value[next_index..])
-            }
+            Some(&value[next_index..])
         };
 
         if account_servicing_insitution_reference == Some("NONREF") {
