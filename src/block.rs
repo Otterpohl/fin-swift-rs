@@ -187,7 +187,7 @@ impl<'a> Text<'a> {
         let mut information_to_account_owner: Vec<InformationToAccountOwner> = vec![];
         let mut closing_available_balance = None;
 
-        let tag_regex = Regex::new(r"(?m)(?:(\d\d|\d\d[A-Z]):.+)").unwrap();
+        let tag_regex = Regex::new(r"(?m)(?:(\d{2}|\d{2}[A-Z]):.+)").unwrap();
 
         for tag in tag_regex.captures_iter(block_data) {
             let block_key = tag.get(1).unwrap().as_str();
