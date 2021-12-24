@@ -116,40 +116,34 @@ impl<'a> StatementLine<'a> {
 
         index += 6;
 
-        if value[index..index + 4]
-            .chars()
-            .all(|x| x.is_numeric())
-        {
+        if value[index..index + 4].chars().all(|x| x.is_numeric()) {
             entry_date = naive_date_from_swift_date(&value[index..index + 4]);
             index += 4;
         }
 
         // god i hate this shit, i wish i was better at rust
-        let debit_or_credit = if &value[index..index + 2] == "CR"
-            || &value[index..index + 2] == "RC"
-        {
-            index += 2;
-            CreditDebit::CreditReversal
-        } else if &value[index..index + 2] == "DR"
-            || &value[index..index + 2] == "RD"
-        {
-            index += 2;
-            CreditDebit::DebitReversal
-        } else if &value[index..index + 1] == "C" {
-            index += 1;
-            CreditDebit::Credit
-        } else if &value[index..index + 1] == "D" {
-            index += 1;
-            CreditDebit::Debit
-        } else {
-            panic!("We really shouldn't have reached this, too bad!");
-        };
+        let debit_or_credit =
+            if ["CR","RC"].iter().any(|x| *x == &value[index..index + 2]) {
+                index += 2;
+                CreditDebit::CreditReversal
+            } else if ["DR","RD"].iter().any(|x| *x == &value[index..index + 2]) {
+                index += 2;
+                CreditDebit::DebitReversal
+            } else if &value[index..index + 1] == "C" {
+                index += 1;
+                CreditDebit::Credit
+            } else if &value[index..index + 1] == "D" {
+                index += 1;
+                CreditDebit::Debit
+            } else {
+                panic!("We really shouldn't have reached this, too bad!");
+            };
 
         let mut amount_string = "".to_string();
 
-        for c in value[index..index + 15].chars() {
-            if c.to_string().parse::<u8>().is_ok() || c.to_string() == "," {
-                amount_string.push_str(&c.to_string());
+        for c in value[index..index + 15].chars().map(|x| x.to_string()) {
+            if c.parse::<u8>().is_ok() || c == "," {
+                amount_string.push_str(&c);
             } else {
                 break;
             }
@@ -160,7 +154,6 @@ impl<'a> StatementLine<'a> {
         // float will truncate the 0 and so the len will be 1 char short, check the string instead!
         index += amount_string.to_string().len();
 
-        // fold here maybe?
         let funds_code = if value[index..index + 1]
             .chars()
             .map(|x| x.to_string())
@@ -191,9 +184,8 @@ impl<'a> StatementLine<'a> {
 
         index += account_owner_reference.len();
 
-        let mut supplementary_details = None;
-
         let account_servicing_insitution_reference = if value[index..].starts_with("NONREF") {
+            index += 6;
             Some("NONREF")
         } else if value[index..].is_empty() {
             None
@@ -201,10 +193,12 @@ impl<'a> StatementLine<'a> {
             Some(&value[index..])
         };
 
-        if account_servicing_insitution_reference == Some("NONREF") {
-            index += 6;
-            supplementary_details = Some(&value[index..]);
+        let supplementary_details = if account_servicing_insitution_reference == Some("NONREF") {
+            Some(&value[index..])
         }
+        else {
+            None
+        };
 
         Self {
             value_date,
