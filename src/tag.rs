@@ -66,7 +66,7 @@ impl StatementNumber {
         let statement_sequence_number = value
             .split('/')
             .map(|x| x.strip_prefix('0').unwrap_or(x).parse::<u32>().unwrap())
-            .collect::<Vec<_>>();
+            .collect::<Vec<u32>>();
 
         Self {
             statement_number: statement_sequence_number[0],
