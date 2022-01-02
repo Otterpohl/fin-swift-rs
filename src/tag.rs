@@ -98,20 +98,20 @@ impl<'a> StatementLine<'a> {
 
         // god i hate this shit, i wish i was better at rust
         let debit_or_credit = if ["CR", "RC"].iter().any(|x| *x == &value[index..index + 2]) {
-                index += 2;
-                CreditDebit::CreditReversal
+            index += 2;
+            CreditDebit::CreditReversal
         } else if ["DR", "RD"].iter().any(|x| *x == &value[index..index + 2]) {
-                index += 2;
-                CreditDebit::DebitReversal
-            } else if &value[index..index + 1] == "C" {
-                index += 1;
-                CreditDebit::Credit
-            } else if &value[index..index + 1] == "D" {
-                index += 1;
-                CreditDebit::Debit
-            } else {
-                panic!("We really shouldn't have reached this, too bad!");
-            };
+            index += 2;
+            CreditDebit::DebitReversal
+        } else if &value[index..index + 1] == "C" {
+            index += 1;
+            CreditDebit::Credit
+        } else if &value[index..index + 1] == "D" {
+            index += 1;
+            CreditDebit::Debit
+        } else {
+            panic!("We really shouldn't have reached this, too bad!");
+        };
 
         let mut amount_string = "".to_string();
 
