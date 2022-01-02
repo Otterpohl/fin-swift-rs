@@ -4,10 +4,10 @@ use iso_4217::*; // currency
 
 #[derive(Debug)]
 pub struct Balance {
-    credit_or_debit: CreditDebit,
-    date: NaiveDate,
-    currency: CurrencyCode,
-    amount: f64,
+    pub credit_or_debit: CreditDebit,
+    pub date: NaiveDate,
+    pub currency: CurrencyCode,
+    pub amount: f64,
 }
 
 impl Balance {
@@ -78,8 +78,8 @@ impl StatementNumber {
 // Tag60F
 #[derive(Debug)]
 pub struct OpeningBalance {
-    balance_type: BalanceType,
-    balance_data: Balance,
+    pub balance_type: BalanceType,
+    pub balance_data: Balance,
 }
 
 impl OpeningBalance {
@@ -94,15 +94,15 @@ impl OpeningBalance {
 // Tag61
 #[derive(Debug)]
 pub struct StatementLine<'a> {
-    value_date: NaiveDate,
-    entry_date: NaiveDate,
-    debit_or_credit: CreditDebit,
-    amount: f64,
-    funds_code: FundsCode,
-    transaction_type: Option<TransactionType>,
-    account_owner_reference: &'a str,
-    account_servicing_insitution_reference: Option<&'a str>,
-    supplementary_details: Option<&'a str>,
+    pub value_date: NaiveDate,
+    pub entry_date: NaiveDate,
+    pub debit_or_credit: CreditDebit,
+    pub amount: f64,
+    pub funds_code: FundsCode,
+    pub transaction_type: Option<TransactionType>,
+    pub account_owner_reference: &'a str,
+    pub account_servicing_insitution_reference: Option<&'a str>,
+    pub supplementary_details: Option<&'a str>,
 }
 
 impl<'a> StatementLine<'a> {
@@ -217,8 +217,8 @@ impl<'a> StatementLine<'a> {
 // Tag62F
 #[derive(Debug)]
 pub struct BookedFunds {
-    balance_type: BalanceType,
-    balance: Balance,
+    pub balance_type: BalanceType,
+    pub balance: Balance,
 }
 
 impl BookedFunds {
@@ -233,7 +233,7 @@ impl BookedFunds {
 // Tag64
 #[derive(Debug)]
 pub struct ClosingAvailableBalance {
-    balance_data: Balance,
+    pub balance_data: Balance,
 }
 
 impl ClosingAvailableBalance {

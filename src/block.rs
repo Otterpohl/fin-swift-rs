@@ -7,9 +7,9 @@ use regex::Regex;
 
 #[derive(Debug)]
 pub struct BusinessIdentifierCode<'a> {
-    business_party_prefix: &'a str,
-    country_code: &'a str,
-    business_party_suffix: &'a str,
+    pub business_party_prefix: &'a str,
+    pub country_code: &'a str,
+    pub business_party_suffix: &'a str,
 }
 
 impl<'a> BusinessIdentifierCode<'a> {
@@ -28,9 +28,9 @@ impl<'a> BusinessIdentifierCode<'a> {
 
 #[derive(Debug)]
 pub struct LogicalTerminalAddress<'a> {
-    bic_code: BusinessIdentifierCode<'a>,
-    terminal_code: &'a str, // try to make this a char?
-    branch_code: &'a str,
+    pub bic_code: BusinessIdentifierCode<'a>,
+    pub terminal_code: &'a str, // try to make this a char?
+    pub branch_code: &'a str,
 }
 
 impl<'a> LogicalTerminalAddress<'a> {
@@ -89,12 +89,12 @@ impl<'a> Basic<'a> {
 // Information about the message itself
 #[derive(Debug)]
 pub struct Application<'a> {
-    input_output_id: &'a str,
-    message_type: &'a str,
-    destination_address: LogicalTerminalAddress<'a>,
-    priority: Option<&'a str>,
-    delivery_monitoring: Option<&'a str>,
-    obsolescence_period: Option<&'a str>,
+    pub input_output_id: &'a str,
+    pub message_type: &'a str,
+    pub destination_address: LogicalTerminalAddress<'a>,
+    pub priority: Option<&'a str>,
+    pub delivery_monitoring: Option<&'a str>,
+    pub obsolescence_period: Option<&'a str>,
 }
 
 impl<'a> Application<'a> {
