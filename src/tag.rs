@@ -122,11 +122,10 @@ impl<'a> StatementLine<'a> {
         }
 
         // god i hate this shit, i wish i was better at rust
-        let debit_or_credit =
-            if ["CR","RC"].iter().any(|x| *x == &value[index..index + 2]) {
+        let debit_or_credit = if ["CR", "RC"].iter().any(|x| *x == &value[index..index + 2]) {
                 index += 2;
                 CreditDebit::CreditReversal
-            } else if ["DR","RD"].iter().any(|x| *x == &value[index..index + 2]) {
+        } else if ["DR", "RD"].iter().any(|x| *x == &value[index..index + 2]) {
                 index += 2;
                 CreditDebit::DebitReversal
             } else if &value[index..index + 1] == "C" {
@@ -195,8 +194,7 @@ impl<'a> StatementLine<'a> {
 
         let supplementary_details = if account_servicing_insitution_reference == Some("NONREF") {
             Some(&value[index..])
-        }
-        else {
+        } else {
             None
         };
 

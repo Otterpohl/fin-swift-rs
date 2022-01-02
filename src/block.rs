@@ -47,6 +47,8 @@ impl<'a> LogicalTerminalAddress<'a> {
 
 // https://www.paiementor.com/swift-mt-message-block-1-basic-header-description
 // https://www2.swift.com/knowledgecentre/publications/us9m_20180720/?topic=ajc.htm#genajc
+
+// Block 1
 // Fundamental reference for any particular message
 #[derive(Debug)]
 pub struct Basic<'a> {
@@ -59,7 +61,6 @@ pub struct Basic<'a> {
 
 impl<'a> Basic<'a> {
     pub fn new(block_data: &'a str) -> Self {
-        // i really dont like this.
         let application_id = match &block_data[..1] {
             n @ ("F" | "A" | "L") => n,
             n => {
@@ -86,6 +87,7 @@ impl<'a> Basic<'a> {
     }
 }
 
+// Block 2
 // Information about the message itself
 #[derive(Debug)]
 pub struct Application<'a> {
@@ -145,6 +147,7 @@ impl<'a> Application<'a> {
     }
 }
 
+// Block 3
 // Allows users to provide their own reference
 #[derive(Debug)]
 pub struct User<'a> {
@@ -163,6 +166,7 @@ impl<'a> User<'a> {
     }
 }
 
+// Block 4
 // Contains the text of the message
 #[derive(Debug)]
 pub struct Text<'a> {
@@ -245,6 +249,7 @@ impl<'a> Text<'a> {
     }
 }
 
+// Block 5
 // Indicates special circumstances that relate to message handling or contains security information
 #[derive(Debug)]
 pub struct Trailer<'a> {
