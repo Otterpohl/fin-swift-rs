@@ -20,11 +20,11 @@ impl<'a> MT940<'a> {
         let mut block_5 = None;
 
         let block_start: Vec<usize> = message_data
-            .match_indices('\u{007B}') // {
+            .match_indices('{')
             .map(|(i, _)| i)
             .collect();
         let block_end: Vec<usize> = message_data
-            .match_indices('\u{007D}') // }
+            .match_indices('}')
             .map(|(i, _)| i)
             .collect();
         let block_segments = block_start.iter().zip(block_end.iter());

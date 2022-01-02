@@ -8,7 +8,7 @@ pub struct Message<'a> {
 impl<'a> Message<'a> {
     pub fn new(message_data: &'a str) -> Message {
         let message_type_start = message_data
-            .match_indices('\u{007B}') // {
+            .match_indices('{')
             .map(|(i, _)| i)
             .collect::<Vec<usize>>()[1]
             + 4;
