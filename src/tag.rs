@@ -1,30 +1,5 @@
 use crate::utils::*;
 use chrono::prelude::*;
-use iso_4217::*; // currency
-
-#[derive(Debug)]
-pub struct Balance {
-    pub credit_or_debit: CreditDebit,
-    pub date: NaiveDate,
-    pub currency: CurrencyCode,
-    pub amount: f64,
-}
-
-impl Balance {
-    pub fn new(value: &str) -> Self {
-        let credit_or_debit = CreditDebit::try_from(&value[..1]).unwrap();
-        let date = naive_date_from_swift_date(&value[1..7]);
-        let currency = CurrencyCode::try_from(&value[7..10]).unwrap();
-        let amount = float_from_swift_amount(&value[10..]);
-
-        Self {
-            credit_or_debit,
-            date,
-            currency,
-            amount,
-        }
-    }
-}
 
 // Tag20
 #[derive(Debug)]

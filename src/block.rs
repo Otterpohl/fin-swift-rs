@@ -1,49 +1,6 @@
 use crate::tag::*;
 use crate::utils::*;
-use iso3166_1::*;
 use regex::Regex;
-
-// TODO: add enum for block data
-
-#[derive(Debug)]
-pub struct BusinessIdentifierCode<'a> {
-    pub business_party_prefix: &'a str,
-    pub country_code: &'a str,
-    pub business_party_suffix: &'a str,
-}
-
-impl<'a> BusinessIdentifierCode<'a> {
-    fn new(data: &'a str) -> Self {
-        let business_party_prefix = &data[0..4];
-        let country_code = alpha2(&data[4..6]).unwrap().alpha2;
-        let business_party_suffix = &data[6..];
-
-        Self {
-            business_party_prefix,
-            country_code,
-            business_party_suffix,
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct LogicalTerminalAddress<'a> {
-    pub bic_code: BusinessIdentifierCode<'a>,
-    pub terminal_code: &'a str, // try to make this a char?
-    pub branch_code: &'a str,
-}
-
-impl<'a> LogicalTerminalAddress<'a> {
-    fn new(data: &'a str) -> Self {
-        let bic_code = BusinessIdentifierCode::new(&data[..8]);
-
-        Self {
-            bic_code,
-            terminal_code: &data[8..9],
-            branch_code: &data[9..],
-        }
-    }
-}
 
 // https://www.paiementor.com/swift-mt-message-block-1-basic-header-description
 // https://www2.swift.com/knowledgecentre/publications/us9m_20180720/?topic=ajc.htm#genajc

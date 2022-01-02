@@ -1,5 +1,7 @@
 use chrono::prelude::*;
 use chrono::NaiveDate;
+use iso_4217::*; // currency
+use iso3166_1::*;
 
 #[allow(clippy::upper_case_acronyms)]
 #[derive(Debug)]
@@ -172,6 +174,71 @@ impl TryFrom<&str> for FundsCode {
             "N" => Ok(FundsCode::NonSwiftTransfer),
             "F" => Ok(FundsCode::FirstAdvice),
             _ => Err("We really shouldn't have reached this, too bad!"),
+        }
+    }
+}
+
+
+#[derive(Debug)]
+pub struct BusinessIdentifierCode<'a> {
+    pub business_party_prefix: &'a str,
+    pub country_code: &'a str,
+    pub business_party_suffix: &'a str,
+}
+
+impl<'a> BusinessIdentifierCode<'a> {
+    fn new(data: &'a str) -> Self {
+        let business_party_prefix = &data[0..4];
+        let country_code = alpha2(&data[4..6]).unwrap().alpha2;
+        let business_party_suffix = &data[6..];
+
+        Self {
+            business_party_prefix,
+            country_code,
+            business_party_suffix,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct LogicalTerminalAddress<'a> {
+    pub bic_code: BusinessIdentifierCode<'a>,
+    pub terminal_code: &'a str, // try to make this a char?
+    pub branch_code: &'a str,
+}
+
+impl<'a> LogicalTerminalAddress<'a> {
+    pub fn new(data: &'a str) -> Self { // consider moving this back to block.rs as its not yet used anywhere else
+        let bic_code = BusinessIdentifierCode::new(&data[..8]);
+
+        Self {
+            bic_code,
+            terminal_code: &data[8..9],
+            branch_code: &data[9..],
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Balance {
+    pub credit_or_debit: CreditDebit,
+    pub date: NaiveDate,
+    pub currency: CurrencyCode,
+    pub amount: f64,
+}
+
+impl Balance {
+    pub fn new(value: &str) -> Self {
+        let credit_or_debit = CreditDebit::try_from(&value[..1]).unwrap();
+        let date = naive_date_from_swift_date(&value[1..7]);
+        let currency = CurrencyCode::try_from(&value[7..10]).unwrap();
+        let amount = float_from_swift_amount(&value[10..]);
+
+        Self {
+            credit_or_debit,
+            date,
+            currency,
+            amount,
         }
     }
 }
