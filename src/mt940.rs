@@ -35,7 +35,10 @@ impl<'a> MT940<'a> {
             let prefix = format!("{{{}:", block_id.to_string());
             let suffix = match block_id {
                 4 => "-}",
-                _ => "}",
+                1 | 2 | 3 | 5 => "}",
+                _ => {
+                    panic!("unexpected block_id `{}`", block_id)
+                }
             };
 
             let block_data = message_data[*start..=*end]
