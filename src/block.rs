@@ -20,14 +20,14 @@ impl<'a> Basic<'a> {
     pub fn new(block_data: &'a str) -> Self {
         let application_id = match &block_data[..1] {
             n @ ("F" | "A" | "L") => n,
-            n @ _ => {
+            n => {
                 panic!("unexpected application_id `{}` in Basic block", n)
             }
         };
 
         let service_id = match &block_data[1..3] {
             n @ ("01" | "21") => n,
-            n @ _ => {
+            n => {
                 panic!("unexpected service_id `{}` in Basic block", n)
             }
         };
