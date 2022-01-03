@@ -1,14 +1,15 @@
+use crate::block::*;
+
 // https://www.paiementor.com/swift-mt950-statement-message-detailed-analysis/
 
-use crate::block::{self};
 
 #[derive(Debug)]
 pub struct MT940<'a> {
-    pub basic: block::Basic<'a>,
-    pub application: block::Application<'a>,
-    pub user: block::User<'a>,
-    pub text: block::Text<'a>,
-    pub trailer: block::Trailer<'a>,
+    pub basic: Basic<'a>,
+    pub application: Application<'a>,
+    pub user: User<'a>,
+    pub text: Text<'a>,
+    pub trailer: Trailer<'a>,
 }
 
 impl<'a> MT940<'a> {
@@ -49,20 +50,20 @@ impl<'a> MT940<'a> {
 
             match block_id {
                 1 => {
-                    block_1 = Some(block::Basic::new(block_data));
+                    block_1 = Some(Basic::new(block_data));
                 }
                 2 => {
-                    block_2 = Some(block::Application::new(block_data));
+                    block_2 = Some(Application::new(block_data));
                 }
                 3 => {
-                    block_3 = Some(block::User::new(block_data));
+                    block_3 = Some(User::new(block_data));
                 }
                 4 => {
-                    block_4 = Some(block::Text::new(block_data));
+                    block_4 = Some(Text::new(block_data));
                 }
                 5 => {
                     // TODO: if it is zero here then lets not even create an empty struct?
-                    block_5 = Some(block::Trailer::new(block_data));
+                    block_5 = Some(Trailer::new(block_data));
                 }
                 _ => {
                     panic!("We really shouldn't have reached this, too bad!");

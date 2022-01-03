@@ -1,8 +1,8 @@
 use std::fs;
 use std::time::Instant;
+use crate::mt940::*;
 
 mod block;
-mod message;
 mod mt940;
 mod tag;
 mod utils;
@@ -12,7 +12,7 @@ fn main() {
     let content = &fs::read_to_string(filename).expect("Unable to read file");
 
     let start = Instant::now();
-    let swift = message::Message::new(content);
+    let swift = MT940::new(content);
     let duration = start.elapsed();
 
     // eprintln!("swift = {:#?}", swift.data.text.tag_64);
