@@ -1,2 +1,4 @@
 /target
 /tests/test_messages/example_output.txt
+/perf*
+/flamegraph.svg
