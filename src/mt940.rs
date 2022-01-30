@@ -33,7 +33,7 @@ impl<'a> MT940<'a> {
         for (i, (start, end)) in block_segments.enumerate() {
             let block_id = 1 + i as i8;
 
-            let prefix = format!("{{{}:", block_id.to_string());
+            let prefix = format!("{{{}:", block_id);
             let suffix = match block_id {
                 4 => "-}",
                 1 | 2 | 3 | 5 => "}",
