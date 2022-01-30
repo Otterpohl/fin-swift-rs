@@ -31,6 +31,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "fin-swift-rs"
+version = "0.1.1"
+dependencies = [
+ "chrono",
+ "iso-4217",
+ "iso3166-1",
+ "regex",
+]
+
+[[package]]
 name = "iso-4217"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -89,16 +99,6 @@ name = "regex-syntax"
 version = "0.6.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
-
-[[package]]
-name = "swift_parser"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "iso-4217",
- "iso3166-1",
- "regex",
-]
 
 [[package]]
 name = "time"
