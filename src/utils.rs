@@ -266,7 +266,7 @@ pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
             date[6..8].parse::<u32>().unwrap(),
         )
     } else {
-        panic!()
+        panic!("Invalid swift date provided")
     }
 }
 
@@ -279,28 +279,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_amount_conversion_with_scale() {
+    fn test_amount_with_scale() {
         let amount = float_from_swift_amount("379,29");
 
         assert_eq!(amount, 379.29)
     }
 
     #[test]
-    fn test_amount_conversion_with_no_scale() {
+    fn test_amount_with_no_scale() {
         let amount = float_from_swift_amount("379,");
 
         assert_eq!(amount, 379.0)
     }
 
     #[test]
-    fn test_amount_conversion_with_no_comma() {
+    fn test_amount_with_no_comma() {
         let amount = float_from_swift_amount("379.");
 
         assert_eq!(amount, 379.0);
     }
 
     #[test]
-    fn test_date_conversion_long_year() {
+    fn test_date_long_year() {
         let date = naive_date_from_swift_date("20090924");
 
         assert_eq!(date.year(), 2009);
@@ -309,7 +309,7 @@ mod tests {
     }
 
     #[test]
-    fn test_date_conversion_short_year() {
+    fn test_date_short_year() {
         let date = naive_date_from_swift_date("090924");
 
         assert_eq!(date.year(), 2009);
@@ -318,7 +318,7 @@ mod tests {
     }
 
     #[test]
-    fn test_date_conversion_no_year() {
+    fn test_date_no_year() {
         let date = naive_date_from_swift_date("0924");
 
         assert_eq!(date.year(), chrono::Utc::now().year());
@@ -328,7 +328,7 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "Invalid swift date provided")]
-    fn test_date_conversion() {
+    fn test_date() {
         naive_date_from_swift_date("");
     }
 
@@ -354,51 +354,51 @@ mod tests {
     }
 
     #[test]
-    fn test_credit_or_debit_conversion_credit() {
+    fn test_credit_or_debit_credit() {
         let credit = CreditDebit::try_from("C").unwrap();
         assert_eq!(credit, CreditDebit::Credit);
     }
 
     #[test]
-    fn test_credit_or_debit_conversion_debit() {
+    fn test_credit_or_debit_debit() {
         let debit = CreditDebit::try_from("D").unwrap();
         assert_eq!(debit, CreditDebit::Debit);
     }
 
     #[test]
     #[should_panic(expected = "Unknown CreditDebit value")]
-    fn test_credit_or_debit_conversion() {
+    fn test_credit_or_debit() {
         CreditDebit::try_from("").unwrap();
     }
 
     #[test]
-    fn test_currency_code_conversion() {
+    fn test_currency_code() {
         let currency_code = CurrencyCode::try_from("EUR").unwrap();
 
         assert_eq!(currency_code, iso_4217::CurrencyCode::EUR);
     }
 
    #[test]
-    fn test_funds_code_conversion_swift_transfer() {
+    fn test_funds_code_swift_transfer() {
         let swift_transfer = FundsCode::try_from("S").unwrap();
         assert_eq!(swift_transfer, FundsCode::SwiftTransfer);
     }
     
    #[test]
-    fn test_funds_code_conversion_non_swift_transfer() {
+    fn test_funds_code_non_swift_transfer() {
         let swift_transfer = FundsCode::try_from("N").unwrap();
         assert_eq!(swift_transfer, FundsCode::NonSwiftTransfer);
     }
 
    #[test]
-    fn test_funds_code_conversion_first_advice() {
+    fn test_funds_code_first_advice() {
         let swift_transfer = FundsCode::try_from("F").unwrap();
         assert_eq!(swift_transfer, FundsCode::FirstAdvice);
     }
 
    #[test]
    #[should_panic(expected = "Unknown FundsCode value")]
-    fn test_funds_code_conversion() {
+    fn test_funds_code() {
         FundsCode::try_from("").unwrap();
     }
 }
