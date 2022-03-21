@@ -1,7 +1,9 @@
 use chrono::prelude::*;
 use chrono::NaiveDate;
-use iso_4217::*; // currency
-use iso3166_1::*; // country
+// country
+use iso3166_1::*;
+// currency
+use iso_4217::*;
 
 #[allow(clippy::upper_case_acronyms)]
 #[derive(Debug)]
@@ -68,6 +70,7 @@ pub enum TransactionType {
 impl TryFrom<&str> for TransactionType {
     type Error = &'static str;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(transaction_type: &str) -> Result<Self, Self::Error> {
         match transaction_type {
             "BNK" => Ok(TransactionType::BNK),
@@ -132,7 +135,7 @@ impl TryFrom<&str> for TransactionType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum CreditDebit {
     Credit,
     Debit,
@@ -178,8 +181,7 @@ impl TryFrom<&str> for FundsCode {
     }
 }
 
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BusinessIdentifierCode<'a> {
     pub business_party_prefix: &'a str,
     pub country_code: &'a str,
@@ -188,7 +190,7 @@ pub struct BusinessIdentifierCode<'a> {
 
 impl<'a> BusinessIdentifierCode<'a> {
     fn new(data: &'a str) -> Self {
-        let business_party_prefix = &data[0..4];
+        let business_party_prefix = &data[..4];
         let country_code = alpha2(&data[4..6]).unwrap().alpha2;
         let business_party_suffix = &data[6..];
 
@@ -208,7 +210,8 @@ pub struct LogicalTerminalAddress<'a> {
 }
 
 impl<'a> LogicalTerminalAddress<'a> {
-    pub fn new(data: &'a str) -> Self { // consider moving this back to block.rs as its not yet used anywhere else
+    pub fn new(data: &'a str) -> Self {
+        // TODO: consider moving this back to block.rs as its not yet used anywhere else
         let bic_code = BusinessIdentifierCode::new(&data[..8]);
 
         Self {
@@ -268,5 +271,93 @@ pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
 }
 
 pub fn float_from_swift_amount(amount: &str) -> f64 {
-    amount.replace(',', ".").parse::<f64>().unwrap()
+    amount.replace(",", ".").parse::<f64>().unwrap()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_amount_conversion_with_scale() {
+        let amount = float_from_swift_amount("379,29");
+
+        assert_eq!(amount, 379.29)
+    }
+
+    #[test]
+    fn test_amount_conversion_with_no_scale() {
+        let amount = float_from_swift_amount("379,");
+
+        assert_eq!(amount, 379.0)
+    }
+
+    #[test]
+    fn test_amount_conversion_with_no_comma() {
+        let amount = float_from_swift_amount("379.");
+
+        assert_eq!(amount, 379.0);
+    }
+
+    #[test]
+    fn test_date_conversion_long_year() {
+        let date = naive_date_from_swift_date("20090924");
+
+        assert_eq!(date.year(), 2009);
+        assert_eq!(date.month(), 9);
+        assert_eq!(date.day(), 24);
+    }
+
+    #[test]
+    fn test_date_conversion_short_year() {
+        let date = naive_date_from_swift_date("090924");
+
+        assert_eq!(date.year(), 2009);
+        assert_eq!(date.month(), 9);
+        assert_eq!(date.day(), 24);
+    }
+
+    #[test]
+    fn test_date_conversion_no_year() {
+        let date = naive_date_from_swift_date("0924");
+
+        assert_eq!(date.year(), chrono::Utc::now().year());
+        assert_eq!(date.month(), 9);
+        assert_eq!(date.day(), 24);
+    }
+
+    #[test]
+    fn test_business_identifier_code() {
+        let bic_code = BusinessIdentifierCode::new("ASNBNL21");
+
+        assert_eq!(bic_code.business_party_prefix, "ASNB");
+        assert_eq!(bic_code.country_code, "NL");
+        assert_eq!(bic_code.business_party_suffix, "21");
+    }
+
+    #[test]
+    fn test_logical_terminal_address() {
+        let logical_terminal_address = LogicalTerminalAddress::new("ASNBNL21XXXX");
+
+        assert_eq!(
+            logical_terminal_address.bic_code,
+            BusinessIdentifierCode::new("ASNBNL21")
+        );
+        assert_eq!(logical_terminal_address.terminal_code, "X");
+        assert_eq!(logical_terminal_address.branch_code, "XXX");
+    }
+
+    #[test]
+    fn test_credit_or_debit_conversion() {
+        let credit_or_debit = CreditDebit::try_from("C").unwrap();
+
+        assert_eq!(credit_or_debit, CreditDebit::Credit);
+    }
+
+    #[test]
+    fn test_currency_code_conversion() {
+        let currency_code = CurrencyCode::try_from("EUR").unwrap();
+
+        assert_eq!(currency_code, iso_4217::CurrencyCode::EUR);
+    }
 }
