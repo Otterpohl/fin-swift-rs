@@ -327,6 +327,12 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "Invalid swift date provided")]
+    fn test_date_conversion() {
+        naive_date_from_swift_date("");
+    }
+
+    #[test]
     fn test_business_identifier_code() {
         let bic_code = BusinessIdentifierCode::new("ASNBNL21");
 
