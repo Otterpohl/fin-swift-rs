@@ -150,7 +150,7 @@ impl TryFrom<&str> for CreditDebit {
         match credit_or_debit {
             "C" => Ok(CreditDebit::Credit),
             "D" => Ok(CreditDebit::Debit),
-            _ => Err("We really shouldn't have reached this, too bad!"),
+            _ => Err("Unknown CreditDebit value"),
         }
     }
 }
@@ -176,7 +176,7 @@ impl TryFrom<&str> for FundsCode {
             "S" => Ok(FundsCode::SwiftTransfer),
             "N" => Ok(FundsCode::NonSwiftTransfer),
             "F" => Ok(FundsCode::FirstAdvice),
-            _ => Err("We really shouldn't have reached this, too bad!"),
+            _ => Err("Unknown FundsCode value"),
         }
     }
 }
@@ -360,10 +360,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "Unknown CreditDebit value")]
     fn test_credit_or_debit_conversion() {
-        let panic = CreditDebit::try_from("PanicForMe").unwrap();
-        assert_eq!(panic, CreditDebit::Debit);
+        CreditDebit::try_from("").unwrap();
     }
 
     #[test]
@@ -392,9 +391,8 @@ mod tests {
     }
 
    #[test]
-   #[should_panic]
+   #[should_panic(expected = "Unknown FundsCode value")]
     fn test_funds_code_conversion() {
-        let funds_code = FundsCode::try_from("PanicForMe").unwrap();
-        assert_eq!(funds_code, FundsCode::FirstAdvice);
+        FundsCode::try_from("").unwrap();
     }
 }
