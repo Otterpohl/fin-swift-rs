@@ -401,4 +401,15 @@ mod tests {
     fn test_funds_code() {
         FundsCode::try_from("").unwrap();
     }
+
+    #[test]
+    fn test_balance() {
+        let balance = Balance::new("C090930EUR53189,31");
+        let naive_date = NaiveDate::from_ymd(2009,9,30);
+
+        assert_eq!(balance.credit_or_debit, CreditDebit::Credit);
+        assert_eq!(balance.date, naive_date);
+        assert_eq!(balance.currency, iso_4217::CurrencyCode::EUR);
+        assert_eq!(balance.amount, 53189.31);
+    }
 }
