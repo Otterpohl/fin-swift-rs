@@ -244,18 +244,26 @@ impl Balance {
 }
 
 pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
-    if date.len() == 6 {
-        NaiveDate::from_ymd(
-            2000 + date[..2].parse::<i32>().unwrap(),
-            date[2..4].parse::<u32>().unwrap(),
-            date[4..6].parse::<u32>().unwrap(),
-        )
-    } else {
+    if date.len() == 4 {
         NaiveDate::from_ymd(
             chrono::Utc::now().year(),
             date[..2].parse::<u32>().unwrap(),
             date[2..].parse::<u32>().unwrap(),
         )
+    } else if date.len() == 6 {
+        NaiveDate::from_ymd(
+            2000 + date[..2].parse::<i32>().unwrap(),
+            date[2..4].parse::<u32>().unwrap(),
+            date[4..6].parse::<u32>().unwrap(),
+        )
+    } else if date.len() == 8 {
+        NaiveDate::from_ymd(
+            date[..4].parse::<i32>().unwrap(),
+            date[4..6].parse::<u32>().unwrap(),
+            date[6..8].parse::<u32>().unwrap(),
+        )
+    } else {
+        panic!()
     }
 }
 
