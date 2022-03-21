@@ -2,7 +2,6 @@ use crate::block::*;
 
 // https://www.paiementor.com/swift-mt950-statement-message-detailed-analysis/
 
-
 #[derive(Debug)]
 pub struct MT940<'a> {
     pub basic: Basic<'a>,
@@ -20,14 +19,8 @@ impl<'a> MT940<'a> {
         let mut block_4 = None;
         let mut block_5 = None;
 
-        let block_start: Vec<usize> = message_data
-            .match_indices('{')
-            .map(|(i, _)| i)
-            .collect();
-        let block_end: Vec<usize> = message_data
-            .match_indices('}')
-            .map(|(i, _)| i)
-            .collect();
+        let block_start: Vec<usize> = message_data.match_indices('{').map(|(i, _)| i).collect();
+        let block_end: Vec<usize> = message_data.match_indices('}').map(|(i, _)| i).collect();
         let block_segments = block_start.iter().zip(block_end.iter());
 
         for (i, (start, end)) in block_segments.enumerate() {
