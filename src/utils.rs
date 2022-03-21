@@ -348,10 +348,22 @@ mod tests {
     }
 
     #[test]
-    fn test_credit_or_debit_conversion() {
-        let credit_or_debit = CreditDebit::try_from("C").unwrap();
+    fn test_credit_or_debit_conversion_credit() {
+        let credit = CreditDebit::try_from("C").unwrap();
+        assert_eq!(credit, CreditDebit::Credit);
+    }
 
-        assert_eq!(credit_or_debit, CreditDebit::Credit);
+    #[test]
+    fn test_credit_or_debit_conversion_debit() {
+        let debit = CreditDebit::try_from("D").unwrap();
+        assert_eq!(debit, CreditDebit::Debit);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_credit_or_debit_conversion() {
+        let panic = CreditDebit::try_from("PanicForMe").unwrap();
+        assert_eq!(panic, CreditDebit::Debit);
     }
 
     #[test]
