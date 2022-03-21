@@ -372,4 +372,29 @@ mod tests {
 
         assert_eq!(currency_code, iso_4217::CurrencyCode::EUR);
     }
+
+   #[test]
+    fn test_funds_code_conversion_swift_transfer() {
+        let swift_transfer = FundsCode::try_from("S").unwrap();
+        assert_eq!(swift_transfer, FundsCode::SwiftTransfer);
+    }
+    
+   #[test]
+    fn test_funds_code_conversion_non_swift_transfer() {
+        let swift_transfer = FundsCode::try_from("N").unwrap();
+        assert_eq!(swift_transfer, FundsCode::NonSwiftTransfer);
+    }
+
+   #[test]
+    fn test_funds_code_conversion_first_advice() {
+        let swift_transfer = FundsCode::try_from("F").unwrap();
+        assert_eq!(swift_transfer, FundsCode::FirstAdvice);
+    }
+
+   #[test]
+   #[should_panic]
+    fn test_funds_code_conversion() {
+        let funds_code = FundsCode::try_from("PanicForMe").unwrap();
+        assert_eq!(funds_code, FundsCode::FirstAdvice);
+    }
 }
