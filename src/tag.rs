@@ -110,7 +110,7 @@ impl<'a> StatementLine<'a> {
             index += 1;
             CreditDebit::Debit
         } else {
-            panic!("We really shouldn't have reached this, too bad!");
+            panic!("Credit/Debit type not found or not recognized");
         };
 
         let mut amount_string = "".to_string();
@@ -135,7 +135,7 @@ impl<'a> StatementLine<'a> {
         {
             FundsCode::try_from(&value[index..index + 1]).unwrap()
         } else {
-            panic!("We really shouldn't have reached this, too bad!");
+            panic!("FundsCode type not found or not recognized");
         };
 
         index += 1;
@@ -191,14 +191,14 @@ impl<'a> StatementLine<'a> {
 #[derive(Debug)]
 pub struct BookedFunds {
     pub balance_type: BalanceType,
-    pub balance: Balance,
+    pub balance_data: Balance,
 }
 
 impl BookedFunds {
     pub fn new(balance_type: BalanceType, balance_data: &str) -> Self {
         Self {
             balance_type,
-            balance: Balance::new(balance_data),
+            balance_data: Balance::new(balance_data),
         }
     }
 }
@@ -228,5 +228,133 @@ impl<'a> InformationToAccountOwner<'a> {
         Self {
             information_to_account_owner: value,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_transaction_reference_number_new() {
+        let reference = TransactionReferenceNumber::new("3996-11-11111111");
+
+        assert_eq!(reference.transaction_reference_number, "3996-11-11111111");
+    }
+
+    #[test]
+    fn test_account_identification_new() {
+        let account = AccountIdentification::new("DABADKKK/111111-11111111");
+
+        assert_eq!(account.account_identification, "DABADKKK/111111-11111111");
+    }
+
+    #[test]
+    fn test_statement_number_new() {
+        let statement = StatementNumber::new("00001/001");
+
+        assert_eq!(statement.statement_number, 1);
+        assert_eq!(statement.sequence_number, 1);
+    }
+
+    #[test]
+    fn test_opening_balance_new() {
+        let opening_balance = OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04");
+        let naive_date = NaiveDate::from_ymd(2009, 9, 24);
+
+        assert_eq!(
+            opening_balance.balance_data.credit_or_debit,
+            CreditDebit::Credit
+        );
+        assert_eq!(opening_balance.balance_data.date, naive_date);
+        assert_eq!(
+            opening_balance.balance_data.currency,
+            iso_4217::CurrencyCode::EUR
+        );
+        assert_eq!(opening_balance.balance_data.amount, 54484.04);
+    }
+
+    #[test]
+    fn test_booked_funds_new() {
+        let booked_funds = BookedFunds::new(BalanceType::Final, "C090924EUR54484,04");
+        let naive_date = NaiveDate::from_ymd(2009, 9, 24);
+
+        assert_eq!(
+            booked_funds.balance_data.credit_or_debit,
+            CreditDebit::Credit
+        );
+        assert_eq!(booked_funds.balance_data.date, naive_date);
+        assert_eq!(
+            booked_funds.balance_data.currency,
+            iso_4217::CurrencyCode::EUR
+        );
+        assert_eq!(booked_funds.balance_data.amount, 54484.04);
+    }
+
+    #[test]
+    fn test_closing_available_funds_new() {
+        let closing_available_funds = ClosingAvailableBalance::new("C090924EUR54484,04");
+        let naive_date = NaiveDate::from_ymd(2009, 9, 24);
+
+        assert_eq!(
+            closing_available_funds.balance_data.credit_or_debit,
+            CreditDebit::Credit
+        );
+        assert_eq!(closing_available_funds.balance_data.date, naive_date);
+        assert_eq!(
+            closing_available_funds.balance_data.currency,
+            iso_4217::CurrencyCode::EUR
+        );
+        assert_eq!(closing_available_funds.balance_data.amount, 54484.04);
+    }
+
+    #[test]
+    fn test_information_to_account_owner_new() {
+        let information_to_account_owner =
+            InformationToAccountOwner::new("Fees according to advice");
+
+        assert_eq!(
+            information_to_account_owner.information_to_account_owner,
+            "Fees according to advice"
+        );
+    }
+
+    #[test]
+    fn test_statement_line_new() {
+        let statement_line = StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234");
+        let statement_line_dr = StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234");
+        let statement_line_cr = StatementLine::new("0909290929CR55,00NMSC0000000000000269//1234");
+        let statement_line_d = StatementLine::new("0909290929D55,00NMSC0000000000000269//1234");
+        let statement_line_c = StatementLine::new("0909290929C55,00NMSC0000000000000269//1234");
+
+
+        assert_eq!(statement_line.value_date, NaiveDate::from_ymd(2009, 9, 29));
+        assert_eq!(statement_line.entry_date, NaiveDate::from_ymd(2022, 9, 29));
+        assert_eq!(statement_line.amount, 55.0);
+        assert_eq!(statement_line.funds_code, FundsCode::NonSwiftTransfer);
+        assert_eq!(statement_line.transaction_type, Some(TransactionType::MSC));
+        assert_eq!(statement_line.account_owner_reference, "0000000000000269");
+        assert_eq!(
+            statement_line.account_servicing_insitution_reference,
+            Some("//1234")
+        );
+        assert_eq!(statement_line.supplementary_details, None);
+
+        assert_eq!(statement_line_dr.debit_or_credit, CreditDebit::DebitReversal);
+        assert_eq!(statement_line_cr.debit_or_credit, CreditDebit::CreditReversal);
+        assert_eq!(statement_line_d.debit_or_credit, CreditDebit::Debit);
+        assert_eq!(statement_line_c.debit_or_credit, CreditDebit::Credit);
+    }
+
+    #[test]
+    #[should_panic(expected = "Credit/Debit type not found or not recognized")]
+    fn test_statement_line_missing_credit_or_debit() {
+        StatementLine::new("090929092955,00NMSC0000000000000269//1234");
+    }
+
+    #[test]
+    #[should_panic(expected = "FundsCode type not found or not recognized")]
+    fn test_statement_line_missing_funds_code() {
+        StatementLine::new("0909290929DR55,00MSC0000000000000269//1234");
     }
 }
