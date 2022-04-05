@@ -6,7 +6,7 @@ use iso3166_1::*;
 use iso_4217::*;
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TransactionType {
     BNK,
     BOE,
@@ -155,7 +155,7 @@ impl TryFrom<&str> for CreditDebit {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum BalanceType {
     Final,
     Intermediary,
@@ -378,26 +378,26 @@ mod tests {
         assert_eq!(currency_code, iso_4217::CurrencyCode::EUR);
     }
 
-   #[test]
+    #[test]
     fn test_funds_code_swift_transfer() {
         let swift_transfer = FundsCode::try_from("S").unwrap();
         assert_eq!(swift_transfer, FundsCode::SwiftTransfer);
     }
-    
-   #[test]
+
+    #[test]
     fn test_funds_code_non_swift_transfer() {
         let swift_transfer = FundsCode::try_from("N").unwrap();
         assert_eq!(swift_transfer, FundsCode::NonSwiftTransfer);
     }
 
-   #[test]
+    #[test]
     fn test_funds_code_first_advice() {
         let swift_transfer = FundsCode::try_from("F").unwrap();
         assert_eq!(swift_transfer, FundsCode::FirstAdvice);
     }
 
-   #[test]
-   #[should_panic(expected = "Unknown FundsCode value")]
+    #[test]
+    #[should_panic(expected = "Unknown FundsCode value")]
     fn test_funds_code() {
         FundsCode::try_from("").unwrap();
     }
@@ -405,7 +405,7 @@ mod tests {
     #[test]
     fn test_balance() {
         let balance = Balance::new("C090930EUR53189,31");
-        let naive_date = NaiveDate::from_ymd(2009,9,30);
+        let naive_date = NaiveDate::from_ymd(2009, 9, 30);
 
         assert_eq!(balance.credit_or_debit, CreditDebit::Credit);
         assert_eq!(balance.date, naive_date);

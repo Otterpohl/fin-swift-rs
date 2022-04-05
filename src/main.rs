@@ -1,6 +1,6 @@
+use crate::mt940::*;
 use std::fs;
 use std::time::Instant;
-use crate::mt940::*;
 
 mod block;
 mod mt940;
