@@ -1,5 +1,4 @@
 use crate::mt940::*;
-use std::fs;
 use std::time::Instant;
 
 mod block;
