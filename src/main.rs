@@ -8,7 +8,7 @@ mod tag;
 mod utils;
 
 fn main() {
-    let content = &fs::read_to_string("./test_messages/basic_test_3.txt").expect("Unable to read file");
+    let content = include_str!("./test_messages/basic_test_3.txt");
 
     let start = Instant::now();
     let swift = MT940::new(content);
