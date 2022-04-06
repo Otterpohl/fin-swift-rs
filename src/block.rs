@@ -38,8 +38,8 @@ impl<'a> Basic<'a> {
             application_id,
             service_id,
             source_address,
-            session_number: &block_data[15..19],
-            sequence_number: &block_data[19..],
+            session_number: &block_data[15..19], // TODO: try parse these as numbers
+            sequence_number: &block_data[19..],  // TODO: try parse these as numbers
         }
     }
 }
