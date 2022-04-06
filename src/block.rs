@@ -130,9 +130,9 @@ pub struct Text<'a> {
     pub tag_20: TransactionReferenceNumber<'a>,
     pub tag_25: AccountIdentification<'a>,
     pub tag_28c: StatementNumber,
-    pub tag_60f: OpeningBalance,
+    pub tag_60: OpeningBalance,
     pub tag_61: Vec<StatementLine<'a>>,
-    pub tag_62f: BookedFunds,
+    pub tag_62: BookedFunds,
     pub tag_64: Option<ClosingAvailableBalance>,
     pub tag_86: Vec<InformationToAccountOwner<'a>>,
 }
@@ -197,9 +197,9 @@ impl<'a> Text<'a> {
             tag_20: transaction_reference_number.unwrap(),
             tag_25: tag_account_identification.unwrap(),
             tag_28c: statement_number.unwrap(),
-            tag_60f: opening_balance.unwrap(),
+            tag_60: opening_balance.unwrap(),
             tag_61: statement_line,
-            tag_62f: booked_funds_final.unwrap(),
+            tag_62: booked_funds_final.unwrap(),
             tag_64: closing_available_balance,
             tag_86: information_to_account_owner,
         }
