@@ -340,8 +340,14 @@ mod tests {
         );
         assert_eq!(statement_line.supplementary_details, None);
 
-        assert_eq!(statement_line_dr.debit_or_credit, CreditDebit::DebitReversal);
-        assert_eq!(statement_line_cr.debit_or_credit, CreditDebit::CreditReversal);
+        assert_eq!(
+            statement_line_dr.debit_or_credit,
+            CreditDebit::DebitReversal
+        );
+        assert_eq!(
+            statement_line_cr.debit_or_credit,
+            CreditDebit::CreditReversal
+        );
         assert_eq!(statement_line_d.debit_or_credit, CreditDebit::Debit);
         assert_eq!(statement_line_c.debit_or_credit, CreditDebit::Credit);
     }
