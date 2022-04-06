@@ -135,7 +135,7 @@ impl TryFrom<&str> for TransactionType {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum CreditDebit {
     Credit,
     Debit,
@@ -202,7 +202,7 @@ impl<'a> BusinessIdentifierCode<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct LogicalTerminalAddress<'a> {
     pub bic_code: BusinessIdentifierCode<'a>,
     pub terminal_code: &'a str, // try to make this a char?
@@ -222,7 +222,7 @@ impl<'a> LogicalTerminalAddress<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Balance {
     pub credit_or_debit: CreditDebit,
     pub date: NaiveDate,
