@@ -224,3 +224,159 @@ impl<'a> Trailer<'a> {
         Self { data }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_block_basic() {
+        let block_data = "F01ASNBNL21XXXX0000000000";
+        let data = Basic::new(block_data);
+        let source_address = LogicalTerminalAddress::new(&block_data[3..15]);
+
+        assert_eq!(data.application_id, "F");
+        assert_eq!(data.service_id, "01");
+        assert_eq!(data.source_address, source_address);
+        assert_eq!(data.session_number, "0000");
+        assert_eq!(data.sequence_number, "000000");
+    }
+
+    #[test]
+    #[should_panic(expected = "unexpected application_id `T` in Basic block")]
+    fn test_block_basic_application_id() {
+        Basic::new("T01ASNBNL21XXXX0000000000");
+    }
+
+    #[test]
+    #[should_panic(expected = "unexpected service_id `02` in Basic block")]
+    fn test_block_service_id() {
+        Basic::new("F02ASNBNL21XXXX0000000000");
+    }
+
+    #[test]
+    fn test_block_application() {
+        let block_data = "O940ASNBNL21XXXXN3123";
+        let data = Application::new(block_data);
+        let destination_address = LogicalTerminalAddress::new(&block_data[4..16]);
+
+        assert_eq!(data.input_output_id, "O");
+        assert_eq!(data.message_type, "940");
+        assert_eq!(data.destination_address, destination_address);
+        assert_eq!(data.priority, Some("N"));
+        assert_eq!(data.delivery_monitoring, Some("3"));
+        assert_eq!(data.obsolescence_period, Some("123"));
+    }
+
+    #[test]
+    #[should_panic(expected = "unexpected input_output_id `B` in Application block")]
+    fn test_block_application_input_output_id() {
+        Application::new("B940ASNBNL21XXXXN");
+    }
+
+    #[test]
+    #[should_panic(expected = "unexpected message_type `537`")]
+    fn test_block_application_message_type() {
+        Application::new("O537ASNBNL21XXXXN");
+    }
+
+    #[test]
+    fn test_block_user() {}
+
+    #[test]
+    fn test_block_text() {
+        let data = Text::new(
+            ":20:3996-11-11111111
+:25:DABADKKK/111111-11111111
+:28C:00001/001
+:60F:C090924EUR54484,04
+:61:0909250925DR583,92NMSC1110030403010139//1234
+:86:11100304030101391234
+:86:Fees according to advice
+:62F:C090930EUR53126,94
+:64:C090930EUR53189,31",
+        );
+
+        let tag_20 = TransactionReferenceNumber::new("3996-11-11111111");
+        let tag_25 = AccountIdentification::new("DABADKKK/111111-11111111");
+        let tag_28c = StatementNumber::new("00001/001");
+        let tag_64 = ClosingAvailableBalance::new("C090930EUR53189,31");
+
+        let mut tag_61: Vec<StatementLine> = vec![];
+        let mut tag_86: Vec<InformationToAccountOwner> = vec![];
+        tag_61.push(StatementLine::new(
+            "0909250925DR583,92NMSC1110030403010139//1234",
+        ));
+        tag_86.push(InformationToAccountOwner::new("11100304030101391234"));
+        tag_86.push(InformationToAccountOwner::new("Fees according to advice"));
+
+        assert_eq!(data.tag_20, tag_20);
+        assert_eq!(data.tag_25, tag_25);
+        assert_eq!(data.tag_28c, tag_28c);
+
+        assert_eq!(data.tag_61, tag_61);
+        assert_eq!(data.tag_86, tag_86);
+        assert_eq!(data.tag_64.unwrap(), tag_64);
+    }
+
+    #[test]
+    fn test_block_text_final() {
+        let data = Text::new(
+            ":20:3996-11-11111111
+:25:DABADKKK/111111-11111111
+:28C:00001/001
+:60F:C090924EUR54484,04
+:61:0909250925DR583,92NMSC1110030403010139//1234
+:86:11100304030101391234
+:86:Fees according to advice
+:62F:C090930EUR53126,94
+:64:C090930EUR53189,31",
+        );
+
+        let tag_60 = OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04");
+        let tag_62 = BookedFunds::new(BalanceType::Final, "C090930EUR53126,94");
+
+        assert_eq!(data.tag_60, tag_60);
+        assert_eq!(data.tag_62, tag_62);
+    }
+
+    #[test]
+    fn test_block_text_intermediary() {
+        let data = Text::new(
+            ":20:3996-11-11111111
+:25:DABADKKK/111111-11111111
+:28C:00001/001
+:60M:C090924EUR54484,04
+:61:0909250925DR583,92NMSC1110030403010139//1234
+:86:11100304030101391234
+:86:Fees according to advice
+:62M:C090930EUR53126,94
+:64:C090930EUR53189,31",
+        );
+
+        let tag_60 = OpeningBalance::new(BalanceType::Intermediary, "C090924EUR54484,04");
+        let tag_62 = BookedFunds::new(BalanceType::Intermediary, "C090930EUR53126,94");
+
+        assert_eq!(data.tag_60, tag_60);
+        assert_eq!(data.tag_62, tag_62);
+    }
+
+    #[test]
+    #[should_panic(expected = "unexpected block key `69M` in Basic block")]
+    fn test_block_text_wrong_tag() {
+        Text::new(
+            ":20:3996-11-11111111
+:25:DABADKKK/111111-11111111
+:28C:00001/001
+:69M:C090924EUR54484,04
+:61:0909250925DR583,92NMSC1110030403010139//1234
+:86:11100304030101391234
+:86:Fees according to advice
+:62M:C090930EUR53126,94
+:64:C090930EUR53189,31",
+        );
+    }
+
+    #[test]
+    fn test_block_trailer() {}
+}
