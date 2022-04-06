@@ -2,7 +2,7 @@ use crate::utils::*;
 use chrono::prelude::*;
 
 // Tag20
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct TransactionReferenceNumber<'a> {
     pub transaction_reference_number: &'a str,
 }
@@ -16,7 +16,7 @@ impl<'a> TransactionReferenceNumber<'a> {
 }
 
 // Tag25
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct AccountIdentification<'a> {
     pub account_identification: &'a str,
 }
@@ -30,7 +30,7 @@ impl<'a> AccountIdentification<'a> {
 }
 
 // Tag28C
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct StatementNumber {
     pub statement_number: u32,
     pub sequence_number: u32,
@@ -51,7 +51,7 @@ impl StatementNumber {
 }
 
 // Tag60F
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct OpeningBalance {
     pub balance_type: BalanceType,
     pub balance_data: Balance,
@@ -67,7 +67,7 @@ impl OpeningBalance {
 }
 
 // Tag61
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct StatementLine<'a> {
     pub value_date: NaiveDate,
     pub entry_date: NaiveDate,
@@ -188,7 +188,7 @@ impl<'a> StatementLine<'a> {
 }
 
 // Tag62F
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BookedFunds {
     pub balance_type: BalanceType,
     pub balance_data: Balance,
@@ -204,7 +204,7 @@ impl BookedFunds {
 }
 
 // Tag64
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct ClosingAvailableBalance {
     pub balance_data: Balance,
 }
@@ -218,7 +218,7 @@ impl ClosingAvailableBalance {
 }
 
 // Tag86
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct InformationToAccountOwner<'a> {
     pub information_to_account_owner: &'a str,
 }
@@ -326,7 +326,6 @@ mod tests {
         let statement_line_cr = StatementLine::new("0909290929CR55,00NMSC0000000000000269//1234");
         let statement_line_d = StatementLine::new("0909290929D55,00NMSC0000000000000269//1234");
         let statement_line_c = StatementLine::new("0909290929C55,00NMSC0000000000000269//1234");
-
 
         assert_eq!(statement_line.value_date, NaiveDate::from_ymd(2009, 9, 29));
         assert_eq!(statement_line.entry_date, NaiveDate::from_ymd(2022, 9, 29));
