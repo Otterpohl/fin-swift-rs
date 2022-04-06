@@ -188,7 +188,7 @@ impl<'a> Text<'a> {
                     closing_available_balance = Some(ClosingAvailableBalance::new(value));
                 }
                 _ => {
-                    panic!("We really shouldn't have reached this, too bad!");
+                    panic!("unexpected block key `{}` in Basic block", block_key);
                 }
             };
         }
