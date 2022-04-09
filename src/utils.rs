@@ -271,7 +271,7 @@ pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
 }
 
 pub fn float_from_swift_amount(amount: &str) -> f64 {
-    amount.replace(",", ".").parse::<f64>().unwrap()
+    amount.replace(',', ".").parse::<f64>().unwrap()
 }
 
 #[cfg(test)]
