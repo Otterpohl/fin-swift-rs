@@ -286,14 +286,14 @@ mod tests {
     }
 
     #[test]
-    fn test_amount_with_no_scale() {
+    fn test_amount_without_scale() {
         let amount = float_from_swift_amount("379,");
 
         assert_eq!(amount, 379.0)
     }
 
     #[test]
-    fn test_amount_with_no_comma() {
+    fn test_amount_without_comma() {
         let amount = float_from_swift_amount("379.");
 
         assert_eq!(amount, 379.0);
@@ -328,7 +328,7 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "Invalid swift date provided")]
-    fn test_date() {
+    fn test_date_bad() {
         naive_date_from_swift_date("");
     }
 
@@ -379,36 +379,29 @@ mod tests {
     }
 
     #[test]
-    fn test_funds_code_swift_transfer() {
+    fn test_funds_code() {
         let swift_transfer = FundsCode::try_from("S").unwrap();
         assert_eq!(swift_transfer, FundsCode::SwiftTransfer);
-    }
 
-    #[test]
-    fn test_funds_code_non_swift_transfer() {
         let swift_transfer = FundsCode::try_from("N").unwrap();
         assert_eq!(swift_transfer, FundsCode::NonSwiftTransfer);
-    }
 
-    #[test]
-    fn test_funds_code_first_advice() {
         let swift_transfer = FundsCode::try_from("F").unwrap();
         assert_eq!(swift_transfer, FundsCode::FirstAdvice);
     }
 
     #[test]
     #[should_panic(expected = "Unknown FundsCode value")]
-    fn test_funds_code() {
+    fn test_funds_code_bad() {
         FundsCode::try_from("").unwrap();
     }
 
     #[test]
     fn test_balance() {
         let balance = Balance::new("C090930EUR53189,31");
-        let naive_date = NaiveDate::from_ymd(2009, 9, 30);
 
         assert_eq!(balance.credit_or_debit, CreditDebit::Credit);
-        assert_eq!(balance.date, naive_date);
+        assert_eq!(balance.date, NaiveDate::from_ymd(2009, 9, 30));
         assert_eq!(balance.currency, iso_4217::CurrencyCode::EUR);
         assert_eq!(balance.amount, 53189.31);
     }
