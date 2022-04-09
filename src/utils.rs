@@ -1,10 +1,12 @@
 use chrono::prelude::*;
 use chrono::NaiveDate;
-use iso_4217::*; // currency
-use iso3166_1::*; // country
+// country
+use iso3166_1::*;
+// currency
+use iso_4217::*;
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TransactionType {
     BNK,
     BOE,
@@ -68,6 +70,7 @@ pub enum TransactionType {
 impl TryFrom<&str> for TransactionType {
     type Error = &'static str;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(transaction_type: &str) -> Result<Self, Self::Error> {
         match transaction_type {
             "BNK" => Ok(TransactionType::BNK),
@@ -132,7 +135,7 @@ impl TryFrom<&str> for TransactionType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum CreditDebit {
     Credit,
     Debit,
@@ -147,12 +150,12 @@ impl TryFrom<&str> for CreditDebit {
         match credit_or_debit {
             "C" => Ok(CreditDebit::Credit),
             "D" => Ok(CreditDebit::Debit),
-            _ => Err("We really shouldn't have reached this, too bad!"),
+            _ => Err("Unknown CreditDebit value"),
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum BalanceType {
     Final,
     Intermediary,
@@ -173,13 +176,12 @@ impl TryFrom<&str> for FundsCode {
             "S" => Ok(FundsCode::SwiftTransfer),
             "N" => Ok(FundsCode::NonSwiftTransfer),
             "F" => Ok(FundsCode::FirstAdvice),
-            _ => Err("We really shouldn't have reached this, too bad!"),
+            _ => Err("Unknown FundsCode value"),
         }
     }
 }
 
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BusinessIdentifierCode<'a> {
     pub business_party_prefix: &'a str,
     pub country_code: &'a str,
@@ -188,7 +190,7 @@ pub struct BusinessIdentifierCode<'a> {
 
 impl<'a> BusinessIdentifierCode<'a> {
     fn new(data: &'a str) -> Self {
-        let business_party_prefix = &data[0..4];
+        let business_party_prefix = &data[..4];
         let country_code = alpha2(&data[4..6]).unwrap().alpha2;
         let business_party_suffix = &data[6..];
 
@@ -200,7 +202,7 @@ impl<'a> BusinessIdentifierCode<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct LogicalTerminalAddress<'a> {
     pub bic_code: BusinessIdentifierCode<'a>,
     pub terminal_code: &'a str, // try to make this a char?
@@ -208,7 +210,8 @@ pub struct LogicalTerminalAddress<'a> {
 }
 
 impl<'a> LogicalTerminalAddress<'a> {
-    pub fn new(data: &'a str) -> Self { // consider moving this back to block.rs as its not yet used anywhere else
+    pub fn new(data: &'a str) -> Self {
+        // TODO: consider moving this back to block.rs as its not yet used anywhere else
         let bic_code = BusinessIdentifierCode::new(&data[..8]);
 
         Self {
@@ -219,7 +222,7 @@ impl<'a> LogicalTerminalAddress<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Balance {
     pub credit_or_debit: CreditDebit,
     pub date: NaiveDate,
@@ -244,21 +247,162 @@ impl Balance {
 }
 
 pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
-    if date.len() == 6 {
-        NaiveDate::from_ymd(
-            2000 + date[..2].parse::<i32>().unwrap(),
-            date[2..4].parse::<u32>().unwrap(),
-            date[4..6].parse::<u32>().unwrap(),
-        )
-    } else {
+    if date.len() == 4 {
         NaiveDate::from_ymd(
             chrono::Utc::now().year(),
             date[..2].parse::<u32>().unwrap(),
             date[2..].parse::<u32>().unwrap(),
         )
+    } else if date.len() == 6 {
+        NaiveDate::from_ymd(
+            2000 + date[..2].parse::<i32>().unwrap(),
+            date[2..4].parse::<u32>().unwrap(),
+            date[4..6].parse::<u32>().unwrap(),
+        )
+    } else if date.len() == 8 {
+        NaiveDate::from_ymd(
+            date[..4].parse::<i32>().unwrap(),
+            date[4..6].parse::<u32>().unwrap(),
+            date[6..8].parse::<u32>().unwrap(),
+        )
+    } else {
+        panic!("Invalid swift date provided")
     }
 }
 
 pub fn float_from_swift_amount(amount: &str) -> f64 {
     amount.replace(',', ".").parse::<f64>().unwrap()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_amount_with_scale() {
+        let amount = float_from_swift_amount("379,29");
+
+        assert_eq!(amount, 379.29)
+    }
+
+    #[test]
+    fn test_amount_without_scale() {
+        let amount = float_from_swift_amount("379,");
+
+        assert_eq!(amount, 379.0)
+    }
+
+    #[test]
+    fn test_amount_without_comma() {
+        let amount = float_from_swift_amount("379.");
+
+        assert_eq!(amount, 379.0);
+    }
+
+    #[test]
+    fn test_date_long_year() {
+        let date = naive_date_from_swift_date("20090924");
+
+        assert_eq!(date.year(), 2009);
+        assert_eq!(date.month(), 9);
+        assert_eq!(date.day(), 24);
+    }
+
+    #[test]
+    fn test_date_short_year() {
+        let date = naive_date_from_swift_date("090924");
+
+        assert_eq!(date.year(), 2009);
+        assert_eq!(date.month(), 9);
+        assert_eq!(date.day(), 24);
+    }
+
+    #[test]
+    fn test_date_no_year() {
+        let date = naive_date_from_swift_date("0924");
+
+        assert_eq!(date.year(), chrono::Utc::now().year());
+        assert_eq!(date.month(), 9);
+        assert_eq!(date.day(), 24);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid swift date provided")]
+    fn test_date_bad() {
+        naive_date_from_swift_date("");
+    }
+
+    #[test]
+    fn test_business_identifier_code() {
+        let bic_code = BusinessIdentifierCode::new("ASNBNL21");
+
+        assert_eq!(bic_code.business_party_prefix, "ASNB");
+        assert_eq!(bic_code.country_code, "NL");
+        assert_eq!(bic_code.business_party_suffix, "21");
+    }
+
+    #[test]
+    fn test_logical_terminal_address() {
+        let logical_terminal_address = LogicalTerminalAddress::new("ASNBNL21XXXX");
+
+        assert_eq!(
+            logical_terminal_address.bic_code,
+            BusinessIdentifierCode::new("ASNBNL21")
+        );
+        assert_eq!(logical_terminal_address.terminal_code, "X");
+        assert_eq!(logical_terminal_address.branch_code, "XXX");
+    }
+
+    #[test]
+    fn test_credit_or_debit_credit() {
+        let credit = CreditDebit::try_from("C").unwrap();
+        assert_eq!(credit, CreditDebit::Credit);
+    }
+
+    #[test]
+    fn test_credit_or_debit_debit() {
+        let debit = CreditDebit::try_from("D").unwrap();
+        assert_eq!(debit, CreditDebit::Debit);
+    }
+
+    #[test]
+    #[should_panic(expected = "Unknown CreditDebit value")]
+    fn test_credit_or_debit() {
+        CreditDebit::try_from("").unwrap();
+    }
+
+    #[test]
+    fn test_currency_code() {
+        let currency_code = CurrencyCode::try_from("EUR").unwrap();
+
+        assert_eq!(currency_code, iso_4217::CurrencyCode::EUR);
+    }
+
+    #[test]
+    fn test_funds_code() {
+        let swift_transfer = FundsCode::try_from("S").unwrap();
+        assert_eq!(swift_transfer, FundsCode::SwiftTransfer);
+
+        let swift_transfer = FundsCode::try_from("N").unwrap();
+        assert_eq!(swift_transfer, FundsCode::NonSwiftTransfer);
+
+        let swift_transfer = FundsCode::try_from("F").unwrap();
+        assert_eq!(swift_transfer, FundsCode::FirstAdvice);
+    }
+
+    #[test]
+    #[should_panic(expected = "Unknown FundsCode value")]
+    fn test_funds_code_bad() {
+        FundsCode::try_from("").unwrap();
+    }
+
+    #[test]
+    fn test_balance() {
+        let balance = Balance::new("C090930EUR53189,31");
+
+        assert_eq!(balance.credit_or_debit, CreditDebit::Credit);
+        assert_eq!(balance.date, NaiveDate::from_ymd(2009, 9, 30));
+        assert_eq!(balance.currency, iso_4217::CurrencyCode::EUR);
+        assert_eq!(balance.amount, 53189.31);
+    }
 }

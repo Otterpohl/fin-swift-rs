@@ -2,3 +2,4 @@
 /tests/test_messages/example_output.txt
 /perf*
 /flamegraph.svg
+/tarpaulin-report.html
