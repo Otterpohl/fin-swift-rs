@@ -59,7 +59,7 @@ impl<'a> MT940<'a> {
                     block_5 = Some(Trailer::new(block_data));
                 }
                 _ => {
-                    panic!("We really shouldn't have reached this, too bad!");
+                    unreachable!();
                 }
             }
         }
