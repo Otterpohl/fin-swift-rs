@@ -115,8 +115,17 @@ impl<'a> User<'a> {
     pub fn new(block_data: &'a str) -> Self {
         let mut data = None;
 
-        if !block_data.is_empty() {
-            data = Some(block_data)
+        if block_data.is_empty() {
+            data = None;
+        } else {
+            /*             let block_start: Vec<usize> = block_data.match_indices('{').map(|(i, _)| i).collect();
+            let block_end: Vec<usize> = block_data.match_indices('}').map(|(i, _)| i).collect();
+            let block_segments = block_start.iter().zip(block_end.iter());
+
+            for (i, (start, end)) in block_segments.enumerate() {
+                dbg!(i,start,end);
+            } */
+            data = None;
         }
 
         Self { data }
