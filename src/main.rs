@@ -7,7 +7,7 @@ mod tag;
 mod utils;
 
 fn main() {
-    let content = include_str!("./test_messages/basic_test_3.txt");
+    let content = include_str!("./test_messages/basic_test_4.txt");
 
     let start = Instant::now();
     let swift = MT940::new(content);

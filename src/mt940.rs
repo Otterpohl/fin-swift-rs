@@ -1,4 +1,5 @@
 use crate::block::*;
+use regex::Regex;
 
 // https://www.paiementor.com/swift-mt950-statement-message-detailed-analysis/
 
@@ -19,8 +20,21 @@ impl<'a> MT940<'a> {
         let mut block_4 = None;
         let mut block_5 = None;
 
-        let block_start: Vec<usize> = message_data.match_indices('{').map(|(i, _)| i).collect();
-        let block_end: Vec<usize> = message_data.match_indices('}').map(|(i, _)| i).collect();
+        let block_regex = Regex::new(r"(?m)(\{\d:)").unwrap();
+        let block_start: Vec<usize> = block_regex
+            .captures_iter(message_data)
+            .map(|x| x.get(0).unwrap().start())
+            .collect();
+            
+        let mut block_end: Vec<usize> = block_start
+            .clone()
+            .into_iter()
+            .map(|x| if x == 0 { x } else { x - 1 })
+            .collect();
+
+        block_end.remove(0);
+        block_end.push(message_data.len() - 1);
+
         let block_segments = block_start.iter().zip(block_end.iter());
 
         for (i, (start, end)) in block_segments.enumerate() {
