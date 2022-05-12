@@ -26,12 +26,12 @@ impl<'a> MT940<'a> {
         for (i, (start, end)) in block_segments.enumerate() {
             let block_id = 1 + i as i8;
 
-            let prefix = format!("{{{}:", block_id); // TODO, clean up by using new string interpolation
+            let prefix = format!("{{{block_id}:");
             let suffix = match block_id {
                 4 => "-}",
                 1 | 2 | 3 | 5 => "}",
                 _ => {
-                    panic!("unexpected block_id `{}`", block_id)
+                    panic!("unexpected block_id `{block_id}`")
                 }
             };
 
