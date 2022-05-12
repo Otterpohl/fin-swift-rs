@@ -21,14 +21,14 @@ impl<'a> Basic<'a> {
         let application_id = match &block_data[..1] {
             n @ ("F" | "A" | "L") => n,
             n => {
-                panic!("unexpected application_id `{}` in Basic block", n)
+                panic!("unexpected application_id `{n}` in Basic block")
             }
         };
 
         let service_id = match &block_data[1..3] {
             n @ ("01" | "21") => n,
             n => {
-                panic!("unexpected service_id `{}` in Basic block", n)
+                panic!("unexpected service_id `{n}` in Basic block")
             }
         };
 
@@ -64,14 +64,14 @@ impl<'a> Application<'a> {
                 n
             }
             n => {
-                panic!("unexpected input_output_id `{}` in Application block", n)
+                panic!("unexpected input_output_id `{n}` in Application block")
             }
         };
 
         let message_type = match &block_data[1..4] {
             n @ "940" => n,
             n => {
-                panic!("unexpected message_type `{}`", n)
+                panic!("unexpected message_type `{n}`")
             }
         };
 
@@ -197,7 +197,7 @@ impl<'a> Text<'a> {
                     closing_available_balance = Some(ClosingAvailableBalance::new(value));
                 }
                 _ => {
-                    panic!("unexpected block key `{}` in Basic block", block_key);
+                    panic!("unexpected block key `{block_key}` in Basic block");
                 }
             };
         }
