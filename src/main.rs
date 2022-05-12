@@ -13,7 +13,7 @@ fn main() {
     let swift = MT940::new(content);
     let duration = start.elapsed();
 
-    // eprintln!("swift = {:#?}", swift.data.text.tag_64);
-    eprintln!("swift = {:#?}", swift);
+    eprintln!("swift = {:#?}", swift.user);
+    // eprintln!("swift = {:#?}", swift);
     eprintln!("Time elapsed: {:?}", duration);
 }

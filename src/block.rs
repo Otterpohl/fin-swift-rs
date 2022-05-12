@@ -1,5 +1,6 @@
 use crate::tag::*;
 use crate::utils::*;
+use chrono::*;
 use regex::Regex;
 
 // https://www.paiementor.com/swift-mt-message-block-1-basic-header-description
@@ -106,29 +107,111 @@ impl<'a> Application<'a> {
 
 // Block 3
 // Allows users to provide their own reference
+// https://www.paiementor.com/swift-mt-message-block-3-user-header-description/
 #[derive(Debug, PartialEq)]
 pub struct User<'a> {
-    pub data: Option<&'a str>,
+    tag_103: Option<&'a str>,
+    tag_113: Option<&'a str>,
+    tag_108: Option<&'a str>,
+    tag_119: Option<&'a str>,
+    tag_423: Option<NaiveDateTime>,
+    tag_106: Option<MessageInputReference<'a>>,
+    tag_424: Option<&'a str>,
+    tag_111: Option<&'a str>,
+    tag_121: Option<&'a str>,
+    tag_115: Option<AddressInformation<'a>>,
+    tag_165: Option<&'a str>,
+    tag_433: Option<&'a str>,
+    tag_434: Option<&'a str>,
 }
 
 impl<'a> User<'a> {
     pub fn new(block_data: &'a str) -> Self {
-        let mut data = None;
+        let mut service_identifier = None;
+        let mut banking_priority = None;
+        let mut message_user_reference = None;
+        let mut validation_flag = None;
+        let mut balance_checkpoint_date = None;
+        let mut message_input_reference = None;
+        let mut related_reference = None;
+        let mut service_type_identifier = None;
+        let mut unique_transaction_reference = None;
+        let mut address_information = None;
+        let mut payment_release_information_receiver = None;
+        let mut sanctions_screening_information = None;
+        let mut payment_controls_information = None;
 
-        if block_data.is_empty() {
-            data = None;
-        } else {
-            /*             let block_start: Vec<usize> = block_data.match_indices('{').map(|(i, _)| i).collect();
-            let block_end: Vec<usize> = block_data.match_indices('}').map(|(i, _)| i).collect();
-            let block_segments = block_start.iter().zip(block_end.iter());
+        let block_start: Vec<usize> = block_data.match_indices('{').map(|(i, _)| i + 1).collect();
+        let block_end: Vec<usize> = block_data.match_indices('}').map(|(i, _)| i).collect();
+        let block_segments = block_start.iter().zip(block_end.iter());
 
-            for (i, (start, end)) in block_segments.enumerate() {
-                dbg!(i,start,end);
-            } */
-            data = None;
+        for (start, end) in block_segments {
+            let section = &block_data[*start..*end];
+            let index = section.chars().position(|c| c == ':').unwrap();
+            let tag = &section[..index];
+            let value = &section[index + 1..];
+
+            match tag {
+                "103" => {
+                    service_identifier = Some(value); //TODO: this should only ever be 3 chars long
+                }
+                "113" => {
+                    banking_priority = Some(value); //TODO: this should only ever be 4 chars long
+                }
+                "108" => {
+                    message_user_reference = Some(value); //TODO: this should only ever be 16 chars long
+                }
+                "119" => {
+                    validation_flag = Some(value); //TODO: this should only ever be 3 chars long
+                }
+                "423" => {
+                    balance_checkpoint_date = Some(naive_date_time_from_swift_date_time(value));
+                }
+                "106" => {
+                    message_input_reference = Some(MessageInputReference::new(value));
+                }
+                "424" => {
+                    related_reference = Some(value);
+                }
+                "111" => {
+                    service_type_identifier = Some(value);
+                }
+                "121" => {
+                    unique_transaction_reference = Some(value); // TODO: guid like, check the docs, struct *question mark*
+                }
+                "115" => {
+                    address_information = Some(AddressInformation::new(value));
+                }
+                "165" => {
+                    payment_release_information_receiver = Some(value);
+                }
+                "433" => {
+                    sanctions_screening_information = Some(value);
+                }
+                "434" => {
+                    payment_controls_information = Some(value);
+                }
+                _ => {
+                    panic!("unexpected tag `{tag}` in User block");
+                }
+            }
         }
 
-        Self { data }
+        Self {
+            tag_103: service_identifier,
+            tag_113: banking_priority,
+            tag_108: message_user_reference,
+            tag_119: validation_flag,
+            tag_423: balance_checkpoint_date,
+            tag_106: message_input_reference,
+            tag_424: related_reference,
+            tag_111: service_type_identifier,
+            tag_121: unique_transaction_reference,
+            tag_115: address_information,
+            tag_165: payment_release_information_receiver,
+            tag_433: sanctions_screening_information,
+            tag_434: payment_controls_information,
+        }
     }
 }
 

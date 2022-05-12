@@ -246,6 +246,70 @@ impl Balance {
     }
 }
 
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct MessageInputReference<'a> {
+    date: NaiveDate,
+    lt_identifier: &'a str,
+    branch_code:&'a str,
+    session_number: i16,
+    sequence_number: i16,
+}
+
+impl<'a> MessageInputReference<'a> {
+    pub fn new(data: &'a str) -> Self {
+        let date = naive_date_from_swift_date(&data[..6]);
+        let lt_identifier = &data[6..18];
+        let branch_code = &data[18..21];
+        let session_number = data[21..25].parse::<i16>().unwrap();
+        let sequence_number = data[25..].parse::<i16>().unwrap();
+
+        Self {
+            date,
+            lt_identifier,
+            branch_code,
+            session_number,
+            sequence_number,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct AddressInformation<'a> {
+    time_of_crediting: NaiveTime,
+    time_of_debiting: NaiveTime,
+    country_code: &'a str,
+    internal_posting_reference: &'a str
+}
+
+
+impl<'a> AddressInformation<'a> {
+    pub fn new(data: &'a str) -> Self {
+        let segments: Vec<&str> = data.trim().split(' ').collect();
+
+        let time_of_crediting = chrono::NaiveTime::from_hms(
+            segments[0][..2].parse::<u32>().unwrap(),
+            segments[0][2..4].parse::<u32>().unwrap(),
+            segments[0][4..].parse::<u32>().unwrap(),
+        );
+
+        let time_of_debiting = chrono::NaiveTime::from_hms(
+            segments[1][..2].parse::<u32>().unwrap(),
+            segments[1][2..4].parse::<u32>().unwrap(),
+            segments[1][4..].parse::<u32>().unwrap(),
+        );
+        
+        let country_code = alpha2(segments[2]).unwrap().alpha2;
+        let internal_posting_reference = segments[3];
+
+        Self {
+            time_of_crediting,
+            time_of_debiting,
+            country_code,
+            internal_posting_reference,
+        }
+    }
+}
+
 pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
     if date.len() == 4 {
         NaiveDate::from_ymd(
@@ -268,6 +332,18 @@ pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
     } else {
         panic!("Invalid swift date provided")
     }
+}
+
+pub fn naive_date_time_from_swift_date_time(date: &str) -> NaiveDateTime {
+    NaiveDateTime::new(
+        naive_date_from_swift_date(&date[..6]),
+        NaiveTime::from_hms_milli(
+            date[6..8].parse::<u32>().unwrap(),
+            date[8..10].parse::<u32>().unwrap(),
+            date[10..12].parse::<u32>().unwrap(),
+            date[12..].parse::<u32>().unwrap(),
+        ),
+    )
 }
 
 pub fn float_from_swift_amount(amount: &str) -> f64 {

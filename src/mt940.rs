@@ -25,7 +25,7 @@ impl<'a> MT940<'a> {
             .captures_iter(message_data)
             .map(|x| x.get(0).unwrap().start())
             .collect();
-            
+
         let mut block_end: Vec<usize> = block_start
             .clone()
             .into_iter()
