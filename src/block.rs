@@ -2,6 +2,7 @@ use crate::tag::*;
 use crate::utils::*;
 use chrono::*;
 use regex::Regex;
+use uuid::Uuid;
 
 // https://www.paiementor.com/swift-mt-message-block-1-basic-header-description
 // https://www2.swift.com/knowledgecentre/publications/us9m_20180720/?topic=ajc.htm#genajc
@@ -110,19 +111,19 @@ impl<'a> Application<'a> {
 // https://www.paiementor.com/swift-mt-message-block-3-user-header-description/
 #[derive(Debug, PartialEq, Eq)]
 pub struct User<'a> {
-    tag_103: Option<&'a str>,
-    tag_113: Option<&'a str>,
-    tag_108: Option<&'a str>,
-    tag_119: Option<&'a str>,
+    tag_103: Option<ServiceIdentifier<'a>>,
+    tag_113: Option<BankingPriority<'a>>,
+    tag_108: Option<MessageUserReference<'a>>,
+    tag_119: Option<Validation>,
     tag_423: Option<NaiveDateTime>,
     tag_106: Option<MessageInputReference<'a>>,
-    tag_424: Option<&'a str>,
-    tag_111: Option<&'a str>,
-    tag_121: Option<&'a str>,
+    tag_424: Option<RelatedReference<'a>>,
+    tag_111: Option<ServiceTypeIdentifier<'a>>,
+    tag_121: Option<Uuid>,
     tag_115: Option<AddressInformation<'a>>,
-    tag_165: Option<&'a str>,
-    tag_433: Option<&'a str>,
-    tag_434: Option<&'a str>,
+    tag_165: Option<PaymentReleaseInformationReceiver<'a>>,
+    tag_433: Option<SanctionsScreeningInformation<'a>>,
+    tag_434: Option<PaymentControlsInformation<'a>>,
 }
 
 impl<'a> User<'a> {
@@ -130,7 +131,7 @@ impl<'a> User<'a> {
         let mut service_identifier = None;
         let mut banking_priority = None;
         let mut message_user_reference = None;
-        let mut validation_flag = None;
+        let mut validation = None;
         let mut balance_checkpoint_date = None;
         let mut message_input_reference = None;
         let mut related_reference = None;
@@ -153,16 +154,16 @@ impl<'a> User<'a> {
 
             match tag {
                 "103" => {
-                    service_identifier = Some(value); //TODO: this should only ever be 3 chars long
+                    service_identifier = Some(ServiceIdentifier::new(value));
                 }
                 "113" => {
-                    banking_priority = Some(value); //TODO: this should only ever be 4 chars long
+                    banking_priority = Some(BankingPriority::new(value));
                 }
                 "108" => {
-                    message_user_reference = Some(value); //TODO: this should only ever be 16 chars long
+                    message_user_reference = Some(MessageUserReference::new(value));
                 }
                 "119" => {
-                    validation_flag = Some(value); //TODO: this should only ever be 3 chars long
+                    validation = Some(Validation::new(value));
                 }
                 "423" => {
                     balance_checkpoint_date = Some(naive_date_time_from_swift_date_time(value));
@@ -171,25 +172,27 @@ impl<'a> User<'a> {
                     message_input_reference = Some(MessageInputReference::new(value));
                 }
                 "424" => {
-                    related_reference = Some(value);
+                    related_reference = Some(RelatedReference::new(value));
                 }
                 "111" => {
-                    service_type_identifier = Some(value);
+                    service_type_identifier = Some(ServiceTypeIdentifier::new(value));
                 }
                 "121" => {
-                    unique_transaction_reference = Some(value); // TODO: guid like, check the docs, struct *question mark*
+                    unique_transaction_reference = Some(Uuid::parse_str(value).expect("string is nota valid uuid"));
                 }
                 "115" => {
                     address_information = Some(AddressInformation::new(value));
                 }
                 "165" => {
-                    payment_release_information_receiver = Some(value);
+                    payment_release_information_receiver =
+                        Some(PaymentReleaseInformationReceiver::new(value));
                 }
                 "433" => {
-                    sanctions_screening_information = Some(value);
+                    sanctions_screening_information =
+                        Some(SanctionsScreeningInformation::new(value));
                 }
                 "434" => {
-                    payment_controls_information = Some(value);
+                    payment_controls_information = Some(PaymentControlsInformation::new(value));
                 }
                 _ => {
                     panic!("unexpected tag `{tag}` in User block");
@@ -201,7 +204,7 @@ impl<'a> User<'a> {
             tag_103: service_identifier,
             tag_113: banking_priority,
             tag_108: message_user_reference,
-            tag_119: validation_flag,
+            tag_119: validation,
             tag_423: balance_checkpoint_date,
             tag_106: message_input_reference,
             tag_424: related_reference,

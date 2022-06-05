@@ -181,6 +181,50 @@ impl TryFrom<&str> for FundsCode {
     }
 }
 
+#[allow(clippy::upper_case_acronyms)]
+#[derive(Debug, PartialEq, Eq)]
+pub enum ValidationFlag {
+    REMIT,
+    RFDD,
+    STP,
+}
+
+impl TryFrom<&str> for ValidationFlag {
+    type Error = &'static str;
+
+    #[cfg(not(tarpaulin_include))]
+    fn try_from(validation_flag: &str) -> Result<Self, Self::Error> {
+        match validation_flag {
+            "REMIT" => Ok(ValidationFlag::REMIT),
+            "RFDD" => Ok(ValidationFlag::RFDD),
+            "STP" => Ok(ValidationFlag::STP),
+            _ => Err("Validation Flag not recognized"),
+        }
+    }
+}
+
+#[allow(clippy::upper_case_acronyms)]
+#[derive(Debug, PartialEq, Eq)]
+pub enum SanctionScreenType {
+    AOK,
+    FPO,
+    NOK,
+}
+
+impl TryFrom<&str> for SanctionScreenType {
+    type Error = &'static str;
+
+    #[cfg(not(tarpaulin_include))]
+    fn try_from(sanction_screen_type: &str) -> Result<Self, Self::Error> {
+        match sanction_screen_type {
+            "AOK" => Ok(SanctionScreenType::AOK),
+            "FPO" => Ok(SanctionScreenType::FPO),
+            "NOK" => Ok(SanctionScreenType::NOK),
+            _ => Err("SanctionScreenType not recognized"),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct BusinessIdentifierCode<'a> {
     pub business_party_prefix: &'a str,

@@ -231,6 +231,166 @@ impl<'a> InformationToAccountOwner<'a> {
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
+// Tag103
+pub struct ServiceIdentifier<'a> {
+    service_identifier: &'a str,
+}
+
+impl<'a> ServiceIdentifier<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() != 3 {
+            panic!("ServiceIdentifier '{value}' has unexpected length")
+        }
+
+        Self {
+            service_identifier: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+// Tag113
+pub struct BankingPriority<'a> {
+    banking_priority: &'a str,
+}
+
+impl<'a> BankingPriority<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() != 4 {
+            panic!("BankingPriority '{value}' has unexpected length")
+        }
+
+        Self {
+            banking_priority: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+// Tag108
+pub struct MessageUserReference<'a> {
+    message_user_reference: &'a str,
+}
+
+impl<'a> MessageUserReference<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() > 16 {
+            panic!("Invalid MessageUserReference length");
+        }
+
+        Self {
+            message_user_reference: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+// Tag119
+pub struct Validation {
+    validation_flag: ValidationFlag,
+}
+
+impl Validation {
+    pub fn new(value: &str) -> Self {
+        Self {
+            validation_flag: ValidationFlag::try_from(value).unwrap(),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+// Tag424
+pub struct RelatedReference<'a> {
+    related_reference: &'a str,
+}
+
+impl<'a> RelatedReference<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() > 16 {
+            panic!("Invalid RelatedReference length");
+        }
+
+        Self {
+            related_reference: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+// Tag111
+pub struct ServiceTypeIdentifier<'a> {
+    service_type_identifier: &'a str,
+}
+
+impl<'a> ServiceTypeIdentifier<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() != 3 {
+            panic!("ServiceTypeIdentifier '{value}' has unexpected length")
+        }
+
+        Self {
+            service_type_identifier: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+// Tag165
+pub struct PaymentReleaseInformationReceiver<'a> {
+    payment_release_information_receiver: &'a str,
+}
+
+impl<'a> PaymentReleaseInformationReceiver<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() > 34 {
+            panic!("Invalid PaymentReleaseInformationReceiver length");
+        }
+
+        Self {
+            payment_release_information_receiver: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+// Tag433
+pub struct SanctionsScreeningInformation<'a> {
+    codeword: SanctionScreenType,
+    additional_information: &'a str,
+}
+
+impl<'a> SanctionsScreeningInformation<'a> {
+    pub fn new(value: &'a str) -> Self {
+        let codeword = &value[1..4];
+        let additional_information = &value[4..].strip_prefix('\\').unwrap_or("");
+
+        Self {
+            codeword: SanctionScreenType::try_from(codeword).unwrap(),
+            additional_information,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+// Tag434
+pub struct PaymentControlsInformation<'a> {
+    codeword: &'a str,
+    additional_information: &'a str,
+}
+
+impl<'a> PaymentControlsInformation<'a> {
+    pub fn new(value: &'a str) -> Self {
+        let codeword = &value[1..4];
+        let additional_information = &value[4..].strip_prefix('\\').unwrap_or("");
+
+        Self {
+            codeword,
+            additional_information,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
