@@ -8,7 +8,7 @@ use regex::Regex;
 
 // Block 1
 // Fundamental reference for any particular message
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Basic<'a> {
     pub application_id: &'a str,
     pub service_id: &'a str,
@@ -47,7 +47,7 @@ impl<'a> Basic<'a> {
 
 // Block 2
 // Information about the message itself
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Application<'a> {
     pub input_output_id: &'a str,
     pub message_type: &'a str,
@@ -108,7 +108,7 @@ impl<'a> Application<'a> {
 // Block 3
 // Allows users to provide their own reference
 // https://www.paiementor.com/swift-mt-message-block-3-user-header-description/
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct User<'a> {
     tag_103: Option<&'a str>,
     tag_113: Option<&'a str>,
@@ -300,7 +300,7 @@ impl<'a> Text<'a> {
 
 // Block 5
 // Indicates special circumstances that relate to message handling or contains security information
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Trailer<'a> {
     pub data: Option<&'a str>,
 }

@@ -2,7 +2,7 @@ use crate::utils::*;
 use chrono::prelude::*;
 
 // Tag20
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct TransactionReferenceNumber<'a> {
     pub transaction_reference_number: &'a str,
 }
@@ -16,7 +16,7 @@ impl<'a> TransactionReferenceNumber<'a> {
 }
 
 // Tag25
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct AccountIdentification<'a> {
     pub account_identification: &'a str,
 }
@@ -30,7 +30,7 @@ impl<'a> AccountIdentification<'a> {
 }
 
 // Tag28C
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct StatementNumber {
     pub statement_number: u32,
     pub sequence_number: u32,
@@ -218,7 +218,7 @@ impl ClosingAvailableBalance {
 }
 
 // Tag86
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct InformationToAccountOwner<'a> {
     pub information_to_account_owner: &'a str,
 }

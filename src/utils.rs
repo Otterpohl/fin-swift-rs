@@ -6,7 +6,7 @@ use iso3166_1::*;
 use iso_4217::*;
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum TransactionType {
     BNK,
     BOE,
@@ -135,7 +135,7 @@ impl TryFrom<&str> for TransactionType {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum CreditDebit {
     Credit,
     Debit,
@@ -155,13 +155,13 @@ impl TryFrom<&str> for CreditDebit {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum BalanceType {
     Final,
     Intermediary,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum FundsCode {
     SwiftTransfer,
     NonSwiftTransfer,
@@ -181,7 +181,7 @@ impl TryFrom<&str> for FundsCode {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct BusinessIdentifierCode<'a> {
     pub business_party_prefix: &'a str,
     pub country_code: &'a str,
@@ -202,7 +202,7 @@ impl<'a> BusinessIdentifierCode<'a> {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct LogicalTerminalAddress<'a> {
     pub bic_code: BusinessIdentifierCode<'a>,
     pub terminal_code: &'a str, // try to make this a char?
@@ -246,7 +246,7 @@ impl Balance {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct MessageInputReference<'a> {
     date: NaiveDate,
     lt_identifier: &'a str,
@@ -273,7 +273,7 @@ impl<'a> MessageInputReference<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct AddressInformation<'a> {
     time_of_crediting: NaiveTime,
     time_of_debiting: NaiveTime,
