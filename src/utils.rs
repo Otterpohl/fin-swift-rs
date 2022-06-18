@@ -182,7 +182,7 @@ impl TryFrom<&str> for FundsCode {
 }
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ValidationFlag {
     REMIT,
     RFDD,
@@ -204,7 +204,7 @@ impl TryFrom<&str> for ValidationFlag {
 }
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum SanctionScreenType {
     AOK,
     FPO,
