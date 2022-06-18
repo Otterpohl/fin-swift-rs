@@ -292,11 +292,11 @@ impl Balance {
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct MessageInputReference<'a> {
-    date: NaiveDate,
-    lt_identifier: &'a str,
-    branch_code: &'a str,
-    session_number: i16,
-    sequence_number: i16,
+    pub date: NaiveDate,
+    pub lt_identifier: &'a str,
+    pub branch_code: &'a str,
+    pub session_number: i16,
+    pub sequence_number: i16,
 }
 
 impl<'a> MessageInputReference<'a> {
@@ -319,10 +319,10 @@ impl<'a> MessageInputReference<'a> {
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct AddressInformation<'a> {
-    time_of_crediting: NaiveTime,
-    time_of_debiting: NaiveTime,
-    country_code: &'a str,
-    internal_posting_reference: &'a str,
+    pub time_of_crediting: NaiveTime,
+    pub time_of_debiting: NaiveTime,
+    pub country_code: &'a str,
+    pub internal_posting_reference: &'a str,
 }
 
 impl<'a> AddressInformation<'a> {
