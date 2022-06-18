@@ -1,4 +1,4 @@
-use crate::mt940::*;
+use crate::mt940::MT940;
 use std::time::Instant;
 
 mod block;
@@ -13,7 +13,7 @@ fn main() {
     let swift = MT940::new(content);
     let duration = start.elapsed();
 
-    eprintln!("swift = {:#?}", swift.user);
-    // eprintln!("swift = {:#?}", swift);
+    //eprintln!("swift = {:#?}", swift.user);
+    eprintln!("swift = {:#?}", swift);
     eprintln!("Time elapsed: {:?}", duration);
 }

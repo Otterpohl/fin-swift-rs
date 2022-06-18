@@ -1,4 +1,4 @@
-use crate::block::*;
+use crate::block::{Application, Basic, Text, Trailer, User};
 use regex::Regex;
 
 // https://www.paiementor.com/swift-mt950-statement-message-detailed-analysis/
@@ -38,7 +38,7 @@ impl<'a> MT940<'a> {
         let block_segments = block_start.iter().zip(block_end.iter());
 
         for (i, (start, end)) in block_segments.enumerate() {
-            let block_id = 1 + i as i8;
+            let block_id = 1_usize + i;
 
             let prefix = format!("{{{block_id}:");
             let suffix = match block_id {
