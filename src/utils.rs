@@ -329,17 +329,8 @@ impl<'a> AddressInformation<'a> {
     pub fn new(data: &'a str) -> Self {
         let segments: Vec<&str> = data.trim().split(' ').collect();
 
-        let time_of_crediting = chrono::NaiveTime::from_hms(
-            segments[0][..2].parse::<u32>().unwrap(),
-            segments[0][2..4].parse::<u32>().unwrap(),
-            segments[0][4..].parse::<u32>().unwrap(),
-        );
-
-        let time_of_debiting = chrono::NaiveTime::from_hms(
-            segments[1][..2].parse::<u32>().unwrap(),
-            segments[1][2..4].parse::<u32>().unwrap(),
-            segments[1][4..].parse::<u32>().unwrap(),
-        );
+        let time_of_crediting = naive_time_from_swift_time(segments[0]);
+        let time_of_debiting = naive_time_from_swift_time(segments[1]);
 
         let country_code = alpha2(segments[2]).unwrap().alpha2;
         let internal_posting_reference = segments[3];
