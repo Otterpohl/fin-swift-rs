@@ -2,7 +2,7 @@ use crate::utils::*;
 use chrono::prelude::*;
 
 // Tag20
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct TransactionReferenceNumber<'a> {
     pub transaction_reference_number: &'a str,
 }
@@ -16,7 +16,7 @@ impl<'a> TransactionReferenceNumber<'a> {
 }
 
 // Tag25
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct AccountIdentification<'a> {
     pub account_identification: &'a str,
 }
@@ -30,7 +30,7 @@ impl<'a> AccountIdentification<'a> {
 }
 
 // Tag28C
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct StatementNumber {
     pub statement_number: u32,
     pub sequence_number: u32,
@@ -218,7 +218,7 @@ impl ClosingAvailableBalance {
 }
 
 // Tag86
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct InformationToAccountOwner<'a> {
     pub information_to_account_owner: &'a str,
 }
@@ -231,10 +231,10 @@ impl<'a> InformationToAccountOwner<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 // Tag103
 pub struct ServiceIdentifier<'a> {
-    service_identifier: &'a str,
+    pub service_identifier: &'a str,
 }
 
 impl<'a> ServiceIdentifier<'a> {
@@ -249,10 +249,10 @@ impl<'a> ServiceIdentifier<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 // Tag113
 pub struct BankingPriority<'a> {
-    banking_priority: &'a str,
+    pub banking_priority: &'a str,
 }
 
 impl<'a> BankingPriority<'a> {
@@ -267,10 +267,10 @@ impl<'a> BankingPriority<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 // Tag108
 pub struct MessageUserReference<'a> {
-    message_user_reference: &'a str,
+    pub message_user_reference: &'a str,
 }
 
 impl<'a> MessageUserReference<'a> {
@@ -285,10 +285,10 @@ impl<'a> MessageUserReference<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 // Tag119
 pub struct Validation {
-    validation_flag: ValidationFlag,
+    pub validation_flag: ValidationFlag,
 }
 
 impl Validation {
@@ -299,10 +299,10 @@ impl Validation {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 // Tag424
 pub struct RelatedReference<'a> {
-    related_reference: &'a str,
+    pub related_reference: &'a str,
 }
 
 impl<'a> RelatedReference<'a> {
@@ -317,10 +317,10 @@ impl<'a> RelatedReference<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 // Tag111
 pub struct ServiceTypeIdentifier<'a> {
-    service_type_identifier: &'a str,
+    pub service_type_identifier: &'a str,
 }
 
 impl<'a> ServiceTypeIdentifier<'a> {
@@ -335,10 +335,10 @@ impl<'a> ServiceTypeIdentifier<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 // Tag165
 pub struct PaymentReleaseInformationReceiver<'a> {
-    payment_release_information_receiver: &'a str,
+    pub payment_release_information_receiver: &'a str,
 }
 
 impl<'a> PaymentReleaseInformationReceiver<'a> {
@@ -353,11 +353,11 @@ impl<'a> PaymentReleaseInformationReceiver<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 // Tag433
 pub struct SanctionsScreeningInformation<'a> {
-    codeword: SanctionScreenType,
-    additional_information: &'a str,
+    pub codeword: SanctionScreenType,
+    pub additional_information: &'a str, // this should be an option!
 }
 
 impl<'a> SanctionsScreeningInformation<'a> {
@@ -372,11 +372,11 @@ impl<'a> SanctionsScreeningInformation<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 // Tag434
 pub struct PaymentControlsInformation<'a> {
-    codeword: &'a str,
-    additional_information: &'a str,
+    pub codeword: &'a str,
+    pub additional_information: &'a str,
 }
 
 impl<'a> PaymentControlsInformation<'a> {
