@@ -353,6 +353,14 @@ impl<'a> AddressInformation<'a> {
     }
 }
 
+pub fn naive_time_from_swift_time(time: &str) -> chrono::NaiveTime {
+    chrono::NaiveTime::from_hms(
+            time[..2].parse::<u32>().unwrap(),
+            time[2..4].parse::<u32>().unwrap(),
+            time[4..].parse::<u32>().unwrap(),
+        )
+}
+
 pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
     if date.len() == 4 {
         NaiveDate::from_ymd(
@@ -443,6 +451,15 @@ mod tests {
         assert_eq!(date.year(), chrono::Utc::now().year());
         assert_eq!(date.month(), 9);
         assert_eq!(date.day(), 24);
+    }
+
+    #[test]
+    fn test_time() {
+        let time = naive_time_from_swift_time("121413");
+
+        assert_eq!(time.hour(), 12);
+        assert_eq!(time.minute(), 14);
+        assert_eq!(time.second(), 13);
     }
 
     #[test]
