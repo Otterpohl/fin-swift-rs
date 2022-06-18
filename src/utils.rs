@@ -385,14 +385,14 @@ pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
     }
 }
 
-pub fn naive_date_time_from_swift_date_time(date: &str) -> NaiveDateTime {
+pub fn naive_date_time_from_swift_date_time(date_time: &str) -> NaiveDateTime {
     NaiveDateTime::new(
-        naive_date_from_swift_date(&date[..6]),
+        naive_date_from_swift_date(&date_time[..6]),
         NaiveTime::from_hms_milli(
-            date[6..8].parse::<u32>().unwrap(),
-            date[8..10].parse::<u32>().unwrap(),
-            date[10..12].parse::<u32>().unwrap(),
-            date[12..].parse::<u32>().unwrap(),
+            date_time[6..8].parse::<u32>().unwrap(),
+            date_time[8..10].parse::<u32>().unwrap(),
+            date_time[10..12].parse::<u32>().unwrap(),
+            date_time[12..].parse::<u32>().unwrap(),
         ),
     )
 }
