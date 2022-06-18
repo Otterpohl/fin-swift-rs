@@ -1,6 +1,6 @@
 use crate::tag::*;
 use crate::utils::*;
-use chrono::*;
+use chrono::NaiveDateTime;
 use regex::Regex;
 use uuid::Uuid;
 
@@ -61,7 +61,7 @@ pub struct Application<'a> {
 impl<'a> Application<'a> {
     pub fn new(block_data: &'a str) -> Self {
         let input_output_id = match &block_data[..1] {
-            n @ "I" | n @ "O" => {
+            n @ ("I" | "O")  => {
                 // struct this?
                 n
             }
@@ -313,7 +313,7 @@ impl<'a> Trailer<'a> {
         let mut data = None;
 
         if !block_data.is_empty() {
-            data = Some(block_data)
+            data = Some(block_data);
         }
 
         Self { data }

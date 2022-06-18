@@ -1,9 +1,9 @@
 use chrono::prelude::*;
 use chrono::NaiveDate;
 // country
-use iso3166_1::*;
+use iso3166_1::alpha2;
 // currency
-use iso_4217::*;
+use iso_4217::CurrencyCode;
 
 #[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, PartialEq, Eq)]

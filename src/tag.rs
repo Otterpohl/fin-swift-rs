@@ -91,7 +91,7 @@ impl<'a> StatementLine<'a> {
 
         index += 6;
 
-        if value[index..index + 4].chars().all(|x| x.is_numeric()) {
+        if value[index..index + 4].chars().all(char::is_numeric) {
             entry_date = naive_date_from_swift_date(&value[index..index + 4]);
             index += 4;
         }
@@ -103,10 +103,10 @@ impl<'a> StatementLine<'a> {
         } else if ["DR", "RD"].iter().any(|x| *x == &value[index..index + 2]) {
             index += 2;
             CreditDebit::DebitReversal
-        } else if &value[index..index + 1] == "C" {
+        } else if &value[index..=index] == "C" {
             index += 1;
             CreditDebit::Credit
-        } else if &value[index..index + 1] == "D" {
+        } else if &value[index..=index] == "D" {
             index += 1;
             CreditDebit::Debit
         } else {
@@ -128,22 +128,22 @@ impl<'a> StatementLine<'a> {
         // float will truncate the 0 and so the len will be 1 char short, check the string instead!
         index += amount_string.to_string().len();
 
-        let funds_code = if value[index..index + 1]
+        let funds_code = if value[index..=index]
             .chars()
             .map(|x| x.to_string())
             .any(|x| x == "S" || x == "N" || x == "F")
         {
-            FundsCode::try_from(&value[index..index + 1]).unwrap()
+            FundsCode::try_from(&value[index..=index]).unwrap()
         } else {
             panic!("FundsCode type not found or not recognized");
         };
 
         index += 1;
 
-        let transaction_type = if funds_code != FundsCode::SwiftTransfer {
-            Some(TransactionType::try_from(&value[index..index + 3]).unwrap())
-        } else {
+        let transaction_type = if funds_code == FundsCode::SwiftTransfer {
             None
+        } else {
+            Some(TransactionType::try_from(&value[index..index + 3]).unwrap())
         };
 
         if transaction_type.is_some() {
