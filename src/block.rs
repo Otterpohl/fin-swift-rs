@@ -111,19 +111,19 @@ impl<'a> Application<'a> {
 // https://www.paiementor.com/swift-mt-message-block-3-user-header-description/
 #[derive(Debug, PartialEq, Eq)]
 pub struct User<'a> {
-    tag_103: Option<ServiceIdentifier<'a>>,
-    tag_113: Option<BankingPriority<'a>>,
-    tag_108: Option<MessageUserReference<'a>>,
-    tag_119: Option<Validation>,
-    tag_423: Option<NaiveDateTime>,
-    tag_106: Option<MessageInputReference<'a>>,
-    tag_424: Option<RelatedReference<'a>>,
-    tag_111: Option<ServiceTypeIdentifier<'a>>,
-    tag_121: Option<Uuid>,
-    tag_115: Option<AddressInformation<'a>>,
-    tag_165: Option<PaymentReleaseInformationReceiver<'a>>,
-    tag_433: Option<SanctionsScreeningInformation<'a>>,
-    tag_434: Option<PaymentControlsInformation<'a>>,
+    pub tag_103: Option<ServiceIdentifier<'a>>,
+    pub tag_113: Option<BankingPriority<'a>>,
+    pub tag_108: Option<MessageUserReference<'a>>,
+    pub tag_119: Option<Validation>,
+    pub tag_423: Option<NaiveDateTime>,
+    pub tag_106: Option<MessageInputReference<'a>>,
+    pub tag_424: Option<RelatedReference<'a>>,
+    pub tag_111: Option<ServiceTypeIdentifier<'a>>,
+    pub tag_121: Option<Uuid>,
+    pub tag_115: Option<AddressInformation<'a>>,
+    pub tag_165: Option<PaymentReleaseInformationReceiver<'a>>,
+    pub tag_433: Option<SanctionsScreeningInformation<'a>>,
+    pub tag_434: Option<PaymentControlsInformation<'a>>,
 }
 
 impl<'a> User<'a> {
@@ -376,7 +376,33 @@ mod tests {
     }
 
     #[test]
-    fn test_block_user() {}
+    fn test_block_user() {
+        let data = User::new("3:{103:CAD}{113:xxxx}{119:STP}{108:2RDRQDHM3WO}{423:18071715301204}{111:DER}{106:120811BANKBEBBAXXX2222123456}{424:PQAB1234}{121:180f1e65-90e0-44d5-a49a-92b55eb3025f}{165:DERASDFQWERTY}{115: 121413 121413 DE BANKDECDA123}{433:/AOK}{434:/FPO}");
+
+        assert_eq!(data.tag_103.unwrap().service_identifier, "CAD");
+        assert_eq!(data.tag_113.unwrap().banking_priority, "xxxx");
+        assert_eq!(data.tag_108.unwrap().message_user_reference,"2RDRQDHM3WO");
+        assert_eq!(data.tag_119.unwrap().validation_flag,ValidationFlag::STP);
+        assert_eq!(data.tag_423.unwrap(),naive_date_time_from_swift_date_time("18071715301204"));
+        assert_eq!(data.tag_106.unwrap().date,naive_date_from_swift_date("120811"));
+        assert_eq!(data.tag_106.unwrap().lt_identifier,"BANKBEBBAXXX");
+        assert_eq!(data.tag_106.unwrap().branch_code,"222");
+        assert_eq!(data.tag_106.unwrap().session_number,2123);
+        assert_eq!(data.tag_106.unwrap().sequence_number,456);
+        assert_eq!(data.tag_424.unwrap().related_reference, "PQAB1234");
+        assert_eq!(data.tag_111.unwrap().service_type_identifier, "DER");
+        assert_eq!(data.tag_121.unwrap().to_string(), "180f1e65-90e0-44d5-a49a-92b55eb3025f");
+        assert_eq!(data.tag_115.unwrap().time_of_crediting ,naive_time_from_swift_time("121413"));
+        assert_eq!(data.tag_115.unwrap().time_of_debiting ,naive_time_from_swift_time("121413"));
+        assert_eq!(data.tag_115.unwrap().country_code, "DE");
+        assert_eq!(data.tag_115.unwrap().internal_posting_reference ,"BANKDECDA123");
+        assert_eq!(data.tag_165.unwrap().payment_release_information_receiver, "DERASDFQWERTY");
+        assert_eq!(data.tag_433.unwrap().codeword, SanctionScreenType::AOK);
+        assert_eq!(data.tag_433.unwrap().additional_information, "");
+        assert_eq!(data.tag_434.unwrap().codeword,"FPO");
+        assert_eq!(data.tag_434.unwrap().additional_information,"");
+
+    }
 
     #[test]
     fn test_block_text() {
