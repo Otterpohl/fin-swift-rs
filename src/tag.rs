@@ -2,7 +2,7 @@ use crate::utils::*;
 use chrono::prelude::*;
 
 // Tag20
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct TransactionReferenceNumber<'a> {
     pub transaction_reference_number: &'a str,
 }
@@ -16,7 +16,7 @@ impl<'a> TransactionReferenceNumber<'a> {
 }
 
 // Tag25
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct AccountIdentification<'a> {
     pub account_identification: &'a str,
 }
@@ -30,7 +30,7 @@ impl<'a> AccountIdentification<'a> {
 }
 
 // Tag28C
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct StatementNumber {
     pub statement_number: u32,
     pub sequence_number: u32,
@@ -218,7 +218,7 @@ impl ClosingAvailableBalance {
 }
 
 // Tag86
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct InformationToAccountOwner<'a> {
     pub information_to_account_owner: &'a str,
 }
@@ -227,6 +227,166 @@ impl<'a> InformationToAccountOwner<'a> {
     pub fn new(value: &'a str) -> Self {
         Self {
             information_to_account_owner: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+// Tag103
+pub struct ServiceIdentifier<'a> {
+    pub service_identifier: &'a str,
+}
+
+impl<'a> ServiceIdentifier<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() != 3 {
+            panic!("ServiceIdentifier '{value}' has unexpected length")
+        }
+
+        Self {
+            service_identifier: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+// Tag113
+pub struct BankingPriority<'a> {
+    pub banking_priority: &'a str,
+}
+
+impl<'a> BankingPriority<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() != 4 {
+            panic!("BankingPriority '{value}' has unexpected length")
+        }
+
+        Self {
+            banking_priority: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+// Tag108
+pub struct MessageUserReference<'a> {
+    pub message_user_reference: &'a str,
+}
+
+impl<'a> MessageUserReference<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() > 16 {
+            panic!("Invalid MessageUserReference length");
+        }
+
+        Self {
+            message_user_reference: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+// Tag119
+pub struct Validation {
+    pub validation_flag: ValidationFlag,
+}
+
+impl Validation {
+    pub fn new(value: &str) -> Self {
+        Self {
+            validation_flag: ValidationFlag::try_from(value).unwrap(),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+// Tag424
+pub struct RelatedReference<'a> {
+    pub related_reference: &'a str,
+}
+
+impl<'a> RelatedReference<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() > 16 {
+            panic!("Invalid RelatedReference length");
+        }
+
+        Self {
+            related_reference: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+// Tag111
+pub struct ServiceTypeIdentifier<'a> {
+    pub service_type_identifier: &'a str,
+}
+
+impl<'a> ServiceTypeIdentifier<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() != 3 {
+            panic!("ServiceTypeIdentifier '{value}' has unexpected length")
+        }
+
+        Self {
+            service_type_identifier: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+// Tag165
+pub struct PaymentReleaseInformationReceiver<'a> {
+    pub payment_release_information_receiver: &'a str,
+}
+
+impl<'a> PaymentReleaseInformationReceiver<'a> {
+    pub fn new(value: &'a str) -> Self {
+        if value.len() > 34 {
+            panic!("Invalid PaymentReleaseInformationReceiver length");
+        }
+
+        Self {
+            payment_release_information_receiver: value,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+// Tag433
+pub struct SanctionsScreeningInformation<'a> {
+    pub codeword: SanctionScreenType,
+    pub additional_information: &'a str, // this should be an option!
+}
+
+impl<'a> SanctionsScreeningInformation<'a> {
+    pub fn new(value: &'a str) -> Self {
+        let codeword = &value[1..4];
+        let additional_information = &value[4..].strip_prefix('\\').unwrap_or("");
+
+        Self {
+            codeword: SanctionScreenType::try_from(codeword).unwrap(),
+            additional_information,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+// Tag434
+pub struct PaymentControlsInformation<'a> {
+    pub codeword: &'a str,
+    pub additional_information: &'a str,
+}
+
+impl<'a> PaymentControlsInformation<'a> {
+    pub fn new(value: &'a str) -> Self {
+        let codeword = &value[1..4];
+        let additional_information = &value[4..].strip_prefix('\\').unwrap_or("");
+
+        Self {
+            codeword,
+            additional_information,
         }
     }
 }

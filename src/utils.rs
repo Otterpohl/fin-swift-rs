@@ -181,6 +181,50 @@ impl TryFrom<&str> for FundsCode {
     }
 }
 
+#[allow(clippy::upper_case_acronyms)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum ValidationFlag {
+    REMIT,
+    RFDD,
+    STP,
+}
+
+impl TryFrom<&str> for ValidationFlag {
+    type Error = &'static str;
+
+    #[cfg(not(tarpaulin_include))]
+    fn try_from(validation_flag: &str) -> Result<Self, Self::Error> {
+        match validation_flag {
+            "REMIT" => Ok(ValidationFlag::REMIT),
+            "RFDD" => Ok(ValidationFlag::RFDD),
+            "STP" => Ok(ValidationFlag::STP),
+            _ => Err("Validation Flag not recognized"),
+        }
+    }
+}
+
+#[allow(clippy::upper_case_acronyms)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum SanctionScreenType {
+    AOK,
+    FPO,
+    NOK,
+}
+
+impl TryFrom<&str> for SanctionScreenType {
+    type Error = &'static str;
+
+    #[cfg(not(tarpaulin_include))]
+    fn try_from(sanction_screen_type: &str) -> Result<Self, Self::Error> {
+        match sanction_screen_type {
+            "AOK" => Ok(SanctionScreenType::AOK),
+            "FPO" => Ok(SanctionScreenType::FPO),
+            "NOK" => Ok(SanctionScreenType::NOK),
+            _ => Err("SanctionScreenType not recognized"),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct BusinessIdentifierCode<'a> {
     pub business_party_prefix: &'a str,
@@ -248,11 +292,11 @@ impl Balance {
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct MessageInputReference<'a> {
-    date: NaiveDate,
-    lt_identifier: &'a str,
-    branch_code:&'a str,
-    session_number: i16,
-    sequence_number: i16,
+    pub date: NaiveDate,
+    pub lt_identifier: &'a str,
+    pub branch_code: &'a str,
+    pub session_number: i16,
+    pub sequence_number: i16,
 }
 
 impl<'a> MessageInputReference<'a> {
@@ -275,29 +319,19 @@ impl<'a> MessageInputReference<'a> {
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct AddressInformation<'a> {
-    time_of_crediting: NaiveTime,
-    time_of_debiting: NaiveTime,
-    country_code: &'a str,
-    internal_posting_reference: &'a str
+    pub time_of_crediting: NaiveTime,
+    pub time_of_debiting: NaiveTime,
+    pub country_code: &'a str,
+    pub internal_posting_reference: &'a str,
 }
-
 
 impl<'a> AddressInformation<'a> {
     pub fn new(data: &'a str) -> Self {
         let segments: Vec<&str> = data.trim().split(' ').collect();
 
-        let time_of_crediting = chrono::NaiveTime::from_hms(
-            segments[0][..2].parse::<u32>().unwrap(),
-            segments[0][2..4].parse::<u32>().unwrap(),
-            segments[0][4..].parse::<u32>().unwrap(),
-        );
+        let time_of_crediting = naive_time_from_swift_time(segments[0]);
+        let time_of_debiting = naive_time_from_swift_time(segments[1]);
 
-        let time_of_debiting = chrono::NaiveTime::from_hms(
-            segments[1][..2].parse::<u32>().unwrap(),
-            segments[1][2..4].parse::<u32>().unwrap(),
-            segments[1][4..].parse::<u32>().unwrap(),
-        );
-        
         let country_code = alpha2(segments[2]).unwrap().alpha2;
         let internal_posting_reference = segments[3];
 
@@ -308,6 +342,14 @@ impl<'a> AddressInformation<'a> {
             internal_posting_reference,
         }
     }
+}
+
+pub fn naive_time_from_swift_time(time: &str) -> chrono::NaiveTime {
+    chrono::NaiveTime::from_hms(
+            time[..2].parse::<u32>().unwrap(),
+            time[2..4].parse::<u32>().unwrap(),
+            time[4..].parse::<u32>().unwrap(),
+        )
 }
 
 pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
@@ -334,14 +376,14 @@ pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
     }
 }
 
-pub fn naive_date_time_from_swift_date_time(date: &str) -> NaiveDateTime {
+pub fn naive_date_time_from_swift_date_time(date_time: &str) -> NaiveDateTime {
     NaiveDateTime::new(
-        naive_date_from_swift_date(&date[..6]),
+        naive_date_from_swift_date(&date_time[..6]),
         NaiveTime::from_hms_milli(
-            date[6..8].parse::<u32>().unwrap(),
-            date[8..10].parse::<u32>().unwrap(),
-            date[10..12].parse::<u32>().unwrap(),
-            date[12..].parse::<u32>().unwrap(),
+            date_time[6..8].parse::<u32>().unwrap(),
+            date_time[8..10].parse::<u32>().unwrap(),
+            date_time[10..12].parse::<u32>().unwrap(),
+            date_time[12..].parse::<u32>().unwrap(),
         ),
     )
 }
@@ -400,6 +442,15 @@ mod tests {
         assert_eq!(date.year(), chrono::Utc::now().year());
         assert_eq!(date.month(), 9);
         assert_eq!(date.day(), 24);
+    }
+
+    #[test]
+    fn test_time() {
+        let time = naive_time_from_swift_time("121413");
+
+        assert_eq!(time.hour(), 12);
+        assert_eq!(time.minute(), 14);
+        assert_eq!(time.second(), 13);
     }
 
     #[test]
