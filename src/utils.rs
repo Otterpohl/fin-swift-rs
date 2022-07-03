@@ -346,10 +346,10 @@ impl<'a> AddressInformation<'a> {
 
 pub fn naive_time_from_swift_time(time: &str) -> chrono::NaiveTime {
     chrono::NaiveTime::from_hms(
-            time[..2].parse::<u32>().unwrap(),
-            time[2..4].parse::<u32>().unwrap(),
-            time[4..].parse::<u32>().unwrap(),
-        )
+        time[..2].parse::<u32>().unwrap(),
+        time[2..4].parse::<u32>().unwrap(),
+        time[4..].parse::<u32>().unwrap(),
+    )
 }
 
 pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
