@@ -3,3 +3,5 @@
 /perf*
 /flamegraph.svg
 /tarpaulin-report.html
+/stacks.folded
+/generate-flamegraph.sh

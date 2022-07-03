@@ -1,8 +1,10 @@
 use crate::utils::*;
 use chrono::prelude::*;
+use serde::Serialize;
+use iso_currency::Currency;
 
 // Tag20
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 pub struct TransactionReferenceNumber<'a> {
     pub transaction_reference_number: &'a str,
 }
@@ -16,7 +18,7 @@ impl<'a> TransactionReferenceNumber<'a> {
 }
 
 // Tag25
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 pub struct AccountIdentification<'a> {
     pub account_identification: &'a str,
 }
@@ -30,7 +32,7 @@ impl<'a> AccountIdentification<'a> {
 }
 
 // Tag28C
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 pub struct StatementNumber {
     pub statement_number: u32,
     pub sequence_number: u32,
@@ -51,7 +53,7 @@ impl StatementNumber {
 }
 
 // Tag60F
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct OpeningBalance {
     pub balance_type: BalanceType,
     pub balance_data: Balance,
@@ -67,7 +69,7 @@ impl OpeningBalance {
 }
 
 // Tag61
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct StatementLine<'a> {
     pub value_date: NaiveDate,
     pub entry_date: NaiveDate,
@@ -188,7 +190,7 @@ impl<'a> StatementLine<'a> {
 }
 
 // Tag62F
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct BookedFunds {
     pub balance_type: BalanceType,
     pub balance_data: Balance,
@@ -204,7 +206,7 @@ impl BookedFunds {
 }
 
 // Tag64
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
 pub struct ClosingAvailableBalance {
     pub balance_data: Balance,
 }
@@ -218,7 +220,7 @@ impl ClosingAvailableBalance {
 }
 
 // Tag86
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 pub struct InformationToAccountOwner<'a> {
     pub information_to_account_owner: &'a str,
 }
@@ -231,7 +233,7 @@ impl<'a> InformationToAccountOwner<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 // Tag103
 pub struct ServiceIdentifier<'a> {
     pub service_identifier: &'a str,
@@ -249,7 +251,7 @@ impl<'a> ServiceIdentifier<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 // Tag113
 pub struct BankingPriority<'a> {
     pub banking_priority: &'a str,
@@ -267,7 +269,7 @@ impl<'a> BankingPriority<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 // Tag108
 pub struct MessageUserReference<'a> {
     pub message_user_reference: &'a str,
@@ -285,7 +287,7 @@ impl<'a> MessageUserReference<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 // Tag119
 pub struct Validation {
     pub validation_flag: ValidationFlag,
@@ -299,7 +301,7 @@ impl Validation {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 // Tag424
 pub struct RelatedReference<'a> {
     pub related_reference: &'a str,
@@ -317,7 +319,7 @@ impl<'a> RelatedReference<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 // Tag111
 pub struct ServiceTypeIdentifier<'a> {
     pub service_type_identifier: &'a str,
@@ -335,7 +337,7 @@ impl<'a> ServiceTypeIdentifier<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 // Tag165
 pub struct PaymentReleaseInformationReceiver<'a> {
     pub payment_release_information_receiver: &'a str,
@@ -353,7 +355,7 @@ impl<'a> PaymentReleaseInformationReceiver<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 // Tag433
 pub struct SanctionsScreeningInformation<'a> {
     pub codeword: SanctionScreenType,
@@ -372,7 +374,7 @@ impl<'a> SanctionsScreeningInformation<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 // Tag434
 pub struct PaymentControlsInformation<'a> {
     pub codeword: &'a str,
@@ -431,7 +433,7 @@ mod tests {
         );
         assert_eq!(
             opening_balance.balance_data.currency,
-            iso_4217::CurrencyCode::EUR
+            Currency::EUR
         );
         assert_eq!(opening_balance.balance_data.amount, 54484.04);
     }
@@ -450,7 +452,7 @@ mod tests {
         );
         assert_eq!(
             booked_funds.balance_data.currency,
-            iso_4217::CurrencyCode::EUR
+            Currency::EUR
         );
         assert_eq!(booked_funds.balance_data.amount, 54484.04);
     }
@@ -469,7 +471,7 @@ mod tests {
         );
         assert_eq!(
             closing_available_funds.balance_data.currency,
-            iso_4217::CurrencyCode::EUR
+            Currency::EUR
         );
         assert_eq!(closing_available_funds.balance_data.amount, 54484.04);
     }

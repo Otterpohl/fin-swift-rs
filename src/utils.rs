@@ -2,11 +2,11 @@ use chrono::prelude::*;
 use chrono::NaiveDate;
 // country
 use iso3166_1::alpha2;
-// currency
-use iso_4217::CurrencyCode;
+use iso_currency::Currency;
+use serde::Serialize;
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum TransactionType {
     BNK,
     BOE,
@@ -135,7 +135,7 @@ impl TryFrom<&str> for TransactionType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 pub enum CreditDebit {
     Credit,
     Debit,
@@ -155,13 +155,13 @@ impl TryFrom<&str> for CreditDebit {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum BalanceType {
     Final,
     Intermediary,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum FundsCode {
     SwiftTransfer,
     NonSwiftTransfer,
@@ -182,7 +182,7 @@ impl TryFrom<&str> for FundsCode {
 }
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 pub enum ValidationFlag {
     REMIT,
     RFDD,
@@ -204,7 +204,7 @@ impl TryFrom<&str> for ValidationFlag {
 }
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 pub enum SanctionScreenType {
     AOK,
     FPO,
@@ -225,7 +225,7 @@ impl TryFrom<&str> for SanctionScreenType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct BusinessIdentifierCode<'a> {
     pub business_party_prefix: &'a str,
     pub country_code: &'a str,
@@ -246,7 +246,7 @@ impl<'a> BusinessIdentifierCode<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct LogicalTerminalAddress<'a> {
     pub bic_code: BusinessIdentifierCode<'a>,
     pub terminal_code: &'a str, // try to make this a char?
@@ -266,11 +266,11 @@ impl<'a> LogicalTerminalAddress<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
 pub struct Balance {
     pub credit_or_debit: CreditDebit,
     pub date: NaiveDate,
-    pub currency: CurrencyCode,
+    pub currency: Currency,
     pub amount: f64,
 }
 
@@ -278,7 +278,7 @@ impl Balance {
     pub fn new(value: &str) -> Self {
         let credit_or_debit = CreditDebit::try_from(&value[..1]).unwrap();
         let date = naive_date_from_swift_date(&value[1..7]);
-        let currency = CurrencyCode::try_from(&value[7..10]).unwrap();
+        let currency = Currency::from_code(&value[7..10]).unwrap();
         let amount = float_from_swift_amount(&value[10..]);
 
         Self {
@@ -290,7 +290,7 @@ impl Balance {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 pub struct MessageInputReference<'a> {
     pub date: NaiveDate,
     pub lt_identifier: &'a str,
@@ -317,7 +317,7 @@ impl<'a> MessageInputReference<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 pub struct AddressInformation<'a> {
     pub time_of_crediting: NaiveTime,
     pub time_of_debiting: NaiveTime,
@@ -500,9 +500,9 @@ mod tests {
 
     #[test]
     fn test_currency_code() {
-        let currency_code = CurrencyCode::try_from("EUR").unwrap();
+        let currency_code = Currency::from_code("EUR").unwrap();
 
-        assert_eq!(currency_code, iso_4217::CurrencyCode::EUR);
+        assert_eq!(currency_code, Currency::EUR);
     }
 
     #[test]
@@ -529,7 +529,7 @@ mod tests {
 
         assert_eq!(balance.credit_or_debit, CreditDebit::Credit);
         assert_eq!(balance.date, NaiveDate::from_ymd(2009, 9, 30));
-        assert_eq!(balance.currency, iso_4217::CurrencyCode::EUR);
+        assert_eq!(balance.currency, Currency::EUR);
         assert_eq!(balance.amount, 53189.31);
     }
 }

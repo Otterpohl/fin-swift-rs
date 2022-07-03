@@ -1,9 +1,10 @@
 use crate::block::{Application, Basic, Text, Trailer, User};
 use regex::Regex;
+use serde::Serialize;
 
 // https://www.paiementor.com/swift-mt950-statement-message-detailed-analysis/
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct MT940<'a> {
     pub basic: Basic<'a>,
     pub application: Application<'a>,

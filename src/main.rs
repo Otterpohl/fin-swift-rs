@@ -13,7 +13,10 @@ fn main() {
     let swift = MT940::new(content);
     let duration = start.elapsed();
 
+    let serialized = serde_json::to_string_pretty(&swift).unwrap();
+    println!("{}", serialized);
+
     //eprintln!("swift = {:#?}", swift.user);
-    eprintln!("swift = {:#?}", swift);
+    //eprintln!("swift = {:#?}", swift);
     eprintln!("Time elapsed: {:?}", duration);
 }
