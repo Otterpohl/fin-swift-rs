@@ -240,9 +240,7 @@ pub struct ServiceIdentifier<'a> {
 
 impl<'a> ServiceIdentifier<'a> {
     pub fn new(value: &'a str) -> Self {
-        if value.len() != 3 {
-            panic!("ServiceIdentifier '{value}' has unexpected length")
-        }
+        assert!(value.len() == 3, "ServiceIdentifier '{value}' is an unexpected length");
 
         Self {
             service_identifier: value,
@@ -258,9 +256,7 @@ pub struct BankingPriority<'a> {
 
 impl<'a> BankingPriority<'a> {
     pub fn new(value: &'a str) -> Self {
-        if value.len() != 4 {
-            panic!("BankingPriority '{value}' has unexpected length")
-        }
+        assert!(value.len() == 4, "BankingPriority '{value}' is an unexpected length");
 
         Self {
             banking_priority: value,
@@ -276,9 +272,7 @@ pub struct MessageUserReference<'a> {
 
 impl<'a> MessageUserReference<'a> {
     pub fn new(value: &'a str) -> Self {
-        if value.len() > 16 {
-            panic!("Invalid MessageUserReference length");
-        }
+        assert!(value.len() <= 16, "MessageUserReference '{value}' is an unexpected length");
 
         Self {
             message_user_reference: value,
@@ -308,9 +302,7 @@ pub struct RelatedReference<'a> {
 
 impl<'a> RelatedReference<'a> {
     pub fn new(value: &'a str) -> Self {
-        if value.len() > 16 {
-            panic!("Invalid RelatedReference length");
-        }
+        assert!(value.len() <= 16, "RelatedReference '{value}' is an unexpected length");
 
         Self {
             related_reference: value,
@@ -326,9 +318,7 @@ pub struct ServiceTypeIdentifier<'a> {
 
 impl<'a> ServiceTypeIdentifier<'a> {
     pub fn new(value: &'a str) -> Self {
-        if value.len() != 3 {
-            panic!("ServiceTypeIdentifier '{value}' has unexpected length")
-        }
+        assert!(value.len() == 3, "ServiceTypeIdentifier '{value}' is an unexpected length");
 
         Self {
             service_type_identifier: value,
@@ -344,9 +334,7 @@ pub struct PaymentReleaseInformationReceiver<'a> {
 
 impl<'a> PaymentReleaseInformationReceiver<'a> {
     pub fn new(value: &'a str) -> Self {
-        if value.len() > 34 {
-            panic!("Invalid PaymentReleaseInformationReceiver length");
-        }
+        assert!(value.len() <= 34, "PaymentReleaseInformationReceiver '{value}' is an unexpected length");
 
         Self {
             payment_release_information_receiver: value,
