@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 regex = "1.5.4"
-chrono = { Version = "0.4.19", features = ["serde"]}
+chrono = { Version = "0.4.20", features = ["serde"]}
 iso_currency = { version = "0.4.1", features = ["with-serde"] }
 iso3166-1 = "1.0.1"
 uuid = { Version = "1.1.1", features = ["serde"]}
