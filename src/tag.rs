@@ -1,7 +1,6 @@
 use crate::utils::*;
 use chrono::prelude::*;
 use serde::Serialize;
-use iso_currency::Currency;
 
 // Tag20
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
@@ -396,6 +395,7 @@ impl<'a> PaymentControlsInformation<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use iso_currency::Currency;
 
     #[test]
     fn test_transaction_reference_number() {
