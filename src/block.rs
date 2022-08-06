@@ -1,5 +1,5 @@
-use crate::tag::*;
-use crate::utils::*;
+use crate::tag::{AccountIdentification, BankingPriority, BookedFunds, ClosingAvailableBalance, InformationToAccountOwner, MessageUserReference, OpeningBalance, PaymentControlsInformation, PaymentReleaseInformationReceiver, RelatedReference, SanctionsScreeningInformation, ServiceIdentifier, ServiceTypeIdentifier, StatementLine, StatementNumber, TransactionReferenceNumber, Validation};
+use crate::utils::{AddressInformation, BalanceType, LogicalTerminalAddress, MessageInputReference, naive_date_time_from_swift_date_time};
 use chrono::NaiveDateTime;
 use regex::Regex;
 use serde::Serialize;
@@ -324,6 +324,8 @@ impl<'a> Trailer<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::utils::*;
+    use crate::tag::*;
 
     #[test]
     fn test_block_basic() {
