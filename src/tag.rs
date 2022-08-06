@@ -1,4 +1,7 @@
-use crate::utils::*;
+use crate::utils::{
+    float_from_swift_amount, naive_date_from_swift_date, Balance, BalanceType, CreditDebit,
+    FundsCode, SanctionScreenType, TransactionType, ValidationFlag,
+};
 use chrono::prelude::*;
 use serde::Serialize;
 
@@ -240,7 +243,10 @@ pub struct ServiceIdentifier<'a> {
 
 impl<'a> ServiceIdentifier<'a> {
     pub fn new(value: &'a str) -> Self {
-        assert!(value.len() == 3, "ServiceIdentifier '{value}' is an unexpected length");
+        assert!(
+            value.len() == 3,
+            "ServiceIdentifier '{value}' is an unexpected length"
+        );
 
         Self {
             service_identifier: value,
@@ -256,7 +262,10 @@ pub struct BankingPriority<'a> {
 
 impl<'a> BankingPriority<'a> {
     pub fn new(value: &'a str) -> Self {
-        assert!(value.len() == 4, "BankingPriority '{value}' is an unexpected length");
+        assert!(
+            value.len() == 4,
+            "BankingPriority '{value}' is an unexpected length"
+        );
 
         Self {
             banking_priority: value,
@@ -272,7 +281,10 @@ pub struct MessageUserReference<'a> {
 
 impl<'a> MessageUserReference<'a> {
     pub fn new(value: &'a str) -> Self {
-        assert!(value.len() <= 16, "MessageUserReference '{value}' is an unexpected length");
+        assert!(
+            value.len() <= 16,
+            "MessageUserReference '{value}' is an unexpected length"
+        );
 
         Self {
             message_user_reference: value,
@@ -302,7 +314,10 @@ pub struct RelatedReference<'a> {
 
 impl<'a> RelatedReference<'a> {
     pub fn new(value: &'a str) -> Self {
-        assert!(value.len() <= 16, "RelatedReference '{value}' is an unexpected length");
+        assert!(
+            value.len() <= 16,
+            "RelatedReference '{value}' is an unexpected length"
+        );
 
         Self {
             related_reference: value,
@@ -318,7 +333,10 @@ pub struct ServiceTypeIdentifier<'a> {
 
 impl<'a> ServiceTypeIdentifier<'a> {
     pub fn new(value: &'a str) -> Self {
-        assert!(value.len() == 3, "ServiceTypeIdentifier '{value}' is an unexpected length");
+        assert!(
+            value.len() == 3,
+            "ServiceTypeIdentifier '{value}' is an unexpected length"
+        );
 
         Self {
             service_type_identifier: value,
@@ -334,7 +352,10 @@ pub struct PaymentReleaseInformationReceiver<'a> {
 
 impl<'a> PaymentReleaseInformationReceiver<'a> {
     pub fn new(value: &'a str) -> Self {
-        assert!(value.len() <= 34, "PaymentReleaseInformationReceiver '{value}' is an unexpected length");
+        assert!(
+            value.len() <= 34,
+            "PaymentReleaseInformationReceiver '{value}' is an unexpected length"
+        );
 
         Self {
             payment_release_information_receiver: value,
@@ -419,10 +440,7 @@ mod tests {
             opening_balance.balance_data.date,
             NaiveDate::from_ymd(2009, 9, 24)
         );
-        assert_eq!(
-            opening_balance.balance_data.currency,
-            Currency::EUR
-        );
+        assert_eq!(opening_balance.balance_data.currency, Currency::EUR);
         assert_eq!(opening_balance.balance_data.amount, 54484.04);
     }
 
@@ -438,10 +456,7 @@ mod tests {
             booked_funds.balance_data.date,
             NaiveDate::from_ymd(2009, 9, 24)
         );
-        assert_eq!(
-            booked_funds.balance_data.currency,
-            Currency::EUR
-        );
+        assert_eq!(booked_funds.balance_data.currency, Currency::EUR);
         assert_eq!(booked_funds.balance_data.amount, 54484.04);
     }
 
@@ -457,10 +472,7 @@ mod tests {
             closing_available_funds.balance_data.date,
             NaiveDate::from_ymd(2009, 9, 24)
         );
-        assert_eq!(
-            closing_available_funds.balance_data.currency,
-            Currency::EUR
-        );
+        assert_eq!(closing_available_funds.balance_data.currency, Currency::EUR);
         assert_eq!(closing_available_funds.balance_data.amount, 54484.04);
     }
 

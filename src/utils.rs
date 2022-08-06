@@ -233,10 +233,10 @@ pub struct BusinessIdentifierCode<'a> {
 }
 
 impl<'a> BusinessIdentifierCode<'a> {
-    fn new(data: &'a str) -> Self {
-        let business_party_prefix = &data[..4];
-        let country_code = alpha2(&data[4..6]).unwrap().alpha2;
-        let business_party_suffix = &data[6..];
+    fn new(input: &'a str) -> Self {
+        let business_party_prefix = &input[..4];
+        let country_code = alpha2(&input[4..6]).unwrap().alpha2;
+        let business_party_suffix = &input[6..];
 
         Self {
             business_party_prefix,
@@ -254,14 +254,14 @@ pub struct LogicalTerminalAddress<'a> {
 }
 
 impl<'a> LogicalTerminalAddress<'a> {
-    pub fn new(data: &'a str) -> Self {
+    pub fn new(input: &'a str) -> Self {
         // TODO: consider moving this back to block.rs as its not yet used anywhere else
-        let bic_code = BusinessIdentifierCode::new(&data[..8]);
+        let bic_code = BusinessIdentifierCode::new(&input[..8]);
 
         Self {
             bic_code,
-            terminal_code: &data[8..9],
-            branch_code: &data[9..],
+            terminal_code: &input[8..9],
+            branch_code: &input[9..],
         }
     }
 }
@@ -275,11 +275,11 @@ pub struct Balance {
 }
 
 impl Balance {
-    pub fn new(value: &str) -> Self {
-        let credit_or_debit = CreditDebit::try_from(&value[..1]).unwrap();
-        let date = naive_date_from_swift_date(&value[1..7]);
-        let currency = Currency::from_code(&value[7..10]).unwrap();
-        let amount = float_from_swift_amount(&value[10..]);
+    pub fn new(input: &str) -> Self {
+        let credit_or_debit = CreditDebit::try_from(&input[..1]).unwrap();
+        let date = naive_date_from_swift_date(&input[1..7]);
+        let currency = Currency::from_code(&input[7..10]).unwrap();
+        let amount = float_from_swift_amount(&input[10..]);
 
         Self {
             credit_or_debit,
@@ -300,12 +300,12 @@ pub struct MessageInputReference<'a> {
 }
 
 impl<'a> MessageInputReference<'a> {
-    pub fn new(data: &'a str) -> Self {
-        let date = naive_date_from_swift_date(&data[..6]);
-        let lt_identifier = &data[6..18];
-        let branch_code = &data[18..21];
-        let session_number = data[21..25].parse::<i16>().unwrap();
-        let sequence_number = data[25..].parse::<i16>().unwrap();
+    pub fn new(input: &'a str) -> Self {
+        let date = naive_date_from_swift_date(&input[..6]);
+        let lt_identifier = &input[6..18];
+        let branch_code = &input[18..21];
+        let session_number = input[21..25].parse::<i16>().unwrap();
+        let sequence_number = input[25..].parse::<i16>().unwrap();
 
         Self {
             date,
@@ -326,8 +326,8 @@ pub struct AddressInformation<'a> {
 }
 
 impl<'a> AddressInformation<'a> {
-    pub fn new(data: &'a str) -> Self {
-        let segments: Vec<&str> = data.trim().split(' ').collect();
+    pub fn new(input: &'a str) -> Self {
+        let segments: Vec<&str> = input.trim().split(' ').collect();
 
         let time_of_crediting = naive_time_from_swift_time(segments[0]);
         let time_of_debiting = naive_time_from_swift_time(segments[1]);

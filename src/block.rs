@@ -2,15 +2,15 @@ use crate::tag::*;
 use crate::utils::*;
 use chrono::NaiveDateTime;
 use regex::Regex;
-use uuid::Uuid;
 use serde::Serialize;
+use uuid::Uuid;
 
 // https://www.paiementor.com/swift-mt-message-block-1-basic-header-description
 // https://www2.swift.com/knowledgecentre/publications/us9m_20180720/?topic=ajc.htm#genajc
 
 // Block 1
 // Fundamental reference for any particular message
-#[derive(Debug, PartialEq,Eq , Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct Basic<'a> {
     pub application_id: &'a str,
     pub service_id: &'a str,
@@ -49,7 +49,7 @@ impl<'a> Basic<'a> {
 
 // Block 2
 // Information about the message itself
-#[derive(Debug, PartialEq,Eq , Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct Application<'a> {
     pub input_output_id: &'a str,
     pub message_type: &'a str,
@@ -110,7 +110,7 @@ impl<'a> Application<'a> {
 // Block 3
 // Allows users to provide their own reference
 // https://www.paiementor.com/swift-mt-message-block-3-user-header-description/
-#[derive(Debug, PartialEq,Eq , Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct User<'a> {
     pub tag_103: Option<ServiceIdentifier<'a>>,
     pub tag_113: Option<BankingPriority<'a>>,
@@ -179,8 +179,7 @@ impl<'a> User<'a> {
                     service_type_identifier = Some(ServiceTypeIdentifier::new(value));
                 }
                 "121" => {
-                    unique_transaction_reference =
-                        Some(Uuid::parse_str(value).expect("string is nota valid uuid"));
+                    unique_transaction_reference = Some(Uuid::parse_str(value).unwrap());
                 }
                 "115" => {
                     address_information = Some(AddressInformation::new(value));
@@ -305,7 +304,7 @@ impl<'a> Text<'a> {
 
 // Block 5
 // Indicates special circumstances that relate to message handling or contains security information
-#[derive(Debug, PartialEq,Eq , Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct Trailer<'a> {
     pub data: Option<&'a str>,
 }
