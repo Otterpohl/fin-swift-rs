@@ -13,7 +13,7 @@ pub enum SwiftType {
 impl TryFrom<&str> for SwiftType {
     type Error = eyre::Error;
 
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
+    fn try_from(input: &str) -> Result<Self> {
         match input {
             "940" => Ok(SwiftType::Mt940),
             _ => Err(eyre!(
@@ -88,7 +88,7 @@ pub enum TransactionType {
 impl TryFrom<&str> for TransactionType {
     type Error = eyre::Error;
 
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
+    fn try_from(input: &str) -> Result<Self> {
         match input {
             "BNK" => Ok(TransactionType::BNK),
             "BOE" => Ok(TransactionType::BOE),
@@ -163,7 +163,7 @@ pub enum IO {
 impl TryFrom<&str> for IO {
     type Error = eyre::Error;
 
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
+    fn try_from(input: &str) -> Result<Self> {
         match input {
             "I" => Ok(IO::Input),
             "O" => Ok(IO::Output),
@@ -184,7 +184,7 @@ pub enum ApplicationId {
 impl TryFrom<&str> for ApplicationId {
     type Error = eyre::Error;
 
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
+    fn try_from(input: &str) -> Result<Self> {
         match input {
             "F" => Ok(ApplicationId::F),
             "A" => Ok(ApplicationId::A),
@@ -205,7 +205,7 @@ pub enum ServiceId {
 impl TryFrom<&str> for ServiceId {
     type Error = eyre::Error;
 
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
+    fn try_from(input: &str) -> Result<Self> {
         match input {
             "21" => Ok(ServiceId::FinGpa),
             "01" => Ok(ServiceId::AckNak),
@@ -238,7 +238,7 @@ impl CreditDebit {
 impl TryFrom<&str> for CreditDebit {
     type Error = eyre::Error;
 
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
+    fn try_from(input: &str) -> Result<Self> {
         match input {
             "CR" | "RC" => Ok(CreditDebit::CreditReversal),
             "DR" | "RD" => Ok(CreditDebit::DebitReversal),
@@ -267,7 +267,7 @@ pub enum FundsCode {
 impl TryFrom<&str> for FundsCode {
     type Error = eyre::Error;
 
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
+    fn try_from(input: &str) -> Result<Self> {
         match input {
             "S" => Ok(FundsCode::SwiftTransfer),
             "N" => Ok(FundsCode::NonSwiftTransfer),
@@ -291,7 +291,7 @@ impl TryFrom<&str> for ValidationFlag {
     type Error = eyre::Error;
 
     #[cfg(not(tarpaulin_include))]
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
+    fn try_from(input: &str) -> Result<Self> {
         match input {
             "REMIT" => Ok(ValidationFlag::REMIT),
             "RFDD" => Ok(ValidationFlag::RFDD),
@@ -315,7 +315,7 @@ impl TryFrom<&str> for SanctionScreenType {
     type Error = eyre::Error;
 
     #[cfg(not(tarpaulin_include))]
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
+    fn try_from(input: &str) -> Result<Self> {
         match input {
             "AOK" => Ok(SanctionScreenType::AOK),
             "FPO" => Ok(SanctionScreenType::FPO),
