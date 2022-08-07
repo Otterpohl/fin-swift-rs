@@ -2,6 +2,7 @@ use crate::utils::{
     float_from_swift_amount, naive_date_from_swift_date, Balance, BalanceType, CreditDebit,
     FundsCode, SanctionScreenType, TransactionType, ValidationFlag,
 };
+use anyhow::{Ok, Result};
 use chrono::prelude::*;
 use serde::Serialize;
 
@@ -41,16 +42,16 @@ pub struct StatementNumber {
 }
 
 impl StatementNumber {
-    pub fn new(value: &str) -> Self {
+    pub fn new(value: &str) -> Result<Self> {
         let statement_sequence_number = value
             .split('/')
-            .map(|x| x.strip_prefix('0').unwrap_or(x).parse::<u32>().unwrap())
-            .collect::<Vec<u32>>();
+            .map(|x| x.strip_prefix('0').unwrap_or(x).parse::<u32>())
+            .collect::<Result<Vec<_>, _>>()?;
 
-        Self {
+        Ok(Self {
             statement_number: statement_sequence_number[0],
             sequence_number: statement_sequence_number[1],
-        }
+        })
     }
 }
 
@@ -62,11 +63,11 @@ pub struct OpeningBalance {
 }
 
 impl OpeningBalance {
-    pub fn new(balance_type: BalanceType, balance_data: &str) -> Self {
-        Self {
+    pub fn new(balance_type: BalanceType, balance_data: &str) -> Result<Self> {
+        Ok(Self {
             balance_type,
-            balance_data: Balance::new(balance_data),
-        }
+            balance_data: Balance::new(balance_data)?,
+        })
     }
 }
 
@@ -85,18 +86,18 @@ pub struct StatementLine<'a> {
 }
 
 impl<'a> StatementLine<'a> {
-    pub fn new(value: &'a str) -> Self {
+    pub fn new(value: &'a str) -> Result<Self> {
         // we will use this to track where in the string we
         // should start parsing from each time we get a value
         let mut index = 0;
 
-        let value_date = naive_date_from_swift_date(&value[index..index + 6]);
+        let value_date = naive_date_from_swift_date(&value[index..index + 6])?;
         let mut entry_date = value_date;
 
         index += 6;
 
         if value[index..index + 4].chars().all(char::is_numeric) {
-            entry_date = naive_date_from_swift_date(&value[index..index + 4]);
+            entry_date = naive_date_from_swift_date(&value[index..index + 4])?;
             index += 4;
         }
 
@@ -127,7 +128,7 @@ impl<'a> StatementLine<'a> {
             }
         }
 
-        let amount = float_from_swift_amount(&amount_string);
+        let amount = float_from_swift_amount(&amount_string)?;
 
         // float will truncate the 0 and so the len will be 1 char short, check the string instead!
         index += amount_string.to_string().len();
@@ -137,7 +138,7 @@ impl<'a> StatementLine<'a> {
             .map(|x| x.to_string())
             .any(|x| x == "S" || x == "N" || x == "F")
         {
-            FundsCode::try_from(&value[index..=index]).unwrap()
+            FundsCode::try_from(&value[index..=index])?
         } else {
             panic!("FundsCode type not found or not recognized");
         };
@@ -147,7 +148,7 @@ impl<'a> StatementLine<'a> {
         let transaction_type = if funds_code == FundsCode::SwiftTransfer {
             None
         } else {
-            Some(TransactionType::try_from(&value[index..index + 3]).unwrap())
+            Some(TransactionType::try_from(&value[index..index + 3])?)
         };
 
         if transaction_type.is_some() {
@@ -177,7 +178,7 @@ impl<'a> StatementLine<'a> {
             None
         };
 
-        Self {
+        Ok(Self {
             value_date,
             entry_date,
             debit_or_credit,
@@ -187,7 +188,7 @@ impl<'a> StatementLine<'a> {
             account_owner_reference,
             account_servicing_insitution_reference,
             supplementary_details,
-        }
+        })
     }
 }
 
@@ -199,11 +200,11 @@ pub struct BookedFunds {
 }
 
 impl BookedFunds {
-    pub fn new(balance_type: BalanceType, balance_data: &str) -> Self {
-        Self {
+    pub fn new(balance_type: BalanceType, balance_data: &str) -> Result<Self> {
+        Ok(Self {
             balance_type,
-            balance_data: Balance::new(balance_data),
-        }
+            balance_data: Balance::new(balance_data)?,
+        })
     }
 }
 
@@ -214,10 +215,10 @@ pub struct ClosingAvailableBalance {
 }
 
 impl ClosingAvailableBalance {
-    pub fn new(value: &str) -> Self {
-        Self {
-            balance_data: Balance::new(value),
-        }
+    pub fn new(value: &str) -> Result<Self> {
+        Ok(Self {
+            balance_data: Balance::new(value)?,
+        })
     }
 }
 
@@ -299,10 +300,10 @@ pub struct Validation {
 }
 
 impl Validation {
-    pub fn new(value: &str) -> Self {
-        Self {
-            validation_flag: ValidationFlag::try_from(value).unwrap(),
-        }
+    pub fn new(value: &str) -> Result<Self> {
+        Ok(Self {
+            validation_flag: ValidationFlag::try_from(value)?,
+        })
     }
 }
 
@@ -371,14 +372,14 @@ pub struct SanctionsScreeningInformation<'a> {
 }
 
 impl<'a> SanctionsScreeningInformation<'a> {
-    pub fn new(value: &'a str) -> Self {
+    pub fn new(value: &'a str) -> Result<Self> {
         let codeword = &value[1..4];
-        let additional_information = &value[4..].strip_prefix('\\').unwrap_or("");
+        let additional_information = value[4..].strip_prefix('\\').unwrap_or("");
 
-        Self {
-            codeword: SanctionScreenType::try_from(codeword).unwrap(),
+        Ok(Self {
+            codeword: SanctionScreenType::try_from(codeword)?,
             additional_information,
-        }
+        })
     }
 }
 
@@ -422,7 +423,7 @@ mod tests {
 
     #[test]
     fn test_statement_number() {
-        let statement = StatementNumber::new("00001/001");
+        let statement = StatementNumber::new("00001/001").unwrap();
 
         assert_eq!(statement.statement_number, 1);
         assert_eq!(statement.sequence_number, 1);
@@ -430,7 +431,8 @@ mod tests {
 
     #[test]
     fn test_opening_balance() {
-        let opening_balance = OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04");
+        let opening_balance =
+            OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04").unwrap();
 
         assert_eq!(
             opening_balance.balance_data.credit_or_debit,
@@ -446,7 +448,7 @@ mod tests {
 
     #[test]
     fn test_booked_funds() {
-        let booked_funds = BookedFunds::new(BalanceType::Final, "C090924EUR54484,04");
+        let booked_funds = BookedFunds::new(BalanceType::Final, "C090924EUR54484,04").unwrap();
 
         assert_eq!(
             booked_funds.balance_data.credit_or_debit,
@@ -462,7 +464,7 @@ mod tests {
 
     #[test]
     fn test_closing_available_funds() {
-        let closing_available_funds = ClosingAvailableBalance::new("C090924EUR54484,04");
+        let closing_available_funds = ClosingAvailableBalance::new("C090924EUR54484,04").unwrap();
 
         assert_eq!(
             closing_available_funds.balance_data.credit_or_debit,
@@ -489,7 +491,8 @@ mod tests {
 
     #[test]
     fn test_statement_line() {
-        let statement_line = StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234");
+        let statement_line =
+            StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234").unwrap();
 
         assert_eq!(statement_line.value_date, NaiveDate::from_ymd(2009, 9, 29));
         assert_eq!(statement_line.entry_date, NaiveDate::from_ymd(2022, 9, 29));
@@ -506,28 +509,32 @@ mod tests {
 
     #[test]
     fn test_statement_line_credit() {
-        let statement_line = StatementLine::new("0909290929C55,00NMSC0000000000000269//1234");
+        let statement_line =
+            StatementLine::new("0909290929C55,00NMSC0000000000000269//1234").unwrap();
 
         assert_eq!(statement_line.debit_or_credit, CreditDebit::Credit);
     }
 
     #[test]
     fn test_statement_line_debit() {
-        let statement_line = StatementLine::new("0909290929D55,00NMSC0000000000000269//1234");
+        let statement_line =
+            StatementLine::new("0909290929D55,00NMSC0000000000000269//1234").unwrap();
 
         assert_eq!(statement_line.debit_or_credit, CreditDebit::Debit);
     }
 
     #[test]
     fn test_statement_line_credit_reversal() {
-        let statement_line = StatementLine::new("0909290929CR55,00NMSC0000000000000269//1234");
+        let statement_line =
+            StatementLine::new("0909290929CR55,00NMSC0000000000000269//1234").unwrap();
 
         assert_eq!(statement_line.debit_or_credit, CreditDebit::CreditReversal);
     }
 
     #[test]
     fn test_statement_line_debit_reversal() {
-        let statement_line = StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234");
+        let statement_line =
+            StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234").unwrap();
 
         assert_eq!(statement_line.debit_or_credit, CreditDebit::DebitReversal);
     }
@@ -535,12 +542,12 @@ mod tests {
     #[test]
     #[should_panic(expected = "Credit/Debit type not found or not recognized")]
     fn test_statement_line_missing_credit_or_debit() {
-        StatementLine::new("090929092955,00NMSC0000000000000269//1234");
+        StatementLine::new("090929092955,00NMSC0000000000000269//1234").unwrap();
     }
 
     #[test]
     #[should_panic(expected = "FundsCode type not found or not recognized")]
     fn test_statement_line_missing_funds_code() {
-        StatementLine::new("0909290929DR55,00MSC0000000000000269//1234");
+        StatementLine::new("0909290929DR55,00MSC0000000000000269//1234").unwrap();
     }
 }

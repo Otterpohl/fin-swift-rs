@@ -1,6 +1,7 @@
 use chrono::prelude::*;
 use chrono::NaiveDate;
 // country
+use anyhow::{anyhow, Ok, Result};
 use iso3166_1::alpha2;
 use iso_currency::Currency;
 use serde::Serialize;
@@ -68,7 +69,7 @@ pub enum TransactionType {
 }
 
 impl TryFrom<&str> for TransactionType {
-    type Error = &'static str;
+    type Error = anyhow::Error;
 
     #[cfg(not(tarpaulin_include))]
     fn try_from(transaction_type: &str) -> Result<Self, Self::Error> {
@@ -130,7 +131,7 @@ impl TryFrom<&str> for TransactionType {
             "UWC" => Ok(TransactionType::UWC),
             "VDA" => Ok(TransactionType::VDA),
             "WAR" => Ok(TransactionType::WAR),
-            _ => Err("We really shouldn't have reached this, too bad!"),
+            _ => Err(anyhow!("We really shouldn't have reached this, too bad!")),
         }
     }
 }
@@ -144,13 +145,13 @@ pub enum CreditDebit {
 }
 
 impl TryFrom<&str> for CreditDebit {
-    type Error = &'static str;
+    type Error = anyhow::Error;
 
     fn try_from(credit_or_debit: &str) -> Result<Self, Self::Error> {
         match credit_or_debit {
             "C" => Ok(CreditDebit::Credit),
             "D" => Ok(CreditDebit::Debit),
-            _ => Err("Unknown CreditDebit value"),
+            _ => Err(anyhow!("Unknown CreditDebit value")),
         }
     }
 }
@@ -169,14 +170,14 @@ pub enum FundsCode {
 }
 
 impl TryFrom<&str> for FundsCode {
-    type Error = &'static str;
+    type Error = anyhow::Error;
 
     fn try_from(funds_code: &str) -> Result<Self, Self::Error> {
         match funds_code {
             "S" => Ok(FundsCode::SwiftTransfer),
             "N" => Ok(FundsCode::NonSwiftTransfer),
             "F" => Ok(FundsCode::FirstAdvice),
-            _ => Err("Unknown FundsCode value"),
+            _ => Err(anyhow!("Unknown FundsCode value")),
         }
     }
 }
@@ -190,7 +191,7 @@ pub enum ValidationFlag {
 }
 
 impl TryFrom<&str> for ValidationFlag {
-    type Error = &'static str;
+    type Error = anyhow::Error;
 
     #[cfg(not(tarpaulin_include))]
     fn try_from(validation_flag: &str) -> Result<Self, Self::Error> {
@@ -198,7 +199,7 @@ impl TryFrom<&str> for ValidationFlag {
             "REMIT" => Ok(ValidationFlag::REMIT),
             "RFDD" => Ok(ValidationFlag::RFDD),
             "STP" => Ok(ValidationFlag::STP),
-            _ => Err("Validation Flag not recognized"),
+            _ => Err(anyhow!("Validation Flag not recognized")),
         }
     }
 }
@@ -212,7 +213,7 @@ pub enum SanctionScreenType {
 }
 
 impl TryFrom<&str> for SanctionScreenType {
-    type Error = &'static str;
+    type Error = anyhow::Error;
 
     #[cfg(not(tarpaulin_include))]
     fn try_from(sanction_screen_type: &str) -> Result<Self, Self::Error> {
@@ -220,7 +221,7 @@ impl TryFrom<&str> for SanctionScreenType {
             "AOK" => Ok(SanctionScreenType::AOK),
             "FPO" => Ok(SanctionScreenType::FPO),
             "NOK" => Ok(SanctionScreenType::NOK),
-            _ => Err("SanctionScreenType not recognized"),
+            _ => Err(anyhow!("SanctionScreenType not recognized")),
         }
     }
 }
@@ -233,16 +234,18 @@ pub struct BusinessIdentifierCode<'a> {
 }
 
 impl<'a> BusinessIdentifierCode<'a> {
-    fn new(input: &'a str) -> Self {
+    fn new(input: &'a str) -> Result<Self> {
         let business_party_prefix = &input[..4];
-        let country_code = alpha2(&input[4..6]).unwrap().alpha2;
+        let country_code = alpha2(&input[4..6])
+            .ok_or_else(|| anyhow!("country code does not exist"))?
+            .alpha2;
         let business_party_suffix = &input[6..];
 
-        Self {
+        Ok(Self {
             business_party_prefix,
             country_code,
             business_party_suffix,
-        }
+        })
     }
 }
 
@@ -254,15 +257,15 @@ pub struct LogicalTerminalAddress<'a> {
 }
 
 impl<'a> LogicalTerminalAddress<'a> {
-    pub fn new(input: &'a str) -> Self {
+    pub fn new(input: &'a str) -> Result<Self> {
         // TODO: consider moving this back to block.rs as its not yet used anywhere else
-        let bic_code = BusinessIdentifierCode::new(&input[..8]);
+        let bic_code = BusinessIdentifierCode::new(&input[..8])?;
 
-        Self {
+        Ok(Self {
             bic_code,
             terminal_code: &input[8..9],
             branch_code: &input[9..],
-        }
+        })
     }
 }
 
@@ -275,18 +278,19 @@ pub struct Balance {
 }
 
 impl Balance {
-    pub fn new(input: &str) -> Self {
-        let credit_or_debit = CreditDebit::try_from(&input[..1]).unwrap();
-        let date = naive_date_from_swift_date(&input[1..7]);
-        let currency = Currency::from_code(&input[7..10]).unwrap();
-        let amount = float_from_swift_amount(&input[10..]);
+    pub fn new(input: &str) -> Result<Self> {
+        let credit_or_debit = CreditDebit::try_from(&input[..1])?;
+        let date = naive_date_from_swift_date(&input[1..7])?;
+        let currency = Currency::from_code(&input[7..10])
+            .ok_or_else(|| anyhow!("currency code does not exist"))?;
+        let amount = float_from_swift_amount(&input[10..])?;
 
-        Self {
+        Ok(Self {
             credit_or_debit,
             date,
             currency,
             amount,
-        }
+        })
     }
 }
 
@@ -300,20 +304,20 @@ pub struct MessageInputReference<'a> {
 }
 
 impl<'a> MessageInputReference<'a> {
-    pub fn new(input: &'a str) -> Self {
-        let date = naive_date_from_swift_date(&input[..6]);
+    pub fn new(input: &'a str) -> Result<Self> {
+        let date = naive_date_from_swift_date(&input[..6])?;
         let lt_identifier = &input[6..18];
         let branch_code = &input[18..21];
-        let session_number = input[21..25].parse::<i16>().unwrap();
-        let sequence_number = input[25..].parse::<i16>().unwrap();
+        let session_number = input[21..25].parse::<i16>()?;
+        let sequence_number = input[25..].parse::<i16>()?;
 
-        Self {
+        Ok(Self {
             date,
             lt_identifier,
             branch_code,
             session_number,
             sequence_number,
-        }
+        })
     }
 }
 
@@ -326,70 +330,72 @@ pub struct AddressInformation<'a> {
 }
 
 impl<'a> AddressInformation<'a> {
-    pub fn new(input: &'a str) -> Self {
+    pub fn new(input: &'a str) -> Result<Self> {
         let segments: Vec<&str> = input.trim().split(' ').collect();
 
-        let time_of_crediting = naive_time_from_swift_time(segments[0]);
-        let time_of_debiting = naive_time_from_swift_time(segments[1]);
+        let time_of_crediting = naive_time_from_swift_time(segments[0])?;
+        let time_of_debiting = naive_time_from_swift_time(segments[1])?;
 
-        let country_code = alpha2(segments[2]).unwrap().alpha2;
+        let country_code = alpha2(segments[2])
+            .ok_or_else(|| anyhow!("country code does not exist"))?
+            .alpha2;
         let internal_posting_reference = segments[3];
 
-        Self {
+        Ok(Self {
             time_of_crediting,
             time_of_debiting,
             country_code,
             internal_posting_reference,
-        }
+        })
     }
 }
 
-pub fn naive_time_from_swift_time(time: &str) -> chrono::NaiveTime {
-    chrono::NaiveTime::from_hms(
-        time[..2].parse::<u32>().unwrap(),
-        time[2..4].parse::<u32>().unwrap(),
-        time[4..].parse::<u32>().unwrap(),
-    )
+pub fn naive_time_from_swift_time(time: &str) -> Result<chrono::NaiveTime> {
+    Ok(chrono::NaiveTime::from_hms(
+        time[..2].parse::<u32>()?,
+        time[2..4].parse::<u32>()?,
+        time[4..].parse::<u32>()?,
+    ))
 }
 
-pub fn naive_date_from_swift_date(date: &str) -> NaiveDate {
+pub fn naive_date_from_swift_date(date: &str) -> Result<NaiveDate> {
     if date.len() == 4 {
-        NaiveDate::from_ymd(
+        Ok(NaiveDate::from_ymd(
             chrono::Utc::now().year(),
-            date[..2].parse::<u32>().unwrap(),
-            date[2..].parse::<u32>().unwrap(),
-        )
+            date[..2].parse::<u32>()?,
+            date[2..].parse::<u32>()?,
+        ))
     } else if date.len() == 6 {
-        NaiveDate::from_ymd(
-            2000 + date[..2].parse::<i32>().unwrap(),
-            date[2..4].parse::<u32>().unwrap(),
-            date[4..6].parse::<u32>().unwrap(),
-        )
+        Ok(NaiveDate::from_ymd(
+            2000 + date[..2].parse::<i32>()?,
+            date[2..4].parse::<u32>()?,
+            date[4..6].parse::<u32>()?,
+        ))
     } else if date.len() == 8 {
-        NaiveDate::from_ymd(
-            date[..4].parse::<i32>().unwrap(),
-            date[4..6].parse::<u32>().unwrap(),
-            date[6..8].parse::<u32>().unwrap(),
-        )
+        Ok(NaiveDate::from_ymd(
+            date[..4].parse::<i32>()?,
+            date[4..6].parse::<u32>()?,
+            date[6..8].parse::<u32>()?,
+        ))
     } else {
         panic!("Invalid swift date provided")
     }
 }
 
-pub fn naive_date_time_from_swift_date_time(date_time: &str) -> NaiveDateTime {
-    NaiveDateTime::new(
-        naive_date_from_swift_date(&date_time[..6]),
+pub fn naive_date_time_from_swift_date_time(date_time: &str) -> Result<NaiveDateTime> {
+    Ok(NaiveDateTime::new(
+        naive_date_from_swift_date(&date_time[..6])?,
         NaiveTime::from_hms_milli(
-            date_time[6..8].parse::<u32>().unwrap(),
-            date_time[8..10].parse::<u32>().unwrap(),
-            date_time[10..12].parse::<u32>().unwrap(),
-            date_time[12..].parse::<u32>().unwrap(),
+            date_time[6..8].parse::<u32>()?,
+            date_time[8..10].parse::<u32>()?,
+            date_time[10..12].parse::<u32>()?,
+            date_time[12..].parse::<u32>()?,
         ),
-    )
+    ))
 }
 
-pub fn float_from_swift_amount(amount: &str) -> f64 {
-    amount.replace(',', ".").parse::<f64>().unwrap()
+pub fn float_from_swift_amount(amount: &str) -> Result<f64> {
+    Ok(amount.replace(',', ".").parse::<f64>()?)
 }
 
 #[cfg(test)]
@@ -398,28 +404,28 @@ mod tests {
 
     #[test]
     fn test_amount_with_scale() {
-        let amount = float_from_swift_amount("379,29");
+        let amount = float_from_swift_amount("379,29").unwrap();
 
         assert_eq!(amount, 379.29)
     }
 
     #[test]
     fn test_amount_without_scale() {
-        let amount = float_from_swift_amount("379,");
+        let amount = float_from_swift_amount("379,").unwrap();
 
         assert_eq!(amount, 379.0)
     }
 
     #[test]
     fn test_amount_without_comma() {
-        let amount = float_from_swift_amount("379.");
+        let amount = float_from_swift_amount("379.").unwrap();
 
         assert_eq!(amount, 379.0);
     }
 
     #[test]
     fn test_date_long_year() {
-        let date = naive_date_from_swift_date("20090924");
+        let date = naive_date_from_swift_date("20090924").unwrap();
 
         assert_eq!(date.year(), 2009);
         assert_eq!(date.month(), 9);
@@ -428,7 +434,7 @@ mod tests {
 
     #[test]
     fn test_date_short_year() {
-        let date = naive_date_from_swift_date("090924");
+        let date = naive_date_from_swift_date("090924").unwrap();
 
         assert_eq!(date.year(), 2009);
         assert_eq!(date.month(), 9);
@@ -437,7 +443,7 @@ mod tests {
 
     #[test]
     fn test_date_no_year() {
-        let date = naive_date_from_swift_date("0924");
+        let date = naive_date_from_swift_date("0924").unwrap();
 
         assert_eq!(date.year(), chrono::Utc::now().year());
         assert_eq!(date.month(), 9);
@@ -446,7 +452,7 @@ mod tests {
 
     #[test]
     fn test_time() {
-        let time = naive_time_from_swift_time("121413");
+        let time = naive_time_from_swift_time("121413").unwrap();
 
         assert_eq!(time.hour(), 12);
         assert_eq!(time.minute(), 14);
@@ -456,12 +462,12 @@ mod tests {
     #[test]
     #[should_panic(expected = "Invalid swift date provided")]
     fn test_date_bad() {
-        naive_date_from_swift_date("");
+        naive_date_from_swift_date("").unwrap();
     }
 
     #[test]
     fn test_business_identifier_code() {
-        let bic_code = BusinessIdentifierCode::new("ASNBNL21");
+        let bic_code = BusinessIdentifierCode::new("ASNBNL21").unwrap();
 
         assert_eq!(bic_code.business_party_prefix, "ASNB");
         assert_eq!(bic_code.country_code, "NL");
@@ -470,11 +476,11 @@ mod tests {
 
     #[test]
     fn test_logical_terminal_address() {
-        let logical_terminal_address = LogicalTerminalAddress::new("ASNBNL21XXXX");
+        let logical_terminal_address = LogicalTerminalAddress::new("ASNBNL21XXXX").unwrap();
 
         assert_eq!(
             logical_terminal_address.bic_code,
-            BusinessIdentifierCode::new("ASNBNL21")
+            BusinessIdentifierCode::new("ASNBNL21").unwrap()
         );
         assert_eq!(logical_terminal_address.terminal_code, "X");
         assert_eq!(logical_terminal_address.branch_code, "XXX");
@@ -525,7 +531,7 @@ mod tests {
 
     #[test]
     fn test_balance() {
-        let balance = Balance::new("C090930EUR53189,31");
+        let balance = Balance::new("C090930EUR53189,31").unwrap();
 
         assert_eq!(balance.credit_or_debit, CreditDebit::Credit);
         assert_eq!(balance.date, NaiveDate::from_ymd(2009, 9, 30));

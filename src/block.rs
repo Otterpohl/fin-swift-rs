@@ -1,5 +1,15 @@
-use crate::tag::{AccountIdentification, BankingPriority, BookedFunds, ClosingAvailableBalance, InformationToAccountOwner, MessageUserReference, OpeningBalance, PaymentControlsInformation, PaymentReleaseInformationReceiver, RelatedReference, SanctionsScreeningInformation, ServiceIdentifier, ServiceTypeIdentifier, StatementLine, StatementNumber, TransactionReferenceNumber, Validation};
-use crate::utils::{AddressInformation, BalanceType, LogicalTerminalAddress, MessageInputReference, naive_date_time_from_swift_date_time};
+use crate::tag::{
+    AccountIdentification, BankingPriority, BookedFunds, ClosingAvailableBalance,
+    InformationToAccountOwner, MessageUserReference, OpeningBalance, PaymentControlsInformation,
+    PaymentReleaseInformationReceiver, RelatedReference, SanctionsScreeningInformation,
+    ServiceIdentifier, ServiceTypeIdentifier, StatementLine, StatementNumber,
+    TransactionReferenceNumber, Validation,
+};
+use crate::utils::{
+    naive_date_time_from_swift_date_time, AddressInformation, BalanceType, LogicalTerminalAddress,
+    MessageInputReference,
+};
+use anyhow::{anyhow, Ok, Result};
 use chrono::NaiveDateTime;
 use regex::Regex;
 use serde::Serialize;
@@ -20,7 +30,7 @@ pub struct Basic<'a> {
 }
 
 impl<'a> Basic<'a> {
-    pub fn new(block_data: &'a str) -> Self {
+    pub fn new(block_data: &'a str) -> Result<Self> {
         let application_id = match &block_data[..1] {
             n @ ("F" | "A" | "L") => n,
             n => {
@@ -35,15 +45,15 @@ impl<'a> Basic<'a> {
             }
         };
 
-        let source_address = LogicalTerminalAddress::new(&block_data[3..15]);
+        let source_address = LogicalTerminalAddress::new(&block_data[3..15])?;
 
-        Self {
+        Ok(Self {
             application_id,
             service_id,
             source_address,
             session_number: &block_data[15..19], // TODO: try parse these as numbers
             sequence_number: &block_data[19..],  // TODO: try parse these as numbers
-        }
+        })
     }
 }
 
@@ -60,7 +70,7 @@ pub struct Application<'a> {
 }
 
 impl<'a> Application<'a> {
-    pub fn new(block_data: &'a str) -> Self {
+    pub fn new(block_data: &'a str) -> Result<Self> {
         let input_output_id = match &block_data[..1] {
             n @ ("I" | "O") => {
                 // struct this?
@@ -94,16 +104,16 @@ impl<'a> Application<'a> {
             obsolescence_period = Some(&block_data[18..]);
         }
 
-        let destination_address = LogicalTerminalAddress::new(&block_data[4..16]);
+        let destination_address = LogicalTerminalAddress::new(&block_data[4..16])?;
 
-        Self {
+        Ok(Self {
             input_output_id,
             message_type,
             destination_address,
             priority,
             delivery_monitoring,
             obsolescence_period,
-        }
+        })
     }
 }
 
@@ -128,7 +138,7 @@ pub struct User<'a> {
 }
 
 impl<'a> User<'a> {
-    pub fn new(block_data: &'a str) -> Self {
+    pub fn new(block_data: &'a str) -> Result<Self> {
         let mut service_identifier = None;
         let mut banking_priority = None;
         let mut message_user_reference = None;
@@ -149,7 +159,10 @@ impl<'a> User<'a> {
 
         for (start, end) in block_segments {
             let section = &block_data[*start..*end];
-            let index = section.chars().position(|c| c == ':').unwrap();
+            let index = section
+                .chars()
+                .position(|c| c == ':')
+                .ok_or_else(|| anyhow!("missing ':' in block"))?;
             let tag = &section[..index];
             let value = &section[index + 1..];
 
@@ -164,13 +177,13 @@ impl<'a> User<'a> {
                     message_user_reference = Some(MessageUserReference::new(value));
                 }
                 "119" => {
-                    validation = Some(Validation::new(value));
+                    validation = Some(Validation::new(value)?);
                 }
                 "423" => {
-                    balance_checkpoint_date = Some(naive_date_time_from_swift_date_time(value));
+                    balance_checkpoint_date = Some(naive_date_time_from_swift_date_time(value)?);
                 }
                 "106" => {
-                    message_input_reference = Some(MessageInputReference::new(value));
+                    message_input_reference = Some(MessageInputReference::new(value)?);
                 }
                 "424" => {
                     related_reference = Some(RelatedReference::new(value));
@@ -179,10 +192,10 @@ impl<'a> User<'a> {
                     service_type_identifier = Some(ServiceTypeIdentifier::new(value));
                 }
                 "121" => {
-                    unique_transaction_reference = Some(Uuid::parse_str(value).unwrap());
+                    unique_transaction_reference = Some(Uuid::parse_str(value)?);
                 }
                 "115" => {
-                    address_information = Some(AddressInformation::new(value));
+                    address_information = Some(AddressInformation::new(value)?);
                 }
                 "165" => {
                     payment_release_information_receiver =
@@ -190,7 +203,7 @@ impl<'a> User<'a> {
                 }
                 "433" => {
                     sanctions_screening_information =
-                        Some(SanctionsScreeningInformation::new(value));
+                        Some(SanctionsScreeningInformation::new(value)?);
                 }
                 "434" => {
                     payment_controls_information = Some(PaymentControlsInformation::new(value));
@@ -201,7 +214,7 @@ impl<'a> User<'a> {
             }
         }
 
-        Self {
+        Ok(Self {
             tag_103: service_identifier,
             tag_113: banking_priority,
             tag_108: message_user_reference,
@@ -215,7 +228,7 @@ impl<'a> User<'a> {
             tag_165: payment_release_information_receiver,
             tag_433: sanctions_screening_information,
             tag_434: payment_controls_information,
-        }
+        })
     }
 }
 
@@ -234,54 +247,60 @@ pub struct Text<'a> {
 }
 
 impl<'a> Text<'a> {
-    pub fn new(block_data: &'a str) -> Self {
-        let mut transaction_reference_number = None;
-        let mut tag_account_identification = None;
-        let mut statement_number = None;
+    pub fn new(block_data: &'a str) -> Result<Self> {
+        let mut txn_ref_num = None;
+        let mut account_id = None;
+        let mut statement_num = None;
         let mut opening_balance = None;
-        let mut booked_funds_final = None;
+        let mut booked_funds = None;
         let mut statement_line: Vec<StatementLine> = vec![];
         let mut information_to_account_owner: Vec<InformationToAccountOwner> = vec![];
         let mut closing_available_balance = None;
 
-        let tag_regex = Regex::new(r"(?m)(?:(\d{2}|\d{2}[A-Z]):.+)").unwrap();
+        let tag_regex = Regex::new(r"(?m)(?:(\d{2}|\d{2}[A-Z]):.+)")?;
 
         for tag in tag_regex.captures_iter(block_data) {
-            let block_key = tag.get(1).unwrap().as_str();
-            let block_data = tag.get(0).unwrap().as_str();
+            let block_key = tag
+                .get(1)
+                .ok_or_else(|| anyhow!("block does not contain a key"))?
+                .as_str();
+            let block_data = tag
+                .get(0)
+                .ok_or_else(|| anyhow!("block does not contain a value"))?
+                .as_str();
             let value = block_data[block_key.len()..block_data.len()]
                 .trim_matches(|c| c == ':' || c == '\r');
 
             match block_key {
                 "20" => {
-                    transaction_reference_number = Some(TransactionReferenceNumber::new(value));
+                    txn_ref_num = Some(TransactionReferenceNumber::new(value));
                 }
                 "25" => {
-                    tag_account_identification = Some(AccountIdentification::new(value));
+                    account_id = Some(AccountIdentification::new(value));
                 }
                 "28C" => {
-                    statement_number = Some(StatementNumber::new(value));
+                    statement_num = Some(StatementNumber::new(value)?);
                 }
                 "60F" => {
-                    opening_balance = Some(OpeningBalance::new(BalanceType::Final, value));
+                    opening_balance = Some(OpeningBalance::new(BalanceType::Final, value)?);
                 }
                 "60M" => {
-                    opening_balance = Some(OpeningBalance::new(BalanceType::Intermediary, value));
+                    opening_balance = Some(OpeningBalance::new(BalanceType::Intermediary, value)?);
                 }
                 "62F" => {
-                    booked_funds_final = Some(BookedFunds::new(BalanceType::Final, value));
+                    booked_funds = Some(BookedFunds::new(BalanceType::Final, value)?);
                 }
                 "62M" => {
-                    booked_funds_final = Some(BookedFunds::new(BalanceType::Intermediary, value));
+                    booked_funds = Some(BookedFunds::new(BalanceType::Intermediary, value)?);
                 }
                 "61" => {
-                    statement_line.push(StatementLine::new(value));
+                    statement_line.push(StatementLine::new(value)?);
                 }
                 "86" => {
                     information_to_account_owner.push(InformationToAccountOwner::new(value));
                 }
                 "64" => {
-                    closing_available_balance = Some(ClosingAvailableBalance::new(value));
+                    closing_available_balance = Some(ClosingAvailableBalance::new(value)?);
                 }
                 _ => {
                     panic!("unexpected block key `{block_key}` in Basic block");
@@ -289,16 +308,26 @@ impl<'a> Text<'a> {
             };
         }
 
-        Self {
-            tag_20: transaction_reference_number.unwrap(),
-            tag_25: tag_account_identification.unwrap(),
-            tag_28c: statement_number.unwrap(),
-            tag_60: opening_balance.unwrap(),
+        let txn_ref_num =
+            txn_ref_num.ok_or_else(|| anyhow!("missing transaction reference number (tag 20)"))?;
+        let account_id =
+            account_id.ok_or_else(|| anyhow!("missing account identification (tag 25"))?;
+        let statement_num =
+            statement_num.ok_or_else(|| anyhow!("missing statement number (tag 28C"))?;
+        let opening_balance =
+            opening_balance.ok_or_else(|| anyhow!("missing opening balance (tag 60"))?;
+        let booked_funds = booked_funds.ok_or_else(|| anyhow!("missing booked funds (tag 62"))?;
+
+        Ok(Self {
+            tag_20: txn_ref_num,
+            tag_25: account_id,
+            tag_28c: statement_num,
+            tag_60: opening_balance,
             tag_61: statement_line,
-            tag_62: booked_funds_final.unwrap(),
+            tag_62: booked_funds,
             tag_64: closing_available_balance,
             tag_86: information_to_account_owner,
-        }
+        })
     }
 }
 
@@ -324,14 +353,14 @@ impl<'a> Trailer<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::*;
     use crate::tag::*;
+    use crate::utils::*;
 
     #[test]
     fn test_block_basic() {
         let block_data = "F01ASNBNL21XXXX0000000000";
-        let data = Basic::new(block_data);
-        let source_address = LogicalTerminalAddress::new(&block_data[3..15]);
+        let data = Basic::new(block_data).unwrap();
+        let source_address = LogicalTerminalAddress::new(&block_data[3..15]).unwrap();
 
         assert_eq!(data.application_id, "F");
         assert_eq!(data.service_id, "01");
@@ -343,20 +372,20 @@ mod tests {
     #[test]
     #[should_panic(expected = "unexpected application_id `T` in Basic block")]
     fn test_block_basic_application_id() {
-        Basic::new("T01ASNBNL21XXXX0000000000");
+        Basic::new("T01ASNBNL21XXXX0000000000").unwrap();
     }
 
     #[test]
     #[should_panic(expected = "unexpected service_id `02` in Basic block")]
     fn test_block_service_id() {
-        Basic::new("F02ASNBNL21XXXX0000000000");
+        Basic::new("F02ASNBNL21XXXX0000000000").unwrap();
     }
 
     #[test]
     fn test_block_application() {
         let block_data = "O940ASNBNL21XXXXN3123";
-        let data = Application::new(block_data);
-        let destination_address = LogicalTerminalAddress::new(&block_data[4..16]);
+        let data = Application::new(block_data).unwrap();
+        let destination_address = LogicalTerminalAddress::new(&block_data[4..16]).unwrap();
 
         assert_eq!(data.input_output_id, "O");
         assert_eq!(data.message_type, "940");
@@ -369,18 +398,18 @@ mod tests {
     #[test]
     #[should_panic(expected = "unexpected input_output_id `B` in Application block")]
     fn test_block_application_input_output_id() {
-        Application::new("B940ASNBNL21XXXXN");
+        Application::new("B940ASNBNL21XXXXN").unwrap();
     }
 
     #[test]
     #[should_panic(expected = "unexpected message_type `537`")]
     fn test_block_application_message_type() {
-        Application::new("O537ASNBNL21XXXXN");
+        Application::new("O537ASNBNL21XXXXN").unwrap();
     }
 
     #[test]
     fn test_block_user() {
-        let data = User::new("3:{103:CAD}{113:xxxx}{119:STP}{108:2RDRQDHM3WO}{423:18071715301204}{111:DER}{106:120811BANKBEBBAXXX2222123456}{424:PQAB1234}{121:180f1e65-90e0-44d5-a49a-92b55eb3025f}{165:DERASDFQWERTY}{115: 121413 121413 DE BANKDECDA123}{433:/AOK}{434:/FPO}");
+        let data = User::new("3:{103:CAD}{113:xxxx}{119:STP}{108:2RDRQDHM3WO}{423:18071715301204}{111:DER}{106:120811BANKBEBBAXXX2222123456}{424:PQAB1234}{121:180f1e65-90e0-44d5-a49a-92b55eb3025f}{165:DERASDFQWERTY}{115: 121413 121413 DE BANKDECDA123}{433:/AOK}{434:/FPO}").unwrap();
 
         assert_eq!(data.tag_103.unwrap().service_identifier, "CAD");
         assert_eq!(data.tag_113.unwrap().banking_priority, "xxxx");
@@ -388,11 +417,11 @@ mod tests {
         assert_eq!(data.tag_119.unwrap().validation_flag, ValidationFlag::STP);
         assert_eq!(
             data.tag_423.unwrap(),
-            naive_date_time_from_swift_date_time("18071715301204")
+            naive_date_time_from_swift_date_time("18071715301204").unwrap()
         );
         assert_eq!(
             data.tag_106.unwrap().date,
-            naive_date_from_swift_date("120811")
+            naive_date_from_swift_date("120811").unwrap()
         );
         assert_eq!(data.tag_106.unwrap().lt_identifier, "BANKBEBBAXXX");
         assert_eq!(data.tag_106.unwrap().branch_code, "222");
@@ -406,11 +435,11 @@ mod tests {
         );
         assert_eq!(
             data.tag_115.unwrap().time_of_crediting,
-            naive_time_from_swift_time("121413")
+            naive_time_from_swift_time("121413").unwrap()
         );
         assert_eq!(
             data.tag_115.unwrap().time_of_debiting,
-            naive_time_from_swift_time("121413")
+            naive_time_from_swift_time("121413").unwrap()
         );
         assert_eq!(data.tag_115.unwrap().country_code, "DE");
         assert_eq!(
@@ -439,18 +468,17 @@ mod tests {
                        :86:Fees according to advice
                        :62F:C090930EUR53126,94
                        :64:C090930EUR53189,31",
-        );
+        )
+        .unwrap();
 
         let tag_20 = TransactionReferenceNumber::new("3996-11-11111111");
         let tag_25 = AccountIdentification::new("DABADKKK/111111-11111111");
-        let tag_28c = StatementNumber::new("00001/001");
-        let tag_64 = ClosingAvailableBalance::new("C090930EUR53189,31");
+        let tag_28c = StatementNumber::new("00001/001").unwrap();
+        let tag_64 = ClosingAvailableBalance::new("C090930EUR53189,31").unwrap();
 
         let mut tag_61: Vec<StatementLine> = vec![];
         let mut tag_86: Vec<InformationToAccountOwner> = vec![];
-        tag_61.push(StatementLine::new(
-            "0909250925DR583,92NMSC1110030403010139//1234",
-        ));
+        tag_61.push(StatementLine::new("0909250925DR583,92NMSC1110030403010139//1234").unwrap());
         tag_86.push(InformationToAccountOwner::new("11100304030101391234"));
         tag_86.push(InformationToAccountOwner::new("Fees according to advice"));
 
@@ -475,10 +503,11 @@ mod tests {
                        :86:Fees according to advice
                        :62F:C090930EUR53126,94
                        :64:C090930EUR53189,31",
-        );
+        )
+        .unwrap();
 
-        let tag_60 = OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04");
-        let tag_62 = BookedFunds::new(BalanceType::Final, "C090930EUR53126,94");
+        let tag_60 = OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04").unwrap();
+        let tag_62 = BookedFunds::new(BalanceType::Final, "C090930EUR53126,94").unwrap();
 
         assert_eq!(data.tag_60, tag_60);
         assert_eq!(data.tag_62, tag_62);
@@ -496,10 +525,11 @@ mod tests {
                        :86:Fees according to advice
                        :62M:C090930EUR53126,94
                        :64:C090930EUR53189,31",
-        );
+        )
+        .unwrap();
 
-        let tag_60 = OpeningBalance::new(BalanceType::Intermediary, "C090924EUR54484,04");
-        let tag_62 = BookedFunds::new(BalanceType::Intermediary, "C090930EUR53126,94");
+        let tag_60 = OpeningBalance::new(BalanceType::Intermediary, "C090924EUR54484,04").unwrap();
+        let tag_62 = BookedFunds::new(BalanceType::Intermediary, "C090930EUR53126,94").unwrap();
 
         assert_eq!(data.tag_60, tag_60);
         assert_eq!(data.tag_62, tag_62);
@@ -518,7 +548,8 @@ mod tests {
                        :86:Fees according to advice
                        :62M:C090930EUR53126,94
                        :64:C090930EUR53189,31",
-        );
+        )
+        .unwrap();
     }
 
     #[test]

@@ -1,4 +1,5 @@
 use crate::block::{Application, Basic, Text, Trailer, User};
+use anyhow::{anyhow, Ok, Result};
 use regex::Regex;
 use serde::Serialize;
 
@@ -14,17 +15,17 @@ pub struct MT940<'a> {
 }
 
 impl<'a> MT940<'a> {
-    pub fn new(message_data: &'a str) -> Self {
+    pub fn new(message_data: &'a str) -> Result<Self> {
         let mut block_1 = None;
         let mut block_2 = None;
         let mut block_3 = None;
         let mut block_4 = None;
         let mut block_5 = None;
 
-        let block_regex = Regex::new(r"(?m)(\{\d:)").unwrap();
+        let block_regex = Regex::new(r"(?m)(\{\d:)")?;
         let block_start: Vec<usize> = block_regex
             .captures_iter(message_data)
-            .map(|x| x.get(0).unwrap().start())
+            .map(|x| x.get(0).expect("").start())
             .collect();
 
         let mut block_end: Vec<usize> = block_start
@@ -52,22 +53,22 @@ impl<'a> MT940<'a> {
 
             let block_data = message_data[*start..=*end]
                 .strip_prefix(&prefix)
-                .unwrap()
+                .ok_or_else(|| anyhow!("prefix '{prefix}' not found in block"))?
                 .strip_suffix(suffix)
-                .unwrap();
+                .ok_or_else(|| anyhow!("suffix '{suffix}' not found in block"))?;
 
             match block_id {
                 1 => {
-                    block_1 = Some(Basic::new(block_data));
+                    block_1 = Some(Basic::new(block_data)?);
                 }
                 2 => {
-                    block_2 = Some(Application::new(block_data));
+                    block_2 = Some(Application::new(block_data)?);
                 }
                 3 => {
-                    block_3 = Some(User::new(block_data));
+                    block_3 = Some(User::new(block_data)?);
                 }
                 4 => {
-                    block_4 = Some(Text::new(block_data));
+                    block_4 = Some(Text::new(block_data)?);
                 }
                 5 => {
                     // TODO: if it is zero here then lets not even create an empty struct?
@@ -79,13 +80,19 @@ impl<'a> MT940<'a> {
             }
         }
 
-        Self {
-            basic: block_1.unwrap(),
-            application: block_2.unwrap(),
-            user: block_3.unwrap(),
-            text: block_4.unwrap(),
-            trailer: block_5.unwrap(),
-        }
+        let block_1 = block_1.ok_or_else(|| anyhow!("block 1 not found"))?;
+        let block_2 = block_2.ok_or_else(|| anyhow!("block 2 not found"))?;
+        let block_3 = block_3.ok_or_else(|| anyhow!("block 3 not found"))?;
+        let block_4 = block_4.ok_or_else(|| anyhow!("block 4 not found"))?;
+        let block_5 = block_5.ok_or_else(|| anyhow!("block 5 not found"))?;
+
+        Ok(Self {
+            basic: block_1,
+            application: block_2,
+            user: block_3,
+            text: block_4,
+            trailer: block_5,
+        })
     }
 }
 
@@ -103,18 +110,20 @@ mod tests {
                          :60F:C200103EUR379,29
                          :62F:C200103EUR379,29
                          -}{5:}",
-        );
+        )
+        .unwrap();
 
-        let block_basic = Basic::new("F01ASNBNL21XXXX0000000000");
-        let block_application = Application::new("O940ASNBNL21XXXXN");
-        let block_user = User::new("");
+        let block_basic = Basic::new("F01ASNBNL21XXXX0000000000").unwrap();
+        let block_application = Application::new("O940ASNBNL21XXXXN").unwrap();
+        let block_user = User::new("").unwrap();
         let block_text = Text::new(
             ":20:0000000000
                        :25:NL81ASNB9999999999
                        :28C:3/1
                        :60F:C200103EUR379,29
                        :62F:C200103EUR379,29",
-        );
+        )
+        .unwrap();
         let block_trailer = Trailer::new("");
 
         assert_eq!(data.basic, block_basic);
@@ -135,6 +144,7 @@ mod tests {
                          :60F:C200103EUR379,29
                          :62F:C200103EUR379,29
                          -}{5:}{6:}",
-        );
+        )
+        .unwrap();
     }
 }
