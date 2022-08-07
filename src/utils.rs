@@ -6,6 +6,24 @@ use iso3166_1::alpha2;
 use iso_currency::Currency;
 use serde::Serialize;
 
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+pub enum SwiftType {
+    Mt940,
+}
+
+impl TryFrom<&str> for SwiftType {
+    type Error = eyre::Error;
+
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match input {
+            "940" => Ok(SwiftType::Mt940),
+            _ => Err(eyre!(
+                "Swift Type is either missing or the value '{input}' is not valid"
+            )),
+        }
+    }
+}
+
 #[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum TransactionType {
@@ -69,7 +87,7 @@ pub enum TransactionType {
 }
 
 impl TryFrom<&str> for TransactionType {
-    type Error = anyhow::Error;
+    type Error = eyre::Error;
 
     #[cfg(not(tarpaulin_include))]
     fn try_from(transaction_type: &str) -> Result<Self, Self::Error> {
@@ -131,7 +149,69 @@ impl TryFrom<&str> for TransactionType {
             "UWC" => Ok(TransactionType::UWC),
             "VDA" => Ok(TransactionType::VDA),
             "WAR" => Ok(TransactionType::WAR),
-            _ => Err(anyhow!("We really shouldn't have reached this, too bad!")),
+            _ => Err(eyre!("We really shouldn't have reached this, too bad!")), // fix WWJD
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+pub enum IO {
+    Input,
+    Output,
+}
+
+impl TryFrom<&str> for IO {
+    type Error = eyre::Error;
+
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match input {
+            "I" => Ok(IO::Input),
+            "O" => Ok(IO::Output),
+            _ => Err(eyre!(
+                "IO is either missing or the value '{input}' is not valid"
+            )),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+pub enum ApplicationId {
+    F,
+    A,
+    L,
+}
+
+impl TryFrom<&str> for ApplicationId {
+    type Error = eyre::Error;
+
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match input {
+            "F" => Ok(ApplicationId::F),
+            "A" => Ok(ApplicationId::A),
+            "L" => Ok(ApplicationId::L),
+            _ => Err(eyre!(
+                "Application Id is either missing or the value '{input}' is not valid"
+            )),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+pub enum ServiceId {
+    FinGpa,
+    AckNak,
+}
+
+impl TryFrom<&str> for ServiceId {
+    type Error = eyre::Error;
+
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match input {
+            "21" => Ok(ServiceId::FinGpa),
+            "01" => Ok(ServiceId::AckNak),
+            _ => Err(eyre!(
+                "Service Id is either missing or the value '{input}' is not valid"
+            )),
         }
     }
 }
@@ -144,14 +224,29 @@ pub enum CreditDebit {
     DebitReversal,
 }
 
-impl TryFrom<&str> for CreditDebit {
-    type Error = anyhow::Error;
+impl CreditDebit {
+    pub fn value(self) -> String {
+        match self {
+            CreditDebit::Credit => "C".to_string(),
+            CreditDebit::Debit => "D".to_string(),
+            CreditDebit::CreditReversal => "CR".to_string(),
+            CreditDebit::DebitReversal => "DR".to_string(),
+        }
+    }
+}
 
-    fn try_from(credit_or_debit: &str) -> Result<Self, Self::Error> {
-        match credit_or_debit {
+impl TryFrom<&str> for CreditDebit {
+    type Error = eyre::Error;
+
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match input {
+            "CR" | "RC" => Ok(CreditDebit::CreditReversal),
+            "DR" | "RD" => Ok(CreditDebit::DebitReversal),
             "C" => Ok(CreditDebit::Credit),
             "D" => Ok(CreditDebit::Debit),
-            _ => Err(anyhow!("Unknown CreditDebit value")),
+            _ => Err(eyre!(
+                "Credit Debit is either missing or the value '{input}' is not valid"
+            )),
         }
     }
 }
@@ -170,14 +265,16 @@ pub enum FundsCode {
 }
 
 impl TryFrom<&str> for FundsCode {
-    type Error = anyhow::Error;
+    type Error = eyre::Error;
 
-    fn try_from(funds_code: &str) -> Result<Self, Self::Error> {
-        match funds_code {
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match input {
             "S" => Ok(FundsCode::SwiftTransfer),
             "N" => Ok(FundsCode::NonSwiftTransfer),
             "F" => Ok(FundsCode::FirstAdvice),
-            _ => Err(anyhow!("Unknown FundsCode value")),
+            _ => Err(eyre!(
+                "Funds Code is either missing or the value '{input}' is not valid"
+            )),
         }
     }
 }
@@ -191,11 +288,11 @@ pub enum ValidationFlag {
 }
 
 impl TryFrom<&str> for ValidationFlag {
-    type Error = anyhow::Error;
+    type Error = eyre::Error;
 
     #[cfg(not(tarpaulin_include))]
-    fn try_from(validation_flag: &str) -> Result<Self, Self::Error> {
-        match validation_flag {
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match input {
             "REMIT" => Ok(ValidationFlag::REMIT),
             "RFDD" => Ok(ValidationFlag::RFDD),
             "STP" => Ok(ValidationFlag::STP),
@@ -215,11 +312,11 @@ pub enum SanctionScreenType {
 }
 
 impl TryFrom<&str> for SanctionScreenType {
-    type Error = anyhow::Error;
+    type Error = eyre::Error;
 
     #[cfg(not(tarpaulin_include))]
-    fn try_from(sanction_screen_type: &str) -> Result<Self, Self::Error> {
-        match sanction_screen_type {
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match input {
             "AOK" => Ok(SanctionScreenType::AOK),
             "FPO" => Ok(SanctionScreenType::FPO),
             "NOK" => Ok(SanctionScreenType::NOK),
