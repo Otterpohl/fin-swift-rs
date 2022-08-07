@@ -5,3 +5,4 @@
 /tarpaulin-report.html
 /stacks.folded
 /generate-flamegraph.sh
+/Cargo.lock
