@@ -364,7 +364,6 @@ pub struct LogicalTerminalAddress<'a> {
 
 impl<'a> LogicalTerminalAddress<'a> {
     pub fn new(input: &'a str) -> Result<Self> {
-        // TODO: consider moving this back to block.rs as its not yet used anywhere else
         let bic_code = BusinessIdentifierCode::new(&input[..8])?;
 
         Ok(Self {

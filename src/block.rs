@@ -6,10 +6,9 @@ use crate::tag::{
     TransactionReferenceNumber, Validation,
 };
 use crate::utils::{
-    naive_date_time_from_swift_date_time, AddressInformation, BalanceType, LogicalTerminalAddress,
-    MessageInputReference,
+    naive_date_time_from_swift_date_time, AddressInformation, ApplicationId, BalanceType,
+    LogicalTerminalAddress, MessageInputReference, ServiceId, SwiftType, IO,
 };
-use anyhow::{anyhow, Ok, Result};
 use chrono::NaiveDateTime;
 use eyre::{eyre, Result};
 use regex::Regex;
@@ -23,37 +22,27 @@ use uuid::Uuid;
 // Fundamental reference for any particular message
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct Basic<'a> {
-    pub application_id: &'a str,
-    pub service_id: &'a str,
+    pub application_id: ApplicationId,
+    pub service_id: ServiceId,
     pub source_address: LogicalTerminalAddress<'a>,
-    pub session_number: &'a str,
-    pub sequence_number: &'a str,
+    pub session_number: u32,
+    pub sequence_number: u32,
 }
 
 impl<'a> Basic<'a> {
     pub fn new(block_data: &'a str) -> Result<Self> {
-        let application_id = match &block_data[..1] {
-            n @ ("F" | "A" | "L") => n,
-            n => {
-                panic!("unexpected application_id `{n}` in Basic block")
-            }
-        };
-
-        let service_id = match &block_data[1..3] {
-            n @ ("01" | "21") => n,
-            n => {
-                panic!("unexpected service_id `{n}` in Basic block")
-            }
-        };
-
+        let application_id = ApplicationId::try_from(&block_data[..1])?;
+        let service_id = ServiceId::try_from(&block_data[1..3])?;
         let source_address = LogicalTerminalAddress::new(&block_data[3..15])?;
+        let session_number = block_data[15..19].parse::<u32>()?;
+        let sequence_number = block_data[19..].parse::<u32>()?;
 
         Ok(Self {
             application_id,
             service_id,
             source_address,
-            session_number: &block_data[15..19], // TODO: try parse these as numbers
-            sequence_number: &block_data[19..],  // TODO: try parse these as numbers
+            session_number,
+            sequence_number,
         })
     }
 }
@@ -62,8 +51,8 @@ impl<'a> Basic<'a> {
 // Information about the message itself
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct Application<'a> {
-    pub input_output_id: &'a str,
-    pub message_type: &'a str,
+    pub input_output_id: IO,
+    pub message_type: SwiftType,
     pub destination_address: LogicalTerminalAddress<'a>,
     pub priority: Option<&'a str>,
     pub delivery_monitoring: Option<&'a str>,
@@ -72,22 +61,8 @@ pub struct Application<'a> {
 
 impl<'a> Application<'a> {
     pub fn new(block_data: &'a str) -> Result<Self> {
-        let input_output_id = match &block_data[..1] {
-            n @ ("I" | "O") => {
-                // struct this?
-                n
-            }
-            n => {
-                panic!("unexpected input_output_id `{n}` in Application block")
-            }
-        };
-
-        let message_type = match &block_data[1..4] {
-            n @ "940" => n,
-            n => {
-                panic!("unexpected message_type `{n}`")
-            }
-        };
+        let input_output_id = IO::try_from(&block_data[..1])?;
+        let message_type = SwiftType::try_from(&block_data[1..4])?;
 
         let mut priority = None;
         let mut delivery_monitoring = None;

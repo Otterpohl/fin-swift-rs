@@ -1,5 +1,5 @@
 use crate::mt940::MT940;
-use anyhow::Result;
+use eyre::Result;
 use std::time::Instant;
 
 mod block;

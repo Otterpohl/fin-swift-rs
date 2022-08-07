@@ -2,7 +2,6 @@ use crate::utils::{
     float_from_swift_amount, naive_date_from_swift_date, Balance, BalanceType, CreditDebit,
     FundsCode, SanctionScreenType, TransactionType, ValidationFlag,
 };
-use anyhow::{Ok, Result};
 use chrono::prelude::*;
 use eyre::Result;
 use serde::Serialize;
@@ -102,22 +101,10 @@ impl<'a> StatementLine<'a> {
             index += 4;
         }
 
-        // god i hate this shit, i wish i was better at rust
-        let debit_or_credit = if ["CR", "RC"].iter().any(|x| *x == &value[index..index + 2]) {
-            index += 2;
-            CreditDebit::CreditReversal
-        } else if ["DR", "RD"].iter().any(|x| *x == &value[index..index + 2]) {
-            index += 2;
-            CreditDebit::DebitReversal
-        } else if &value[index..=index] == "C" {
-            index += 1;
-            CreditDebit::Credit
-        } else if &value[index..=index] == "D" {
-            index += 1;
-            CreditDebit::Debit
-        } else {
-            panic!("Credit/Debit type not found or not recognized");
-        };
+        let debit_or_credit = CreditDebit::try_from(&value[index..index + 2])
+            .unwrap_or(CreditDebit::try_from(&value[index..=index])?);
+
+        index += debit_or_credit.value().len();
 
         let mut amount_string = "".to_string();
 
@@ -134,15 +121,7 @@ impl<'a> StatementLine<'a> {
         // float will truncate the 0 and so the len will be 1 char short, check the string instead!
         index += amount_string.to_string().len();
 
-        let funds_code = if value[index..=index]
-            .chars()
-            .map(|x| x.to_string())
-            .any(|x| x == "S" || x == "N" || x == "F")
-        {
-            FundsCode::try_from(&value[index..=index])?
-        } else {
-            panic!("FundsCode type not found or not recognized");
-        };
+        let funds_code = FundsCode::try_from(&value[index..=index])?;
 
         index += 1;
 
