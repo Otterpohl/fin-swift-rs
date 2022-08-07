@@ -11,6 +11,7 @@ use crate::utils::{
 };
 use anyhow::{anyhow, Ok, Result};
 use chrono::NaiveDateTime;
+use eyre::{eyre, Result};
 use regex::Regex;
 use serde::Serialize;
 use uuid::Uuid;
@@ -162,7 +163,7 @@ impl<'a> User<'a> {
             let index = section
                 .chars()
                 .position(|c| c == ':')
-                .ok_or_else(|| anyhow!("missing ':' in block"))?;
+                .ok_or_else(|| eyre!("missing ':' in block"))?;
             let tag = &section[..index];
             let value = &section[index + 1..];
 
@@ -209,7 +210,7 @@ impl<'a> User<'a> {
                     payment_controls_information = Some(PaymentControlsInformation::new(value));
                 }
                 _ => {
-                    panic!("unexpected tag `{tag}` in User block");
+                    Err(eyre!("unexpected tag `{tag}` in User block"))?;
                 }
             }
         }
@@ -262,11 +263,11 @@ impl<'a> Text<'a> {
         for tag in tag_regex.captures_iter(block_data) {
             let block_key = tag
                 .get(1)
-                .ok_or_else(|| anyhow!("block does not contain a key"))?
+                .ok_or_else(|| eyre!("block does not contain a key"))?
                 .as_str();
             let block_data = tag
                 .get(0)
-                .ok_or_else(|| anyhow!("block does not contain a value"))?
+                .ok_or_else(|| eyre!("block does not contain a value"))?
                 .as_str();
             let value = block_data[block_key.len()..block_data.len()]
                 .trim_matches(|c| c == ':' || c == '\r');
@@ -303,20 +304,20 @@ impl<'a> Text<'a> {
                     closing_available_balance = Some(ClosingAvailableBalance::new(value)?);
                 }
                 _ => {
-                    panic!("unexpected block key `{block_key}` in Basic block");
+                    Err(eyre!("unexpected block key `{block_key}` in Basic block"))?;
                 }
             };
         }
 
         let txn_ref_num =
-            txn_ref_num.ok_or_else(|| anyhow!("missing transaction reference number (tag 20)"))?;
+            txn_ref_num.ok_or_else(|| eyre!("missing transaction reference number (tag 20)"))?;
         let account_id =
-            account_id.ok_or_else(|| anyhow!("missing account identification (tag 25"))?;
+            account_id.ok_or_else(|| eyre!("missing account identification (tag 25"))?;
         let statement_num =
-            statement_num.ok_or_else(|| anyhow!("missing statement number (tag 28C"))?;
+            statement_num.ok_or_else(|| eyre!("missing statement number (tag 28C"))?;
         let opening_balance =
-            opening_balance.ok_or_else(|| anyhow!("missing opening balance (tag 60"))?;
-        let booked_funds = booked_funds.ok_or_else(|| anyhow!("missing booked funds (tag 62"))?;
+            opening_balance.ok_or_else(|| eyre!("missing opening balance (tag 60"))?;
+        let booked_funds = booked_funds.ok_or_else(|| eyre!("missing booked funds (tag 62"))?;
 
         Ok(Self {
             tag_20: txn_ref_num,

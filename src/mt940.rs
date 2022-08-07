@@ -1,5 +1,5 @@
 use crate::block::{Application, Basic, Text, Trailer, User};
-use anyhow::{anyhow, Ok, Result};
+use eyre::{eyre, Result};
 use regex::Regex;
 use serde::Serialize;
 
@@ -44,18 +44,16 @@ impl<'a> MT940<'a> {
 
             let prefix = format!("{{{block_id}:");
             let suffix = match block_id {
-                4 => "-}",
-                1 | 2 | 3 | 5 => "}",
-                _ => {
-                    panic!("unexpected block_id `{block_id}`")
-                }
-            };
+                4 => Ok("-}"),
+                1 | 2 | 3 | 5 => Ok("}"),
+                _ => Err(eyre!("unexpected block_id `{block_id}`")),
+            }?;
 
             let block_data = message_data[*start..=*end]
                 .strip_prefix(&prefix)
-                .ok_or_else(|| anyhow!("prefix '{prefix}' not found in block"))?
+                .ok_or_else(|| eyre!("prefix '{prefix}' not found in block"))?
                 .strip_suffix(suffix)
-                .ok_or_else(|| anyhow!("suffix '{suffix}' not found in block"))?;
+                .ok_or_else(|| eyre!("suffix '{suffix}' not found in block"))?;
 
             match block_id {
                 1 => {
@@ -80,11 +78,11 @@ impl<'a> MT940<'a> {
             }
         }
 
-        let block_1 = block_1.ok_or_else(|| anyhow!("block 1 not found"))?;
-        let block_2 = block_2.ok_or_else(|| anyhow!("block 2 not found"))?;
-        let block_3 = block_3.ok_or_else(|| anyhow!("block 3 not found"))?;
-        let block_4 = block_4.ok_or_else(|| anyhow!("block 4 not found"))?;
-        let block_5 = block_5.ok_or_else(|| anyhow!("block 5 not found"))?;
+        let block_1 = block_1.ok_or_else(|| eyre!("block 1 not found"))?;
+        let block_2 = block_2.ok_or_else(|| eyre!("block 2 not found"))?;
+        let block_3 = block_3.ok_or_else(|| eyre!("block 3 not found"))?;
+        let block_4 = block_4.ok_or_else(|| eyre!("block 4 not found"))?;
+        let block_5 = block_5.ok_or_else(|| eyre!("block 5 not found"))?;
 
         Ok(Self {
             basic: block_1,

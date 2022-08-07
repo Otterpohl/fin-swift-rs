@@ -1,7 +1,7 @@
 use chrono::prelude::*;
 use chrono::NaiveDate;
 // country
-use anyhow::{anyhow, Ok, Result};
+use eyre::{eyre, Result};
 use iso3166_1::alpha2;
 use iso_currency::Currency;
 use serde::Serialize;
@@ -199,7 +199,9 @@ impl TryFrom<&str> for ValidationFlag {
             "REMIT" => Ok(ValidationFlag::REMIT),
             "RFDD" => Ok(ValidationFlag::RFDD),
             "STP" => Ok(ValidationFlag::STP),
-            _ => Err(anyhow!("Validation Flag not recognized")),
+            _ => Err(eyre!(
+                "Validation Flag value is either missing or the value '{input}' is not valid"
+            )),
         }
     }
 }
@@ -221,7 +223,9 @@ impl TryFrom<&str> for SanctionScreenType {
             "AOK" => Ok(SanctionScreenType::AOK),
             "FPO" => Ok(SanctionScreenType::FPO),
             "NOK" => Ok(SanctionScreenType::NOK),
-            _ => Err(anyhow!("SanctionScreenType not recognized")),
+            _ => Err(eyre!(
+                "Sanction Screen Type is either missing or the value '{input}' is not valid"
+            )),
         }
     }
 }
@@ -237,7 +241,12 @@ impl<'a> BusinessIdentifierCode<'a> {
     fn new(input: &'a str) -> Result<Self> {
         let business_party_prefix = &input[..4];
         let country_code = alpha2(&input[4..6])
-            .ok_or_else(|| anyhow!("country code does not exist"))?
+            .ok_or_else(|| {
+                eyre!(
+                    "Country code is either missing or the value '{}' is not valid",
+                    &input[4..6]
+                )
+            })?
             .alpha2;
         let business_party_suffix = &input[6..];
 
@@ -282,7 +291,7 @@ impl Balance {
         let credit_or_debit = CreditDebit::try_from(&input[..1])?;
         let date = naive_date_from_swift_date(&input[1..7])?;
         let currency = Currency::from_code(&input[7..10])
-            .ok_or_else(|| anyhow!("currency code does not exist"))?;
+            .ok_or_else(|| eyre!("currency code does not exist"))?; // fix
         let amount = float_from_swift_amount(&input[10..])?;
 
         Ok(Self {
@@ -337,7 +346,12 @@ impl<'a> AddressInformation<'a> {
         let time_of_debiting = naive_time_from_swift_time(segments[1])?;
 
         let country_code = alpha2(segments[2])
-            .ok_or_else(|| anyhow!("country code does not exist"))?
+            .ok_or_else(|| {
+                eyre!(
+                    "Country code is either missing or the value '{}' is not valid",
+                    &input[4..6]
+                )
+            })?
             .alpha2;
         let internal_posting_reference = segments[3];
 
@@ -378,7 +392,7 @@ pub fn naive_date_from_swift_date(date: &str) -> Result<NaiveDate> {
             date[6..8].parse::<u32>()?,
         ))
     } else {
-        panic!("Invalid swift date provided")
+        Err(eyre!("Invalid swift date provided"))
     }
 }
 
