@@ -2,7 +2,7 @@ use crate::utils::{
     float_from_swift_amount, naive_date_from_swift_date, Balance, BalanceType, CreditDebit,
     FundsCode, SanctionScreenType, TransactionType, ValidationFlag,
 };
-use chrono::prelude::*;
+use chrono::NaiveDate;
 use eyre::Result;
 use serde::Serialize;
 

@@ -1,5 +1,4 @@
-use chrono::prelude::*;
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveTime, NaiveDateTime, Datelike};
 use eyre::{eyre, Result};
 use iso3166_1::alpha2; // country
 use iso_currency::Currency;
@@ -386,8 +385,12 @@ impl Balance {
     pub fn new(input: &str) -> Result<Self> {
         let credit_or_debit = CreditDebit::try_from(&input[..1])?;
         let date = naive_date_from_swift_date(&input[1..7])?;
-        let currency = Currency::from_code(&input[7..10])
-            .ok_or_else(|| eyre!("currency code does not exist"))?; // fix
+        let currency = Currency::from_code(&input[7..10]).ok_or_else(|| {
+            eyre!(
+                "currency code is either missing or the value '{}' is not valid",
+                &input[7..10]
+            )
+        })?;
         let amount = float_from_swift_amount(&input[10..])?;
 
         Ok(Self {
@@ -510,6 +513,8 @@ pub fn float_from_swift_amount(amount: &str) -> Result<f64> {
 
 #[cfg(test)]
 mod tests {
+    use chrono::{Timelike, Datelike};
+
     use super::*;
 
     #[test]
