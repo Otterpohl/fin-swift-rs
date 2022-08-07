@@ -610,9 +610,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Unknown CreditDebit value")]
+    #[should_panic(expected = "Credit Debit is either missing or the value 'A' is not valid")]
     fn test_credit_or_debit() {
-        CreditDebit::try_from("").unwrap();
+        CreditDebit::try_from("A").unwrap();
     }
 
     #[test]
@@ -635,9 +635,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Unknown FundsCode value")]
+    #[should_panic(expected = "Funds Code is either missing or the value 'T' is not valid")]
     fn test_funds_code_bad() {
-        FundsCode::try_from("").unwrap();
+        FundsCode::try_from("T").unwrap();
     }
 
     #[test]

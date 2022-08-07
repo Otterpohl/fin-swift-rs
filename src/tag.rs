@@ -541,13 +541,13 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Credit/Debit type not found or not recognized")]
+    #[should_panic(expected = "Credit Debit is either missing or the value '5' is not valid")]
     fn test_statement_line_missing_credit_or_debit() {
         StatementLine::new("090929092955,00NMSC0000000000000269//1234").unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "FundsCode type not found or not recognized")]
+    #[should_panic(expected = "Funds Code is either missing or the value 'M' is not valid")]
     fn test_statement_line_missing_funds_code() {
         StatementLine::new("0909290929DR55,00MSC0000000000000269//1234").unwrap();
     }

@@ -363,21 +363,21 @@ mod tests {
         let data = Basic::new(block_data).unwrap();
         let source_address = LogicalTerminalAddress::new(&block_data[3..15]).unwrap();
 
-        assert_eq!(data.application_id, "F");
-        assert_eq!(data.service_id, "01");
+        assert_eq!(data.application_id, ApplicationId::F);
+        assert_eq!(data.service_id, ServiceId::AckNak);
         assert_eq!(data.source_address, source_address);
-        assert_eq!(data.session_number, "0000");
-        assert_eq!(data.sequence_number, "000000");
+        assert_eq!(data.session_number, 0);
+        assert_eq!(data.sequence_number, 0);
     }
 
     #[test]
-    #[should_panic(expected = "unexpected application_id `T` in Basic block")]
+    #[should_panic(expected = "Application Id is either missing or the value 'T' is not valid")]
     fn test_block_basic_application_id() {
         Basic::new("T01ASNBNL21XXXX0000000000").unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "unexpected service_id `02` in Basic block")]
+    #[should_panic(expected = "Service Id is either missing or the value '02' is not valid")]
     fn test_block_service_id() {
         Basic::new("F02ASNBNL21XXXX0000000000").unwrap();
     }
@@ -388,8 +388,8 @@ mod tests {
         let data = Application::new(block_data).unwrap();
         let destination_address = LogicalTerminalAddress::new(&block_data[4..16]).unwrap();
 
-        assert_eq!(data.input_output_id, "O");
-        assert_eq!(data.message_type, "940");
+        assert_eq!(data.input_output_id, IO::Output);
+        assert_eq!(data.message_type, SwiftType::Mt940);
         assert_eq!(data.destination_address, destination_address);
         assert_eq!(data.priority, Some("N"));
         assert_eq!(data.delivery_monitoring, Some("3"));
@@ -397,13 +397,13 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "unexpected input_output_id `B` in Application block")]
+    #[should_panic(expected = "IO is either missing or the value 'B' is not valid")]
     fn test_block_application_input_output_id() {
         Application::new("B940ASNBNL21XXXXN").unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "unexpected message_type `537`")]
+    #[should_panic(expected = "Swift Type is either missing or the value '537' is not valid")]
     fn test_block_application_message_type() {
         Application::new("O537ASNBNL21XXXXN").unwrap();
     }
