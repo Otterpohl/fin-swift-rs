@@ -1,8 +1,7 @@
 use chrono::prelude::*;
 use chrono::NaiveDate;
-// country
 use eyre::{eyre, Result};
-use iso3166_1::alpha2;
+use iso3166_1::alpha2; // country
 use iso_currency::Currency;
 use serde::Serialize;
 
@@ -89,9 +88,8 @@ pub enum TransactionType {
 impl TryFrom<&str> for TransactionType {
     type Error = eyre::Error;
 
-    #[cfg(not(tarpaulin_include))]
-    fn try_from(transaction_type: &str) -> Result<Self, Self::Error> {
-        match transaction_type {
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match input {
             "BNK" => Ok(TransactionType::BNK),
             "BOE" => Ok(TransactionType::BOE),
             "BRF" => Ok(TransactionType::BRF),
@@ -149,7 +147,9 @@ impl TryFrom<&str> for TransactionType {
             "UWC" => Ok(TransactionType::UWC),
             "VDA" => Ok(TransactionType::VDA),
             "WAR" => Ok(TransactionType::WAR),
-            _ => Err(eyre!("We really shouldn't have reached this, too bad!")), // fix WWJD
+            _ => Err(eyre!(
+                "Transaction Type is either missing or the value '{input}' is not valid"
+            )),
         }
     }
 }
