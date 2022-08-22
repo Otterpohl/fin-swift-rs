@@ -81,7 +81,7 @@ pub struct StatementLine<'a> {
     pub funds_code: FundsCode,
     pub transaction_type: Option<TransactionType>,
     pub account_owner_reference: &'a str,
-    pub account_servicing_insitution_reference: Option<&'a str>,
+    pub account_servicing_insitution_reference: Option<&'a str>, // TODO typo
     pub supplementary_details: Option<&'a str>,
 }
 
@@ -388,31 +388,35 @@ mod tests {
     use iso_currency::Currency;
 
     #[test]
-    fn test_transaction_reference_number() {
-        let reference = TransactionReferenceNumber::new("3996-11-11111111");
-
-        assert_eq!(reference.transaction_reference_number, "3996-11-11111111");
+    fn test_transaction_reference_number() -> Result<()> {
+        assert_eq!(
+            TransactionReferenceNumber::new("3996-11-11111111").transaction_reference_number,
+            "3996-11-11111111"
+        ); // TODO do we need to parse this or is it just free text?
+        Ok(())
     }
 
     #[test]
-    fn test_account_identification() {
-        let account = AccountIdentification::new("DABADKKK/111111-11111111");
-
-        assert_eq!(account.account_identification, "DABADKKK/111111-11111111");
+    fn test_account_identification() -> Result<()> {
+        assert_eq!(
+            AccountIdentification::new("DABADKKK/111111-11111111").account_identification,
+            "DABADKKK/111111-11111111"
+        );
+        Ok(())
     }
 
     #[test]
-    fn test_statement_number() {
-        let statement = StatementNumber::new("00001/001").unwrap();
+    fn test_statement_number() -> Result<()> {
+        let statement = StatementNumber::new("00001/001")?;
 
         assert_eq!(statement.statement_number, 1);
         assert_eq!(statement.sequence_number, 1);
+        Ok(())
     }
 
     #[test]
-    fn test_opening_balance() {
-        let opening_balance =
-            OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04").unwrap();
+    fn test_opening_balance() -> Result<()> {
+        let opening_balance = OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04")?;
 
         assert_eq!(
             opening_balance.balance_data.credit_or_debit,
@@ -424,11 +428,12 @@ mod tests {
         );
         assert_eq!(opening_balance.balance_data.currency, Currency::EUR);
         assert_eq!(opening_balance.balance_data.amount, 54484.04);
+        Ok(())
     }
 
     #[test]
-    fn test_booked_funds() {
-        let booked_funds = BookedFunds::new(BalanceType::Final, "C090924EUR54484,04").unwrap();
+    fn test_booked_funds() -> Result<()> {
+        let booked_funds = BookedFunds::new(BalanceType::Final, "C090924EUR54484,04")?;
 
         assert_eq!(
             booked_funds.balance_data.credit_or_debit,
@@ -440,11 +445,12 @@ mod tests {
         );
         assert_eq!(booked_funds.balance_data.currency, Currency::EUR);
         assert_eq!(booked_funds.balance_data.amount, 54484.04);
+        Ok(())
     }
 
     #[test]
-    fn test_closing_available_funds() {
-        let closing_available_funds = ClosingAvailableBalance::new("C090924EUR54484,04").unwrap();
+    fn test_closing_available_funds() -> Result<()> {
+        let closing_available_funds = ClosingAvailableBalance::new("C090924EUR54484,04")?;
 
         assert_eq!(
             closing_available_funds.balance_data.credit_or_debit,
@@ -456,67 +462,63 @@ mod tests {
         );
         assert_eq!(closing_available_funds.balance_data.currency, Currency::EUR);
         assert_eq!(closing_available_funds.balance_data.amount, 54484.04);
+        Ok(())
     }
 
     #[test]
-    fn test_information_to_account_owner() {
-        let information_to_account_owner =
-            InformationToAccountOwner::new("Fees according to advice");
-
+    fn test_information_to_account_owner() -> Result<()> {
         assert_eq!(
-            information_to_account_owner.information_to_account_owner,
+            InformationToAccountOwner::new("Fees according to advice").information_to_account_owner,
             "Fees according to advice"
         );
+        Ok(())
     }
 
     #[test]
-    fn test_statement_line() {
-        let statement_line =
-            StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234").unwrap();
+    fn test_statement_line() -> Result<()> {
+        let sl = StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234")?;
 
-        assert_eq!(statement_line.value_date, NaiveDate::from_ymd(2009, 9, 29));
-        assert_eq!(statement_line.entry_date, NaiveDate::from_ymd(2022, 9, 29));
-        assert_eq!(statement_line.amount, 55.0);
-        assert_eq!(statement_line.funds_code, FundsCode::NonSwiftTransfer);
-        assert_eq!(statement_line.transaction_type, Some(TransactionType::MSC));
-        assert_eq!(statement_line.account_owner_reference, "0000000000000269");
-        assert_eq!(
-            statement_line.account_servicing_insitution_reference,
-            Some("//1234")
-        );
-        assert_eq!(statement_line.supplementary_details, None);
+        assert_eq!(sl.value_date, NaiveDate::from_ymd(2009, 9, 29));
+        assert_eq!(sl.entry_date, NaiveDate::from_ymd(2022, 9, 29));
+        assert_eq!(sl.amount, 55.0);
+        assert_eq!(sl.funds_code, FundsCode::NonSwiftTransfer);
+        assert_eq!(sl.transaction_type, Some(TransactionType::MSC));
+        assert_eq!(sl.account_owner_reference, "0000000000000269");
+        assert_eq!(sl.account_servicing_insitution_reference, Some("//1234"));
+        assert_eq!(sl.supplementary_details, None);
+        Ok(())
     }
 
     #[test]
-    fn test_statement_line_credit() {
-        let statement_line =
-            StatementLine::new("0909290929C55,00NMSC0000000000000269//1234").unwrap();
+    fn test_statement_line_credit() -> Result<()> {
+        let sl = StatementLine::new("0909290929C55,00NMSC0000000000000269//1234")?;
 
-        assert_eq!(statement_line.debit_or_credit, CreditDebit::Credit);
+        assert_eq!(sl.debit_or_credit, CreditDebit::Credit);
+        Ok(())
     }
 
     #[test]
-    fn test_statement_line_debit() {
-        let statement_line =
-            StatementLine::new("0909290929D55,00NMSC0000000000000269//1234").unwrap();
+    fn test_statement_line_debit() -> Result<()> {
+        let sl = StatementLine::new("0909290929D55,00NMSC0000000000000269//1234")?;
 
-        assert_eq!(statement_line.debit_or_credit, CreditDebit::Debit);
+        assert_eq!(sl.debit_or_credit, CreditDebit::Debit);
+        Ok(())
     }
 
     #[test]
-    fn test_statement_line_credit_reversal() {
-        let statement_line =
-            StatementLine::new("0909290929CR55,00NMSC0000000000000269//1234").unwrap();
+    fn test_statement_line_credit_reversal() -> Result<()> {
+        let sl = StatementLine::new("0909290929CR55,00NMSC0000000000000269//1234")?;
 
-        assert_eq!(statement_line.debit_or_credit, CreditDebit::CreditReversal);
+        assert_eq!(sl.debit_or_credit, CreditDebit::CreditReversal);
+        Ok(())
     }
 
     #[test]
-    fn test_statement_line_debit_reversal() {
-        let statement_line =
-            StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234").unwrap();
+    fn test_statement_line_debit_reversal() -> Result<()> {
+        let sl = StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234")?;
 
-        assert_eq!(statement_line.debit_or_credit, CreditDebit::DebitReversal);
+        assert_eq!(sl.debit_or_credit, CreditDebit::DebitReversal);
+        Ok(())
     }
 
     #[test]
