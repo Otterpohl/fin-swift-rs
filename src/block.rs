@@ -206,13 +206,6 @@ impl<'a> User<'a> {
             tag_434: payment_controls_information,
         })
     }
-
-    fn service_identifier(&self) -> Option<&str> {
-        match &self.tag_103 {
-            Some(val) => Some(&self.tag_103.unwrap().service_identifier),
-            None => return None,
-        }
-    }
 }
 
 // Block 4

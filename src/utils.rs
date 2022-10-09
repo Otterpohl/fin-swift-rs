@@ -23,6 +23,7 @@ impl TryFrom<&str> for SwiftType {
 }
 
 #[allow(clippy::upper_case_acronyms)]
+#[cfg(not(tarpaulin_include))]
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum TransactionType {
     BNK,
@@ -87,6 +88,7 @@ pub enum TransactionType {
 impl TryFrom<&str> for TransactionType {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "BNK" => Ok(TransactionType::BNK),
@@ -162,6 +164,7 @@ pub enum IO {
 impl TryFrom<&str> for IO {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "I" => Ok(IO::Input),
@@ -183,6 +186,7 @@ pub enum ApplicationId {
 impl TryFrom<&str> for ApplicationId {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "F" => Ok(ApplicationId::F),
@@ -204,6 +208,7 @@ pub enum ServiceId {
 impl TryFrom<&str> for ServiceId {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "21" => Ok(ServiceId::FinGpa),
@@ -237,6 +242,7 @@ impl CreditDebit {
 impl TryFrom<&str> for CreditDebit {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "CR" | "RC" => Ok(CreditDebit::CreditReversal),
@@ -266,6 +272,7 @@ pub enum FundsCode {
 impl TryFrom<&str> for FundsCode {
     type Error = eyre::Error;
 
+        #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "S" => Ok(FundsCode::SwiftTransfer),
@@ -582,6 +589,18 @@ mod tests {
     }
 
     #[test]
+    fn test_datetime() -> Result<()> {
+        let datetime = naive_date_time_from_swift_date_time("18071715301204").unwrap();
+        assert_eq!(datetime.year(), 2018);
+        assert_eq!(datetime.month(), 7);
+        assert_eq!(datetime.day(), 17);
+        assert_eq!(datetime.hour(), 15);
+        assert_eq!(datetime.minute(), 30);
+        assert_eq!(datetime.second(), 12);
+        Ok(())
+    }
+
+    #[test]
     fn test_business_identifier_code() -> Result<()> {
         let bic_code = BusinessIdentifierCode::new("ASNBNL21")?;
 
@@ -644,4 +663,37 @@ mod tests {
         assert_eq!(balance.amount, 53189.31);
         Ok(())
     }
+
+    #[test]
+    fn test_message_input_reference() -> Result<()> {
+        let mir = MessageInputReference::new("120811BANKBEBBAXXX2222123456")?;
+        assert_eq!(mir.date.year(),2012);
+        assert_eq!(mir.date.month(),8);
+        assert_eq!(mir.date.day(),11);
+        assert_eq!(mir.lt_identifier,"BANKBEBBAXXX");
+        assert_eq!(mir.branch_code,"222");
+        assert_eq!(mir.session_number,2123);
+        assert_eq!(mir.sequence_number,456);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_address_information() -> Result<()> {
+        let ai = AddressInformation::new(" 121413 121413 DE BANKDECDA123")?;
+
+        assert_eq!(ai.time_of_crediting.hour(),12);
+        assert_eq!(ai.time_of_crediting.minute(),14);
+        assert_eq!(ai.time_of_crediting.second(),13);
+        assert_eq!(ai.time_of_debiting.hour(),12);
+        assert_eq!(ai.time_of_debiting.minute(),14);
+        assert_eq!(ai.time_of_debiting.second(),13);
+        assert_eq!(ai.country_code,"DE");
+        assert_eq!(ai.internal_posting_reference,"BANKDECDA123");
+        Ok(())
+    }
+
+
+
+    
 }

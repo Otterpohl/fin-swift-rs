@@ -532,4 +532,79 @@ mod tests {
     fn test_statement_line_missing_funds_code() {
         StatementLine::new("0909290929DR55,00MSC0000000000000269//1234").unwrap();
     }
+
+    #[test]
+    fn test_service_identifier() -> Result<()> {
+        let si = ServiceIdentifier::new("CAD");
+
+        assert_eq!(si.service_identifier, "CAD");
+        assert_eq!(si.service_identifier.len(), 3);
+        Ok(())
+    }
+
+    #[test]
+    fn test_banking_priority() -> Result<()> {
+        let bp = BankingPriority::new("xxxx");
+
+        assert_eq!(bp.banking_priority, "xxxx");
+        assert_eq!(bp.banking_priority.len(), 4);
+        Ok(())
+    }
+
+    #[test]
+    fn test_message_user_reference() -> Result<()> {
+        let mur = MessageUserReference::new("xxxx");
+
+        assert_eq!(mur.message_user_reference, "xxxx");
+        assert!(mur.message_user_reference.len() <= 16);
+        Ok(())
+    }
+
+    #[test]
+    fn test_related_reference() -> Result<()> {
+        let rr = RelatedReference::new("PQAB1234");
+
+        assert_eq!(rr.related_reference, "PQAB1234");
+        assert!(rr.related_reference.len() <= 16);
+        Ok(())
+    }
+
+    #[test]
+    fn test_service_type_identifier() -> Result<()> {
+        let sti = ServiceTypeIdentifier::new("DER");
+
+        assert_eq!(sti.service_type_identifier, "DER");
+        assert_eq!(sti.service_type_identifier.len(), 3);
+        Ok(())
+    }
+
+    
+    #[test]
+    fn test_payment_release_information_receiver() -> Result<()> {
+        let prir = PaymentReleaseInformationReceiver::new("DERASDFQWERTY");
+
+        assert_eq!(prir.payment_release_information_receiver, "DERASDFQWERTY");
+        assert!(prir.payment_release_information_receiver.len() <= 34);
+        Ok(())
+    }
+
+    #[test]
+    fn test_payment_controls_information() -> Result<()> {
+        let pci = PaymentControlsInformation::new("/FPO");
+
+        assert_eq!(pci.codeword, "FPO");
+        assert_eq!(pci.additional_information, "");
+        Ok(())
+    }
+
+    
+    #[test]
+    fn test_sanctions_screening_information() -> Result<()> {
+        let ssi = SanctionsScreeningInformation::new("/AOK")?;
+
+        assert_eq!(ssi.codeword, SanctionScreenType::AOK);
+        assert_eq!(ssi.additional_information, "");
+        Ok(())
+    }
+
 }
