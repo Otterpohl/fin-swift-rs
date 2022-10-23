@@ -272,7 +272,7 @@ pub enum FundsCode {
 impl TryFrom<&str> for FundsCode {
     type Error = eyre::Error;
 
-        #[cfg(not(tarpaulin_include))]
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "S" => Ok(FundsCode::SwiftTransfer),
@@ -667,13 +667,13 @@ mod tests {
     #[test]
     fn test_message_input_reference() -> Result<()> {
         let mir = MessageInputReference::new("120811BANKBEBBAXXX2222123456")?;
-        assert_eq!(mir.date.year(),2012);
-        assert_eq!(mir.date.month(),8);
-        assert_eq!(mir.date.day(),11);
-        assert_eq!(mir.lt_identifier,"BANKBEBBAXXX");
-        assert_eq!(mir.branch_code,"222");
-        assert_eq!(mir.session_number,2123);
-        assert_eq!(mir.sequence_number,456);
+        assert_eq!(mir.date.year(), 2012);
+        assert_eq!(mir.date.month(), 8);
+        assert_eq!(mir.date.day(), 11);
+        assert_eq!(mir.lt_identifier, "BANKBEBBAXXX");
+        assert_eq!(mir.branch_code, "222");
+        assert_eq!(mir.session_number, 2123);
+        assert_eq!(mir.sequence_number, 456);
 
         Ok(())
     }
@@ -682,18 +682,14 @@ mod tests {
     fn test_address_information() -> Result<()> {
         let ai = AddressInformation::new(" 121413 121413 DE BANKDECDA123")?;
 
-        assert_eq!(ai.time_of_crediting.hour(),12);
-        assert_eq!(ai.time_of_crediting.minute(),14);
-        assert_eq!(ai.time_of_crediting.second(),13);
-        assert_eq!(ai.time_of_debiting.hour(),12);
-        assert_eq!(ai.time_of_debiting.minute(),14);
-        assert_eq!(ai.time_of_debiting.second(),13);
-        assert_eq!(ai.country_code,"DE");
-        assert_eq!(ai.internal_posting_reference,"BANKDECDA123");
+        assert_eq!(ai.time_of_crediting.hour(), 12);
+        assert_eq!(ai.time_of_crediting.minute(), 14);
+        assert_eq!(ai.time_of_crediting.second(), 13);
+        assert_eq!(ai.time_of_debiting.hour(), 12);
+        assert_eq!(ai.time_of_debiting.minute(), 14);
+        assert_eq!(ai.time_of_debiting.second(), 13);
+        assert_eq!(ai.country_code, "DE");
+        assert_eq!(ai.internal_posting_reference, "BANKDECDA123");
         Ok(())
     }
-
-
-
-    
 }

@@ -433,6 +433,20 @@ mod tests {
 
     #[test]
     fn test_booked_funds() -> Result<()> {
+        #[cfg(test)]
+        mod tests {
+            use super::*;
+
+            #[test]
+            fn test_transaction_reference_number() -> Result<()> {
+                assert_eq!(
+                    Basic::new("3996-11-11111111").transaction_reference_number,
+                    "3996-11-11111111"
+                ); // TODO do we need to parse this or is it just free text?
+                Ok(())
+            }
+        }
+
         let booked_funds = BookedFunds::new(BalanceType::Final, "C090924EUR54484,04")?;
 
         assert_eq!(
@@ -578,7 +592,6 @@ mod tests {
         Ok(())
     }
 
-    
     #[test]
     fn test_payment_release_information_receiver() -> Result<()> {
         let prir = PaymentReleaseInformationReceiver::new("DERASDFQWERTY");
@@ -597,7 +610,6 @@ mod tests {
         Ok(())
     }
 
-    
     #[test]
     fn test_sanctions_screening_information() -> Result<()> {
         let ssi = SanctionsScreeningInformation::new("/AOK")?;
@@ -606,5 +618,4 @@ mod tests {
         assert_eq!(ssi.additional_information, "");
         Ok(())
     }
-
 }
