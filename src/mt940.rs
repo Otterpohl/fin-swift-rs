@@ -93,3 +93,23 @@ impl<'a> MT940<'a> {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[should_panic(expected = "unexpected block_id `6`")]
+    fn test_message_wrong_id() {
+        MT940::new(
+            "{1:F01ASNBNL21XXXX0000000000}{2:O940ASNBNL21XXXXN}{3:}{4:
+                         :20:0000000000
+                         :25:NL81ASNB9999999999
+                         :28C:3/1
+                         :60F:C200103EUR379,29
+                         :62F:C200103EUR379,29
+                         -}{5:}{6:}",
+        )
+        .unwrap();
+    }
+}
