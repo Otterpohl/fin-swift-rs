@@ -81,7 +81,7 @@ pub struct StatementLine<'a> {
     pub funds_code: FundsCode,
     pub transaction_type: Option<TransactionType>,
     pub account_owner_reference: &'a str,
-    pub account_servicing_insitution_reference: Option<&'a str>, // TODO typo
+    pub account_servicing_institution_reference: Option<&'a str>,
     pub supplementary_details: Option<&'a str>,
 }
 
@@ -166,7 +166,7 @@ impl<'a> StatementLine<'a> {
             funds_code,
             transaction_type,
             account_owner_reference,
-            account_servicing_insitution_reference,
+            account_servicing_institution_reference: account_servicing_insitution_reference,
             supplementary_details,
         })
     }
@@ -484,7 +484,7 @@ mod tests {
         assert_eq!(sl.funds_code, FundsCode::NonSwiftTransfer);
         assert_eq!(sl.transaction_type, Some(TransactionType::MSC));
         assert_eq!(sl.account_owner_reference, "0000000000000269");
-        assert_eq!(sl.account_servicing_insitution_reference, Some("//1234"));
+        assert_eq!(sl.account_servicing_institution_reference, Some("//1234"));
         assert_eq!(sl.supplementary_details, None);
         Ok(())
     }
