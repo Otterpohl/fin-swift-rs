@@ -333,19 +333,6 @@ mod tests {
     use crate::utils::*;
 
     #[test]
-    fn test_block_basic() {
-        let block_data = "F01ASNBNL21XXXX0000000000";
-        let data = Basic::new(block_data).unwrap();
-        let source_address = LogicalTerminalAddress::new(&block_data[3..15]).unwrap();
-
-        assert_eq!(data.application_id, ApplicationId::F);
-        assert_eq!(data.service_id, ServiceId::AckNak);
-        assert_eq!(data.source_address, source_address);
-        assert_eq!(data.session_number, 0);
-        assert_eq!(data.sequence_number, 0);
-    }
-
-    #[test]
     #[should_panic(expected = "Application Id is either missing or the value 'T' is not valid")]
     fn test_block_basic_application_id() {
         Basic::new("T01ASNBNL21XXXX0000000000").unwrap();
@@ -358,20 +345,6 @@ mod tests {
     }
 
     #[test]
-    fn test_block_application() {
-        let block_data = "O940ASNBNL21XXXXN3123";
-        let data = Application::new(block_data).unwrap();
-        let destination_address = LogicalTerminalAddress::new(&block_data[4..16]).unwrap();
-
-        assert_eq!(data.input_output_id, IO::Output);
-        assert_eq!(data.message_type, SwiftType::Mt940);
-        assert_eq!(data.destination_address, destination_address);
-        assert_eq!(data.priority, Some("N"));
-        assert_eq!(data.delivery_monitoring, Some("3"));
-        assert_eq!(data.obsolescence_period, Some("123"));
-    }
-
-    #[test]
     #[should_panic(expected = "IO is either missing or the value 'B' is not valid")]
     fn test_block_application_input_output_id() {
         Application::new("B940ASNBNL21XXXXN").unwrap();
@@ -381,134 +354,6 @@ mod tests {
     #[should_panic(expected = "Swift Type is either missing or the value '537' is not valid")]
     fn test_block_application_message_type() {
         Application::new("O537ASNBNL21XXXXN").unwrap();
-    }
-
-    #[test]
-    fn test_block_user() {
-        let data = User::new("3:{103:CAD}{113:xxxx}{119:STP}{108:2RDRQDHM3WO}{423:18071715301204}{111:DER}{106:120811BANKBEBBAXXX2222123456}{424:PQAB1234}{121:180f1e65-90e0-44d5-a49a-92b55eb3025f}{165:DERASDFQWERTY}{115: 121413 121413 DE BANKDECDA123}{433:/AOK}{434:/FPO}").unwrap();
-
-        assert_eq!(data.tag_103.unwrap().service_identifier, "CAD");
-        assert_eq!(data.tag_113.unwrap().banking_priority, "xxxx");
-        assert_eq!(data.tag_108.unwrap().message_user_reference, "2RDRQDHM3WO");
-        assert_eq!(data.tag_119.unwrap().validation_flag, ValidationFlag::STP);
-        assert_eq!(
-            data.tag_423.unwrap(),
-            naive_date_time_from_swift_date_time("18071715301204").unwrap()
-        );
-        assert_eq!(
-            data.tag_106.unwrap().date,
-            naive_date_from_swift_date("120811").unwrap()
-        );
-        assert_eq!(data.tag_106.unwrap().lt_identifier, "BANKBEBBAXXX");
-        assert_eq!(data.tag_106.unwrap().branch_code, "222");
-        assert_eq!(data.tag_106.unwrap().session_number, 2123);
-        assert_eq!(data.tag_106.unwrap().sequence_number, 456);
-        assert_eq!(data.tag_424.unwrap().related_reference, "PQAB1234");
-        assert_eq!(data.tag_111.unwrap().service_type_identifier, "DER");
-        assert_eq!(
-            data.tag_121.unwrap().to_string(),
-            "180f1e65-90e0-44d5-a49a-92b55eb3025f"
-        );
-        assert_eq!(
-            data.tag_115.unwrap().time_of_crediting,
-            naive_time_from_swift_time("121413").unwrap()
-        );
-        assert_eq!(
-            data.tag_115.unwrap().time_of_debiting,
-            naive_time_from_swift_time("121413").unwrap()
-        );
-        assert_eq!(data.tag_115.unwrap().country_code, "DE");
-        assert_eq!(
-            data.tag_115.unwrap().internal_posting_reference,
-            "BANKDECDA123"
-        );
-        assert_eq!(
-            data.tag_165.unwrap().payment_release_information_receiver,
-            "DERASDFQWERTY"
-        );
-        assert_eq!(data.tag_433.unwrap().codeword, SanctionScreenType::AOK);
-        assert_eq!(data.tag_433.unwrap().additional_information, "");
-        assert_eq!(data.tag_434.unwrap().codeword, "FPO");
-        assert_eq!(data.tag_434.unwrap().additional_information, "");
-    }
-
-    #[test]
-    fn test_block_text() {
-        let data = Text::new(
-            ":20:3996-11-11111111
-                       :25:DABADKKK/111111-11111111
-                       :28C:00001/001
-                       :60F:C090924EUR54484,04
-                       :61:0909250925DR583,92NMSC1110030403010139//1234
-                       :86:11100304030101391234
-                       :86:Fees according to advice
-                       :62F:C090930EUR53126,94
-                       :64:C090930EUR53189,31",
-        )
-        .unwrap();
-
-        let tag_20 = TransactionReferenceNumber::new("3996-11-11111111");
-        let tag_25 = AccountIdentification::new("DABADKKK/111111-11111111");
-        let tag_28c = StatementNumber::new("00001/001").unwrap();
-        let tag_64 = ClosingAvailableBalance::new("C090930EUR53189,31").unwrap();
-
-        let mut tag_61: Vec<StatementLine> = vec![];
-        let mut tag_86: Vec<InformationToAccountOwner> = vec![];
-        tag_61.push(StatementLine::new("0909250925DR583,92NMSC1110030403010139//1234").unwrap());
-        tag_86.push(InformationToAccountOwner::new("11100304030101391234"));
-        tag_86.push(InformationToAccountOwner::new("Fees according to advice"));
-
-        assert_eq!(data.tag_20, tag_20);
-        assert_eq!(data.tag_25, tag_25);
-        assert_eq!(data.tag_28c, tag_28c);
-
-        assert_eq!(data.tag_61, tag_61);
-        assert_eq!(data.tag_86, tag_86);
-        assert_eq!(data.tag_64.unwrap(), tag_64);
-    }
-
-    #[test]
-    fn test_block_text_final() {
-        let data = Text::new(
-            ":20:3996-11-11111111
-                       :25:DABADKKK/111111-11111111
-                       :28C:00001/001
-                       :60F:C090924EUR54484,04
-                       :61:0909250925DR583,92NMSC1110030403010139//1234
-                       :86:11100304030101391234
-                       :86:Fees according to advice
-                       :62F:C090930EUR53126,94
-                       :64:C090930EUR53189,31",
-        )
-        .unwrap();
-
-        let tag_60 = OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04").unwrap();
-        let tag_62 = BookedFunds::new(BalanceType::Final, "C090930EUR53126,94").unwrap();
-
-        assert_eq!(data.tag_60, tag_60);
-        assert_eq!(data.tag_62, tag_62);
-    }
-
-    #[test]
-    fn test_block_text_intermediary() {
-        let data = Text::new(
-            ":20:3996-11-11111111
-                       :25:DABADKKK/111111-11111111
-                       :28C:00001/001
-                       :60M:C090924EUR54484,04
-                       :61:0909250925DR583,92NMSC1110030403010139//1234
-                       :86:11100304030101391234
-                       :86:Fees according to advice
-                       :62M:C090930EUR53126,94
-                       :64:C090930EUR53189,31",
-        )
-        .unwrap();
-
-        let tag_60 = OpeningBalance::new(BalanceType::Intermediary, "C090924EUR54484,04").unwrap();
-        let tag_62 = BookedFunds::new(BalanceType::Intermediary, "C090930EUR53126,94").unwrap();
-
-        assert_eq!(data.tag_60, tag_60);
-        assert_eq!(data.tag_62, tag_62);
     }
 
     #[test]
@@ -527,7 +372,4 @@ mod tests {
         )
         .unwrap();
     }
-
-    #[test]
-    fn test_block_trailer() {}
 }

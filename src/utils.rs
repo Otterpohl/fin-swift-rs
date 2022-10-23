@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveTime, NaiveDateTime, Datelike};
+use chrono::{Datelike, NaiveDate, NaiveDateTime, NaiveTime};
 use eyre::{eyre, Result};
 use iso3166_1::alpha2; // country
 use iso_currency::Currency;
@@ -23,6 +23,7 @@ impl TryFrom<&str> for SwiftType {
 }
 
 #[allow(clippy::upper_case_acronyms)]
+#[cfg(not(tarpaulin_include))]
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum TransactionType {
     BNK,
@@ -87,6 +88,7 @@ pub enum TransactionType {
 impl TryFrom<&str> for TransactionType {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "BNK" => Ok(TransactionType::BNK),
@@ -162,6 +164,7 @@ pub enum IO {
 impl TryFrom<&str> for IO {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "I" => Ok(IO::Input),
@@ -183,6 +186,7 @@ pub enum ApplicationId {
 impl TryFrom<&str> for ApplicationId {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "F" => Ok(ApplicationId::F),
@@ -204,6 +208,7 @@ pub enum ServiceId {
 impl TryFrom<&str> for ServiceId {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "21" => Ok(ServiceId::FinGpa),
@@ -237,6 +242,7 @@ impl CreditDebit {
 impl TryFrom<&str> for CreditDebit {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "CR" | "RC" => Ok(CreditDebit::CreditReversal),
@@ -266,6 +272,7 @@ pub enum FundsCode {
 impl TryFrom<&str> for FundsCode {
     type Error = eyre::Error;
 
+    #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
             "S" => Ok(FundsCode::SwiftTransfer),
@@ -513,144 +520,176 @@ pub fn float_from_swift_amount(amount: &str) -> Result<f64> {
 
 #[cfg(test)]
 mod tests {
-    use chrono::{Timelike, Datelike};
+    use chrono::{Datelike, Timelike};
 
     use super::*;
 
     #[test]
-    fn test_amount_with_scale() {
-        let amount = float_from_swift_amount("379,29").unwrap();
-
-        assert_eq!(amount, 379.29)
+    fn test_amount_with_scale() -> Result<()> {
+        assert_eq!(float_from_swift_amount("379,29")?, 379.29);
+        Ok(())
     }
 
     #[test]
-    fn test_amount_without_scale() {
-        let amount = float_from_swift_amount("379,").unwrap();
-
-        assert_eq!(amount, 379.0)
+    fn test_amount_without_scale() -> Result<()> {
+        assert_eq!(float_from_swift_amount("379,")?, 379.0);
+        Ok(())
     }
 
     #[test]
-    fn test_amount_without_comma() {
-        let amount = float_from_swift_amount("379.").unwrap();
-
-        assert_eq!(amount, 379.0);
+    fn test_amount_without_comma() -> Result<()> {
+        assert_eq!(float_from_swift_amount("379.")?, 379.0);
+        Ok(())
     }
 
     #[test]
-    fn test_date_long_year() {
-        let date = naive_date_from_swift_date("20090924").unwrap();
+    fn test_date_long_year() -> Result<()> {
+        let date = naive_date_from_swift_date("20090924")?;
 
         assert_eq!(date.year(), 2009);
         assert_eq!(date.month(), 9);
         assert_eq!(date.day(), 24);
+        Ok(())
     }
 
     #[test]
-    fn test_date_short_year() {
-        let date = naive_date_from_swift_date("090924").unwrap();
+    fn test_date_short_year() -> Result<()> {
+        let date = naive_date_from_swift_date("090924")?;
 
         assert_eq!(date.year(), 2009);
         assert_eq!(date.month(), 9);
         assert_eq!(date.day(), 24);
+        Ok(())
     }
 
     #[test]
-    fn test_date_no_year() {
+    fn test_date_no_year() -> Result<()> {
         let date = naive_date_from_swift_date("0924").unwrap();
 
         assert_eq!(date.year(), chrono::Utc::now().year());
         assert_eq!(date.month(), 9);
         assert_eq!(date.day(), 24);
+        Ok(())
     }
 
     #[test]
-    fn test_time() {
+    fn test_time() -> Result<()> {
         let time = naive_time_from_swift_time("121413").unwrap();
 
         assert_eq!(time.hour(), 12);
         assert_eq!(time.minute(), 14);
         assert_eq!(time.second(), 13);
+        Ok(())
     }
 
     #[test]
     #[should_panic(expected = "Invalid swift date provided")]
-    fn test_date_bad() {
+    fn test_date_bad_data() {
         naive_date_from_swift_date("").unwrap();
     }
 
     #[test]
-    fn test_business_identifier_code() {
-        let bic_code = BusinessIdentifierCode::new("ASNBNL21").unwrap();
+    fn test_datetime() -> Result<()> {
+        let datetime = naive_date_time_from_swift_date_time("18071715301204").unwrap();
+        assert_eq!(datetime.year(), 2018);
+        assert_eq!(datetime.month(), 7);
+        assert_eq!(datetime.day(), 17);
+        assert_eq!(datetime.hour(), 15);
+        assert_eq!(datetime.minute(), 30);
+        assert_eq!(datetime.second(), 12);
+        Ok(())
+    }
+
+    #[test]
+    fn test_business_identifier_code() -> Result<()> {
+        let bic_code = BusinessIdentifierCode::new("ASNBNL21")?;
 
         assert_eq!(bic_code.business_party_prefix, "ASNB");
         assert_eq!(bic_code.country_code, "NL");
         assert_eq!(bic_code.business_party_suffix, "21");
+        Ok(())
     }
 
     #[test]
-    fn test_logical_terminal_address() {
-        let logical_terminal_address = LogicalTerminalAddress::new("ASNBNL21XXXX").unwrap();
+    fn test_logical_terminal_address() -> Result<()> {
+        let lta = LogicalTerminalAddress::new("ASNBNL21XXXX")?;
 
-        assert_eq!(
-            logical_terminal_address.bic_code,
-            BusinessIdentifierCode::new("ASNBNL21").unwrap()
-        );
-        assert_eq!(logical_terminal_address.terminal_code, "X");
-        assert_eq!(logical_terminal_address.branch_code, "XXX");
+        assert_eq!(lta.bic_code, BusinessIdentifierCode::new("ASNBNL21")?);
+        assert_eq!(lta.terminal_code, "X");
+        assert_eq!(lta.branch_code, "XXX");
+        Ok(())
     }
 
     #[test]
-    fn test_credit_or_debit_credit() {
-        let credit = CreditDebit::try_from("C").unwrap();
-        assert_eq!(credit, CreditDebit::Credit);
-    }
-
-    #[test]
-    fn test_credit_or_debit_debit() {
-        let debit = CreditDebit::try_from("D").unwrap();
-        assert_eq!(debit, CreditDebit::Debit);
+    fn test_credit_or_debit() -> Result<()> {
+        assert_eq!(CreditDebit::try_from("C")?, CreditDebit::Credit);
+        assert_eq!(CreditDebit::try_from("D")?, CreditDebit::Debit);
+        Ok(())
     }
 
     #[test]
     #[should_panic(expected = "Credit Debit is either missing or the value 'A' is not valid")]
-    fn test_credit_or_debit() {
+    fn test_credit_or_debit_bad_data() {
         CreditDebit::try_from("A").unwrap();
     }
 
     #[test]
-    fn test_currency_code() {
-        let currency_code = Currency::from_code("EUR").unwrap();
-
-        assert_eq!(currency_code, Currency::EUR);
+    fn test_currency_code() -> Result<()> {
+        assert_eq!(Currency::from_code("EUR").unwrap(), Currency::EUR);
+        Ok(())
     }
 
     #[test]
-    fn test_funds_code() {
-        let swift_transfer = FundsCode::try_from("S").unwrap();
-        assert_eq!(swift_transfer, FundsCode::SwiftTransfer);
-
-        let swift_transfer = FundsCode::try_from("N").unwrap();
-        assert_eq!(swift_transfer, FundsCode::NonSwiftTransfer);
-
-        let swift_transfer = FundsCode::try_from("F").unwrap();
-        assert_eq!(swift_transfer, FundsCode::FirstAdvice);
+    fn test_funds_code() -> Result<()> {
+        assert_eq!(FundsCode::try_from("S")?, FundsCode::SwiftTransfer);
+        assert_eq!(FundsCode::try_from("N")?, FundsCode::NonSwiftTransfer);
+        assert_eq!(FundsCode::try_from("F")?, FundsCode::FirstAdvice);
+        Ok(())
     }
 
     #[test]
     #[should_panic(expected = "Funds Code is either missing or the value 'T' is not valid")]
-    fn test_funds_code_bad() {
+    fn test_funds_code_bad_data() {
         FundsCode::try_from("T").unwrap();
     }
 
     #[test]
-    fn test_balance() {
-        let balance = Balance::new("C090930EUR53189,31").unwrap();
+    fn test_balance() -> Result<()> {
+        let balance = Balance::new("C090930EUR53189,31")?;
 
         assert_eq!(balance.credit_or_debit, CreditDebit::Credit);
         assert_eq!(balance.date, NaiveDate::from_ymd(2009, 9, 30));
         assert_eq!(balance.currency, Currency::EUR);
         assert_eq!(balance.amount, 53189.31);
+        Ok(())
+    }
+
+    #[test]
+    fn test_message_input_reference() -> Result<()> {
+        let mir = MessageInputReference::new("120811BANKBEBBAXXX2222123456")?;
+        assert_eq!(mir.date.year(), 2012);
+        assert_eq!(mir.date.month(), 8);
+        assert_eq!(mir.date.day(), 11);
+        assert_eq!(mir.lt_identifier, "BANKBEBBAXXX");
+        assert_eq!(mir.branch_code, "222");
+        assert_eq!(mir.session_number, 2123);
+        assert_eq!(mir.sequence_number, 456);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_address_information() -> Result<()> {
+        let ai = AddressInformation::new(" 121413 121413 DE BANKDECDA123")?;
+
+        assert_eq!(ai.time_of_crediting.hour(), 12);
+        assert_eq!(ai.time_of_crediting.minute(), 14);
+        assert_eq!(ai.time_of_crediting.second(), 13);
+        assert_eq!(ai.time_of_debiting.hour(), 12);
+        assert_eq!(ai.time_of_debiting.minute(), 14);
+        assert_eq!(ai.time_of_debiting.second(), 13);
+        assert_eq!(ai.country_code, "DE");
+        assert_eq!(ai.internal_posting_reference, "BANKDECDA123");
+        Ok(())
     }
 }

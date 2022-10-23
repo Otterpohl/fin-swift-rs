@@ -81,7 +81,7 @@ pub struct StatementLine<'a> {
     pub funds_code: FundsCode,
     pub transaction_type: Option<TransactionType>,
     pub account_owner_reference: &'a str,
-    pub account_servicing_insitution_reference: Option<&'a str>,
+    pub account_servicing_institution_reference: Option<&'a str>,
     pub supplementary_details: Option<&'a str>,
 }
 
@@ -166,7 +166,7 @@ impl<'a> StatementLine<'a> {
             funds_code,
             transaction_type,
             account_owner_reference,
-            account_servicing_insitution_reference,
+            account_servicing_institution_reference: account_servicing_insitution_reference,
             supplementary_details,
         })
     }
@@ -388,31 +388,35 @@ mod tests {
     use iso_currency::Currency;
 
     #[test]
-    fn test_transaction_reference_number() {
-        let reference = TransactionReferenceNumber::new("3996-11-11111111");
-
-        assert_eq!(reference.transaction_reference_number, "3996-11-11111111");
+    fn test_transaction_reference_number() -> Result<()> {
+        assert_eq!(
+            TransactionReferenceNumber::new("3996-11-11111111").transaction_reference_number,
+            "3996-11-11111111"
+        ); // TODO do we need to parse this or is it just free text?
+        Ok(())
     }
 
     #[test]
-    fn test_account_identification() {
-        let account = AccountIdentification::new("DABADKKK/111111-11111111");
-
-        assert_eq!(account.account_identification, "DABADKKK/111111-11111111");
+    fn test_account_identification() -> Result<()> {
+        assert_eq!(
+            AccountIdentification::new("DABADKKK/111111-11111111").account_identification,
+            "DABADKKK/111111-11111111"
+        );
+        Ok(())
     }
 
     #[test]
-    fn test_statement_number() {
-        let statement = StatementNumber::new("00001/001").unwrap();
+    fn test_statement_number() -> Result<()> {
+        let statement = StatementNumber::new("00001/001")?;
 
         assert_eq!(statement.statement_number, 1);
         assert_eq!(statement.sequence_number, 1);
+        Ok(())
     }
 
     #[test]
-    fn test_opening_balance() {
-        let opening_balance =
-            OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04").unwrap();
+    fn test_opening_balance() -> Result<()> {
+        let opening_balance = OpeningBalance::new(BalanceType::Final, "C090924EUR54484,04")?;
 
         assert_eq!(
             opening_balance.balance_data.credit_or_debit,
@@ -424,11 +428,12 @@ mod tests {
         );
         assert_eq!(opening_balance.balance_data.currency, Currency::EUR);
         assert_eq!(opening_balance.balance_data.amount, 54484.04);
+        Ok(())
     }
 
     #[test]
-    fn test_booked_funds() {
-        let booked_funds = BookedFunds::new(BalanceType::Final, "C090924EUR54484,04").unwrap();
+    fn test_booked_funds() -> Result<()> {
+        let booked_funds = BookedFunds::new(BalanceType::Final, "C090924EUR54484,04")?;
 
         assert_eq!(
             booked_funds.balance_data.credit_or_debit,
@@ -440,11 +445,12 @@ mod tests {
         );
         assert_eq!(booked_funds.balance_data.currency, Currency::EUR);
         assert_eq!(booked_funds.balance_data.amount, 54484.04);
+        Ok(())
     }
 
     #[test]
-    fn test_closing_available_funds() {
-        let closing_available_funds = ClosingAvailableBalance::new("C090924EUR54484,04").unwrap();
+    fn test_closing_available_funds() -> Result<()> {
+        let closing_available_funds = ClosingAvailableBalance::new("C090924EUR54484,04")?;
 
         assert_eq!(
             closing_available_funds.balance_data.credit_or_debit,
@@ -456,67 +462,63 @@ mod tests {
         );
         assert_eq!(closing_available_funds.balance_data.currency, Currency::EUR);
         assert_eq!(closing_available_funds.balance_data.amount, 54484.04);
+        Ok(())
     }
 
     #[test]
-    fn test_information_to_account_owner() {
-        let information_to_account_owner =
-            InformationToAccountOwner::new("Fees according to advice");
-
+    fn test_information_to_account_owner() -> Result<()> {
         assert_eq!(
-            information_to_account_owner.information_to_account_owner,
+            InformationToAccountOwner::new("Fees according to advice").information_to_account_owner,
             "Fees according to advice"
         );
+        Ok(())
     }
 
     #[test]
-    fn test_statement_line() {
-        let statement_line =
-            StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234").unwrap();
+    fn test_statement_line() -> Result<()> {
+        let sl = StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234")?;
 
-        assert_eq!(statement_line.value_date, NaiveDate::from_ymd(2009, 9, 29));
-        assert_eq!(statement_line.entry_date, NaiveDate::from_ymd(2022, 9, 29));
-        assert_eq!(statement_line.amount, 55.0);
-        assert_eq!(statement_line.funds_code, FundsCode::NonSwiftTransfer);
-        assert_eq!(statement_line.transaction_type, Some(TransactionType::MSC));
-        assert_eq!(statement_line.account_owner_reference, "0000000000000269");
-        assert_eq!(
-            statement_line.account_servicing_insitution_reference,
-            Some("//1234")
-        );
-        assert_eq!(statement_line.supplementary_details, None);
+        assert_eq!(sl.value_date, NaiveDate::from_ymd(2009, 9, 29));
+        assert_eq!(sl.entry_date, NaiveDate::from_ymd(2022, 9, 29));
+        assert_eq!(sl.amount, 55.0);
+        assert_eq!(sl.funds_code, FundsCode::NonSwiftTransfer);
+        assert_eq!(sl.transaction_type, Some(TransactionType::MSC));
+        assert_eq!(sl.account_owner_reference, "0000000000000269");
+        assert_eq!(sl.account_servicing_institution_reference, Some("//1234"));
+        assert_eq!(sl.supplementary_details, None);
+        Ok(())
     }
 
     #[test]
-    fn test_statement_line_credit() {
-        let statement_line =
-            StatementLine::new("0909290929C55,00NMSC0000000000000269//1234").unwrap();
+    fn test_statement_line_credit() -> Result<()> {
+        let sl = StatementLine::new("0909290929C55,00NMSC0000000000000269//1234")?;
 
-        assert_eq!(statement_line.debit_or_credit, CreditDebit::Credit);
+        assert_eq!(sl.debit_or_credit, CreditDebit::Credit);
+        Ok(())
     }
 
     #[test]
-    fn test_statement_line_debit() {
-        let statement_line =
-            StatementLine::new("0909290929D55,00NMSC0000000000000269//1234").unwrap();
+    fn test_statement_line_debit() -> Result<()> {
+        let sl = StatementLine::new("0909290929D55,00NMSC0000000000000269//1234")?;
 
-        assert_eq!(statement_line.debit_or_credit, CreditDebit::Debit);
+        assert_eq!(sl.debit_or_credit, CreditDebit::Debit);
+        Ok(())
     }
 
     #[test]
-    fn test_statement_line_credit_reversal() {
-        let statement_line =
-            StatementLine::new("0909290929CR55,00NMSC0000000000000269//1234").unwrap();
+    fn test_statement_line_credit_reversal() -> Result<()> {
+        let sl = StatementLine::new("0909290929CR55,00NMSC0000000000000269//1234")?;
 
-        assert_eq!(statement_line.debit_or_credit, CreditDebit::CreditReversal);
+        assert_eq!(sl.debit_or_credit, CreditDebit::CreditReversal);
+        Ok(())
     }
 
     #[test]
-    fn test_statement_line_debit_reversal() {
-        let statement_line =
-            StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234").unwrap();
+    fn test_statement_line_debit_reversal() -> Result<()> {
+        let sl = StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234")?;
 
-        assert_eq!(statement_line.debit_or_credit, CreditDebit::DebitReversal);
+        assert_eq!(sl.debit_or_credit, CreditDebit::DebitReversal);
+        Ok(())
     }
 
     #[test]
@@ -529,5 +531,79 @@ mod tests {
     #[should_panic(expected = "Funds Code is either missing or the value 'M' is not valid")]
     fn test_statement_line_missing_funds_code() {
         StatementLine::new("0909290929DR55,00MSC0000000000000269//1234").unwrap();
+    }
+
+    #[test]
+    fn test_service_identifier() -> Result<()> {
+        let si = ServiceIdentifier::new("CAD");
+
+        assert_eq!(si.service_identifier, "CAD");
+        assert_eq!(si.service_identifier.len(), 3);
+        Ok(())
+    }
+
+    #[test]
+    fn test_banking_priority() -> Result<()> {
+        let bp = BankingPriority::new("xxxx");
+
+        assert_eq!(bp.banking_priority, "xxxx");
+        assert_eq!(bp.banking_priority.len(), 4);
+        Ok(())
+    }
+
+    #[test]
+    fn test_message_user_reference() -> Result<()> {
+        let mur = MessageUserReference::new("xxxx");
+
+        assert_eq!(mur.message_user_reference, "xxxx");
+        assert!(mur.message_user_reference.len() <= 16);
+        Ok(())
+    }
+
+    #[test]
+    fn test_related_reference() -> Result<()> {
+        let rr = RelatedReference::new("PQAB1234");
+
+        assert_eq!(rr.related_reference, "PQAB1234");
+        assert!(rr.related_reference.len() <= 16);
+        Ok(())
+    }
+
+    #[test]
+    fn test_service_type_identifier() -> Result<()> {
+        let sti = ServiceTypeIdentifier::new("DER");
+
+        assert_eq!(sti.service_type_identifier, "DER");
+        assert_eq!(sti.service_type_identifier.len(), 3);
+        Ok(())
+    }
+
+    
+    #[test]
+    fn test_payment_release_information_receiver() -> Result<()> {
+        let prir = PaymentReleaseInformationReceiver::new("DERASDFQWERTY");
+
+        assert_eq!(prir.payment_release_information_receiver, "DERASDFQWERTY");
+        assert!(prir.payment_release_information_receiver.len() <= 34);
+        Ok(())
+    }
+
+    #[test]
+    fn test_payment_controls_information() -> Result<()> {
+        let pci = PaymentControlsInformation::new("/FPO");
+
+        assert_eq!(pci.codeword, "FPO");
+        assert_eq!(pci.additional_information, "");
+        Ok(())
+    }
+
+    
+    #[test]
+    fn test_sanctions_screening_information() -> Result<()> {
+        let ssi = SanctionsScreeningInformation::new("/AOK")?;
+
+        assert_eq!(ssi.codeword, SanctionScreenType::AOK);
+        assert_eq!(ssi.additional_information, "");
+        Ok(())
     }
 }
