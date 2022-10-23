@@ -325,3 +325,51 @@ impl<'a> Trailer<'a> {
         Self { data }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tag::*;
+    use crate::utils::*;
+
+    #[test]
+    #[should_panic(expected = "Application Id is either missing or the value 'T' is not valid")]
+    fn test_block_basic_application_id() {
+        Basic::new("T01ASNBNL21XXXX0000000000").unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "Service Id is either missing or the value '02' is not valid")]
+    fn test_block_service_id() {
+        Basic::new("F02ASNBNL21XXXX0000000000").unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "IO is either missing or the value 'B' is not valid")]
+    fn test_block_application_input_output_id() {
+        Application::new("B940ASNBNL21XXXXN").unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "Swift Type is either missing or the value '537' is not valid")]
+    fn test_block_application_message_type() {
+        Application::new("O537ASNBNL21XXXXN").unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "unexpected block key `69M` in Basic block")]
+    fn test_block_text_wrong_tag() {
+        Text::new(
+            ":20:3996-11-11111111
+                       :25:DABADKKK/111111-11111111
+                       :28C:00001/001
+                       :69M:C090924EUR54484,04
+                       :61:0909250925DR583,92NMSC1110030403010139//1234
+                       :86:11100304030101391234
+                       :86:Fees according to advice
+                       :62M:C090930EUR53126,94
+                       :64:C090930EUR53189,31",
+        )
+        .unwrap();
+    }
+}
