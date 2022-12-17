@@ -1,3 +1,11 @@
+// #![warn(
+//     clippy::all,
+//     clippy::restriction,
+//     clippy::pedantic,
+//     clippy::nursery,
+//     clippy::cargo
+// )] // generated 739 warnings - Lord help me
+
 use crate::mt940::MT940;
 use eyre::Result;
 use std::time::Instant;

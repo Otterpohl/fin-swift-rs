@@ -578,7 +578,6 @@ mod tests {
         Ok(())
     }
 
-    
     #[test]
     fn test_payment_release_information_receiver() -> Result<()> {
         let prir = PaymentReleaseInformationReceiver::new("DERASDFQWERTY");
@@ -597,7 +596,6 @@ mod tests {
         Ok(())
     }
 
-    
     #[test]
     fn test_sanctions_screening_information() -> Result<()> {
         let ssi = SanctionsScreeningInformation::new("/AOK")?;
