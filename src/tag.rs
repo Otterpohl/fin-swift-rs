@@ -7,7 +7,7 @@ use eyre::Result;
 use serde::Serialize;
 
 // Tag20
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct TransactionReferenceNumber<'a> {
     pub transaction_reference_number: &'a str,
 }
@@ -21,7 +21,7 @@ impl<'a> TransactionReferenceNumber<'a> {
 }
 
 // Tag25
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct AccountIdentification<'a> {
     pub account_identification: &'a str,
 }
@@ -35,7 +35,7 @@ impl<'a> AccountIdentification<'a> {
 }
 
 // Tag28C
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct StatementNumber {
     pub statement_number: u32,
     pub sequence_number: u32,
@@ -116,7 +116,7 @@ impl<'a> StatementLine<'a> {
             }
         }
 
-        let amount = float_from_swift_amount(&amount_string)?;
+        let amount: f64 = float_from_swift_amount(&amount_string)?;
 
         // float will truncate the 0 and so the len will be 1 char short, check the string instead!
         index += amount_string.to_string().len();
@@ -189,7 +189,7 @@ impl BookedFunds {
 }
 
 // Tag64
-#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct ClosingAvailableBalance {
     pub balance_data: Balance,
 }
@@ -203,7 +203,7 @@ impl ClosingAvailableBalance {
 }
 
 // Tag86
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct InformationToAccountOwner<'a> {
     pub information_to_account_owner: &'a str,
 }
@@ -216,7 +216,7 @@ impl<'a> InformationToAccountOwner<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 // Tag103
 pub struct ServiceIdentifier<'a> {
     pub service_identifier: &'a str,
@@ -235,7 +235,7 @@ impl<'a> ServiceIdentifier<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 // Tag113
 pub struct BankingPriority<'a> {
     pub banking_priority: &'a str,
@@ -254,7 +254,7 @@ impl<'a> BankingPriority<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 // Tag108
 pub struct MessageUserReference<'a> {
     pub message_user_reference: &'a str,
@@ -273,7 +273,7 @@ impl<'a> MessageUserReference<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 // Tag119
 pub struct Validation {
     pub validation_flag: ValidationFlag,
@@ -287,7 +287,7 @@ impl Validation {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 // Tag424
 pub struct RelatedReference<'a> {
     pub related_reference: &'a str,
@@ -306,7 +306,7 @@ impl<'a> RelatedReference<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 // Tag111
 pub struct ServiceTypeIdentifier<'a> {
     pub service_type_identifier: &'a str,
@@ -325,7 +325,7 @@ impl<'a> ServiceTypeIdentifier<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 // Tag165
 pub struct PaymentReleaseInformationReceiver<'a> {
     pub payment_release_information_receiver: &'a str,
@@ -344,7 +344,7 @@ impl<'a> PaymentReleaseInformationReceiver<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 // Tag433
 pub struct SanctionsScreeningInformation<'a> {
     pub codeword: SanctionScreenType,
@@ -363,7 +363,7 @@ impl<'a> SanctionsScreeningInformation<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 // Tag434
 pub struct PaymentControlsInformation<'a> {
     pub codeword: &'a str,
@@ -385,6 +385,7 @@ impl<'a> PaymentControlsInformation<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::*;
     use iso_currency::Currency;
 
     #[test]
@@ -479,7 +480,10 @@ mod tests {
         let sl = StatementLine::new("0909290929DR55,00NMSC0000000000000269//1234")?;
 
         assert_eq!(sl.value_date, NaiveDate::from_ymd(2009, 9, 29));
-        assert_eq!(sl.entry_date, NaiveDate::from_ymd(2022, 9, 29));
+        assert_eq!(
+            sl.entry_date,
+            NaiveDate::from_ymd(chrono::Utc::now().year(), 9, 29)
+        );
         assert_eq!(sl.amount, 55.0);
         assert_eq!(sl.funds_code, FundsCode::NonSwiftTransfer);
         assert_eq!(sl.transaction_type, Some(TransactionType::MSC));

@@ -4,7 +4,7 @@ use iso3166_1::alpha2; // country
 use iso_currency::Currency;
 use serde::Serialize;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum SwiftType {
     Mt940,
 }
@@ -155,7 +155,7 @@ impl TryFrom<&str> for TransactionType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum IO {
     Input,
     Output,
@@ -176,7 +176,7 @@ impl TryFrom<&str> for IO {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum ApplicationId {
     F,
     A,
@@ -199,7 +199,7 @@ impl TryFrom<&str> for ApplicationId {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum ServiceId {
     FinGpa,
     AckNak,
@@ -220,7 +220,7 @@ impl TryFrom<&str> for ServiceId {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum CreditDebit {
     Credit,
     Debit,
@@ -229,7 +229,7 @@ pub enum CreditDebit {
 }
 
 impl CreditDebit {
-    pub fn value(self) -> String {
+    pub fn value(&self) -> String {
         match self {
             CreditDebit::Credit => "C".to_string(),
             CreditDebit::Debit => "D".to_string(),
@@ -286,7 +286,7 @@ impl TryFrom<&str> for FundsCode {
 }
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum ValidationFlag {
     REMIT,
     RFDD,
@@ -310,7 +310,7 @@ impl TryFrom<&str> for ValidationFlag {
 }
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum SanctionScreenType {
     AOK,
     FPO,
@@ -380,7 +380,7 @@ impl<'a> LogicalTerminalAddress<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct Balance {
     pub credit_or_debit: CreditDebit,
     pub date: NaiveDate,
@@ -409,7 +409,7 @@ impl Balance {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct MessageInputReference<'a> {
     pub date: NaiveDate,
     pub lt_identifier: &'a str,
@@ -436,7 +436,7 @@ impl<'a> MessageInputReference<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct AddressInformation<'a> {
     pub time_of_crediting: NaiveTime,
     pub time_of_debiting: NaiveTime,

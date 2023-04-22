@@ -329,8 +329,6 @@ impl<'a> Trailer<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tag::*;
-    use crate::utils::*;
 
     #[test]
     #[should_panic(expected = "Application Id is either missing or the value 'T' is not valid")]

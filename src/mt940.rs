@@ -29,9 +29,8 @@ impl<'a> MT940<'a> {
             .collect();
 
         let mut block_end: Vec<usize> = block_start
-            .clone()
-            .into_iter()
-            .map(|x| if x == 0 { x } else { x - 1 })
+            .iter()
+            .map(|&x| if x == 0 { x } else { x - 1 })
             .collect();
 
         block_end.remove(0);
