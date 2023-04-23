@@ -14,8 +14,8 @@ impl TryFrom<&str> for SwiftType {
 
     fn try_from(input: &str) -> Result<Self> {
         match input {
-            "940" => Ok(SwiftType::Mt940),
-            _ => Err(eyre!(
+            "940" => Ok(Self::Mt940),
+            _ => return Err(eyre!(
                 "Swift Type is either missing or the value '{input}' is not valid"
             )),
         }
@@ -91,64 +91,64 @@ impl TryFrom<&str> for TransactionType {
     #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
-            "BNK" => Ok(TransactionType::BNK),
-            "BOE" => Ok(TransactionType::BOE),
-            "BRF" => Ok(TransactionType::BRF),
-            "CAR" => Ok(TransactionType::CAR),
-            "CAS" => Ok(TransactionType::CAS),
-            "CHG" => Ok(TransactionType::CHG),
-            "CHK" => Ok(TransactionType::CHK),
-            "CLR" => Ok(TransactionType::CLR),
-            "CMI" => Ok(TransactionType::CMI),
-            "CMN" => Ok(TransactionType::CMN),
-            "CMP" => Ok(TransactionType::CMP),
-            "CMS" => Ok(TransactionType::CMS),
-            "CMT" => Ok(TransactionType::CMT),
-            "CMZ" => Ok(TransactionType::CMZ),
-            "COL" => Ok(TransactionType::COL),
-            "COM" => Ok(TransactionType::COM),
-            "CPN" => Ok(TransactionType::CPN),
-            "DCR" => Ok(TransactionType::DCR),
-            "DDT" => Ok(TransactionType::DDT),
-            "DIS" => Ok(TransactionType::DIS),
-            "DIV" => Ok(TransactionType::DIV),
-            "EQA" => Ok(TransactionType::EQA),
-            "EXT" => Ok(TransactionType::EXT),
-            "FEX" => Ok(TransactionType::FEX),
-            "INT" => Ok(TransactionType::INT),
-            "LBX" => Ok(TransactionType::LBX),
-            "LDP" => Ok(TransactionType::LDP),
-            "MAR" => Ok(TransactionType::MAR),
-            "MAT" => Ok(TransactionType::MAT),
-            "MGT" => Ok(TransactionType::MGT),
-            "MSC" => Ok(TransactionType::MSC),
-            "NWI" => Ok(TransactionType::NWI),
-            "ODC" => Ok(TransactionType::ODC),
-            "OPT" => Ok(TransactionType::OPT),
-            "PCH" => Ok(TransactionType::PCH),
-            "POP" => Ok(TransactionType::POP),
-            "PRN" => Ok(TransactionType::PRN),
-            "REC" => Ok(TransactionType::REC),
-            "RED" => Ok(TransactionType::RED),
-            "RIG" => Ok(TransactionType::RIG),
-            "RTI" => Ok(TransactionType::RTI),
-            "SAL" => Ok(TransactionType::SAL),
-            "SEC" => Ok(TransactionType::SEC),
-            "SLE" => Ok(TransactionType::SLE),
-            "STO" => Ok(TransactionType::STO),
-            "STP" => Ok(TransactionType::STP),
-            "SUB" => Ok(TransactionType::SUB),
-            "SWP" => Ok(TransactionType::SWP),
-            "TAX" => Ok(TransactionType::TAX),
-            "TCK" => Ok(TransactionType::TCK),
-            "TCM" => Ok(TransactionType::TCM),
-            "TRA" => Ok(TransactionType::TRA),
-            "TRF" => Ok(TransactionType::TRF),
-            "TRN" => Ok(TransactionType::TRN),
-            "UWC" => Ok(TransactionType::UWC),
-            "VDA" => Ok(TransactionType::VDA),
-            "WAR" => Ok(TransactionType::WAR),
-            _ => Err(eyre!(
+            "BNK" => Ok(Self::BNK),
+            "BOE" => Ok(Self::BOE),
+            "BRF" => Ok(Self::BRF),
+            "CAR" => Ok(Self::CAR),
+            "CAS" => Ok(Self::CAS),
+            "CHG" => Ok(Self::CHG),
+            "CHK" => Ok(Self::CHK),
+            "CLR" => Ok(Self::CLR),
+            "CMI" => Ok(Self::CMI),
+            "CMN" => Ok(Self::CMN),
+            "CMP" => Ok(Self::CMP),
+            "CMS" => Ok(Self::CMS),
+            "CMT" => Ok(Self::CMT),
+            "CMZ" => Ok(Self::CMZ),
+            "COL" => Ok(Self::COL),
+            "COM" => Ok(Self::COM),
+            "CPN" => Ok(Self::CPN),
+            "DCR" => Ok(Self::DCR),
+            "DDT" => Ok(Self::DDT),
+            "DIS" => Ok(Self::DIS),
+            "DIV" => Ok(Self::DIV),
+            "EQA" => Ok(Self::EQA),
+            "EXT" => Ok(Self::EXT),
+            "FEX" => Ok(Self::FEX),
+            "INT" => Ok(Self::INT),
+            "LBX" => Ok(Self::LBX),
+            "LDP" => Ok(Self::LDP),
+            "MAR" => Ok(Self::MAR),
+            "MAT" => Ok(Self::MAT),
+            "MGT" => Ok(Self::MGT),
+            "MSC" => Ok(Self::MSC),
+            "NWI" => Ok(Self::NWI),
+            "ODC" => Ok(Self::ODC),
+            "OPT" => Ok(Self::OPT),
+            "PCH" => Ok(Self::PCH),
+            "POP" => Ok(Self::POP),
+            "PRN" => Ok(Self::PRN),
+            "REC" => Ok(Self::REC),
+            "RED" => Ok(Self::RED),
+            "RIG" => Ok(Self::RIG),
+            "RTI" => Ok(Self::RTI),
+            "SAL" => Ok(Self::SAL),
+            "SEC" => Ok(Self::SEC),
+            "SLE" => Ok(Self::SLE),
+            "STO" => Ok(Self::STO),
+            "STP" => Ok(Self::STP),
+            "SUB" => Ok(Self::SUB),
+            "SWP" => Ok(Self::SWP),
+            "TAX" => Ok(Self::TAX),
+            "TCK" => Ok(Self::TCK),
+            "TCM" => Ok(Self::TCM),
+            "TRA" => Ok(Self::TRA),
+            "TRF" => Ok(Self::TRF),
+            "TRN" => Ok(Self::TRN),
+            "UWC" => Ok(Self::UWC),
+            "VDA" => Ok(Self::VDA),
+            "WAR" => Ok(Self::WAR),
+            _ => return Err(eyre!(
                 "Transaction Type is either missing or the value '{input}' is not valid"
             )),
         }
@@ -167,9 +167,9 @@ impl TryFrom<&str> for IO {
     #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
-            "I" => Ok(IO::Input),
-            "O" => Ok(IO::Output),
-            _ => Err(eyre!(
+            "I" => Ok(Self::Input),
+            "O" => Ok(Self::Output),
+            _ => return Err(eyre!(
                 "IO is either missing or the value '{input}' is not valid"
             )),
         }
@@ -189,10 +189,10 @@ impl TryFrom<&str> for ApplicationId {
     #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
-            "F" => Ok(ApplicationId::F),
-            "A" => Ok(ApplicationId::A),
-            "L" => Ok(ApplicationId::L),
-            _ => Err(eyre!(
+            "F" => Ok(Self::F),
+            "A" => Ok(Self::A),
+            "L" => Ok(Self::L),
+            _ => return Err(eyre!(
                 "Application Id is either missing or the value '{input}' is not valid"
             )),
         }
@@ -211,9 +211,9 @@ impl TryFrom<&str> for ServiceId {
     #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
-            "21" => Ok(ServiceId::FinGpa),
-            "01" => Ok(ServiceId::AckNak),
-            _ => Err(eyre!(
+            "21" => Ok(Self::FinGpa),
+            "01" => Ok(Self::AckNak),
+            _ => return Err(eyre!(
                 "Service Id is either missing or the value '{input}' is not valid"
             )),
         }
@@ -231,10 +231,10 @@ pub enum CreditDebit {
 impl CreditDebit {
     pub fn value(&self) -> String {
         match self {
-            CreditDebit::Credit => "C".to_string(),
-            CreditDebit::Debit => "D".to_string(),
-            CreditDebit::CreditReversal => "CR".to_string(),
-            CreditDebit::DebitReversal => "DR".to_string(),
+            Self::Credit => "C".to_string(),
+            Self::Debit => "D".to_string(),
+            Self::CreditReversal => "CR".to_string(),
+            Self::DebitReversal => "DR".to_string(),
         }
     }
 }
@@ -245,11 +245,11 @@ impl TryFrom<&str> for CreditDebit {
     #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
-            "CR" | "RC" => Ok(CreditDebit::CreditReversal),
-            "DR" | "RD" => Ok(CreditDebit::DebitReversal),
-            "C" => Ok(CreditDebit::Credit),
-            "D" => Ok(CreditDebit::Debit),
-            _ => Err(eyre!(
+            "CR" | "RC" => Ok(Self::CreditReversal),
+            "DR" | "RD" => Ok(Self::DebitReversal),
+            "C" => Ok(Self::Credit),
+            "D" => Ok(Self::Debit),
+            _ => return Err(eyre!(
                 "Credit Debit is either missing or the value '{input}' is not valid"
             )),
         }
@@ -275,10 +275,10 @@ impl TryFrom<&str> for FundsCode {
     #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
-            "S" => Ok(FundsCode::SwiftTransfer),
-            "N" => Ok(FundsCode::NonSwiftTransfer),
-            "F" => Ok(FundsCode::FirstAdvice),
-            _ => Err(eyre!(
+            "S" => Ok(Self::SwiftTransfer),
+            "N" => Ok(Self::NonSwiftTransfer),
+            "F" => Ok(Self::FirstAdvice),
+            _ => return Err(eyre!(
                 "Funds Code is either missing or the value '{input}' is not valid"
             )),
         }
@@ -299,10 +299,10 @@ impl TryFrom<&str> for ValidationFlag {
     #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
-            "REMIT" => Ok(ValidationFlag::REMIT),
-            "RFDD" => Ok(ValidationFlag::RFDD),
-            "STP" => Ok(ValidationFlag::STP),
-            _ => Err(eyre!(
+            "REMIT" => Ok(Self::REMIT),
+            "RFDD" => Ok(Self::RFDD),
+            "STP" => Ok(Self::STP),
+            _ => return Err(eyre!(
                 "Validation Flag value is either missing or the value '{input}' is not valid"
             )),
         }
@@ -323,10 +323,10 @@ impl TryFrom<&str> for SanctionScreenType {
     #[cfg(not(tarpaulin_include))]
     fn try_from(input: &str) -> Result<Self> {
         match input {
-            "AOK" => Ok(SanctionScreenType::AOK),
-            "FPO" => Ok(SanctionScreenType::FPO),
-            "NOK" => Ok(SanctionScreenType::NOK),
-            _ => Err(eyre!(
+            "AOK" => Ok(Self::AOK),
+            "FPO" => Ok(Self::FPO),
+            "NOK" => Ok(Self::NOK),
+            _ => return Err(eyre!(
                 "Sanction Screen Type is either missing or the value '{input}' is not valid"
             )),
         }
@@ -486,19 +486,19 @@ pub fn naive_date_from_swift_date(date: &str) -> Result<NaiveDate> {
             date[2..].parse::<u32>()?,
         ))
     } else if date.len() == 6 {
-        Ok(NaiveDate::from_ymd(
+        return Ok(NaiveDate::from_ymd(
             2000 + date[..2].parse::<i32>()?,
             date[2..4].parse::<u32>()?,
             date[4..6].parse::<u32>()?,
         ))
     } else if date.len() == 8 {
-        Ok(NaiveDate::from_ymd(
+        return Ok(NaiveDate::from_ymd(
             date[..4].parse::<i32>()?,
             date[4..6].parse::<u32>()?,
             date[6..8].parse::<u32>()?,
         ))
     } else {
-        Err(eyre!("Invalid swift date provided"))
+        return Err(eyre!("Invalid swift date provided"))
     }
 }
 

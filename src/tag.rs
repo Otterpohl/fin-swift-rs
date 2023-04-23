@@ -45,7 +45,7 @@ impl StatementNumber {
     pub fn new(value: &str) -> Result<Self> {
         let statement_sequence_number = value
             .split('/')
-            .map(|x| x.strip_prefix('0').unwrap_or(x).parse::<u32>())
+            .map(|x| return x.strip_prefix('0').unwrap_or(x).parse::<u32>())
             .collect::<Result<Vec<_>, _>>()?;
 
         Ok(Self {
@@ -106,7 +106,7 @@ impl<'a> StatementLine<'a> {
 
         index += debit_or_credit.value().len();
 
-        let mut amount_string = "".to_string();
+        let mut amount_string = String::new();
 
         for c in value[index..index + 15].chars().map(|x| x.to_string()) {
             if c.parse::<u8>().is_ok() || c == "," {

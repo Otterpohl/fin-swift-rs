@@ -185,7 +185,7 @@ impl<'a> User<'a> {
                     payment_controls_information = Some(PaymentControlsInformation::new(value));
                 }
                 _ => {
-                    Err(eyre!("unexpected tag `{tag}` in User block"))?;
+                    return Err(eyre!("unexpected tag `{tag}` in User block"));
                 }
             }
         }
@@ -279,7 +279,7 @@ impl<'a> Text<'a> {
                     closing_available_balance = Some(ClosingAvailableBalance::new(value)?);
                 }
                 _ => {
-                    Err(eyre!("unexpected block key `{block_key}` in Basic block"))?;
+                    return Err(eyre!("unexpected block key `{block_key}` in Basic block"));
                 }
             };
         }

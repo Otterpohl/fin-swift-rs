@@ -25,7 +25,7 @@ impl<'a> MT940<'a> {
         let block_regex = Regex::new(r"(?m)(\{\d:)")?;
         let block_start: Vec<usize> = block_regex
             .captures_iter(message_data)
-            .map(|x| x.get(0).expect("").start())
+            .map(|x| return x.get(0).expect("").start())
             .collect();
 
         let mut block_end: Vec<usize> = block_start

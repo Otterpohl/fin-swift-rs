@@ -1,9 +1,9 @@
 // #![warn(
-//     clippy::all,
-//     clippy::restriction,
-//     clippy::pedantic,
-//     clippy::nursery,
-//     clippy::cargo
+//     // clippy::all,
+//     // clippy::restriction,
+//     // clippy::pedantic,
+//     // clippy::nursery,
+//     // clippy::cargo
 // )] // generated 739 warnings - Lord help me
 
 use crate::mt940::MT940;
@@ -23,10 +23,10 @@ fn main() -> Result<()> {
     let duration = start.elapsed();
 
     let serialized = serde_json::to_string_pretty(&swift)?;
-    println!("{}", serialized);
+    println!("{serialized}");
 
     //eprintln!("swift = {:#?}", swift.user);
     //eprintln!("swift = {:#?}", swift);
-    eprintln!("Time elapsed: {:?}", duration);
+    eprintln!("Time elapsed: {duration:?}");
     Ok(())
 }
